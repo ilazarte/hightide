@@ -116,6 +116,7 @@ public class WatchlistFragment extends Fragment {
     RecyclerView recyclerView;
 
     @OnItemSelected(R.id.spinner_watchlist)
+    @SuppressWarnings("unused")
     void selectWatchlist(int position) {
         Watchlist watchlist = watchlists.get(position);
         Log.i(TAG, "selectWatchlist: selected:" + watchlist);
@@ -136,7 +137,9 @@ public class WatchlistFragment extends Fragment {
         activity.setSupportActionBar(toolbar);
 
         ActionBar supportActionBar = activity.getSupportActionBar();
-        supportActionBar.setDisplayHomeAsUpEnabled(false);
+        if (supportActionBar != null) {
+            supportActionBar.setDisplayHomeAsUpEnabled(false);
+        }
 
         watchlists = service.findAllWatchlists();
         this.setSelectedWatchlist(savedInstanceState);
@@ -208,12 +211,10 @@ public class WatchlistFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_execute:
-                Log.i(TAG, "onOptionsItemSelected: execute");
                 Intent intent = RelativePerformanceActivity.newIntent(this.getActivity(), this.selectedWatchlist.getId());
                 startActivity(intent);
                 break;
             case R.id.action_refresh:
-                Log.i(TAG, "onOptionsItemSelected: refresh");
                 EventBus.getDefault().post(new RequestFilesStartEvent(this.selectedWatchlist));
                 break;
             case R.id.action_settings:

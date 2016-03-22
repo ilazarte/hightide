@@ -16,6 +16,7 @@ import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -43,9 +44,9 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         super(context, DatabaseHelper.class.getSimpleName(), null, 1);
     }
 
+    @SuppressWarnings({"unchecked", "unused"})
     public <T, U> RuntimeExceptionDao<T, U> getDaoByKey(Class<T> clazz, Class<U> typeClass) {
-        RuntimeExceptionDao<T, U> dao = (RuntimeExceptionDao<T, U>) getRuntimeExceptionDao(clazz);
-        return dao;
+        return getRuntimeExceptionDao(clazz);
     }
 
     @Override
@@ -60,20 +61,24 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             throw new RuntimeException(e);
         }
 
+        this.createInitialWatchlist("Main", MAIN_WATCHLIST);
+        this.createInitialWatchlist("Index", INDEX_WATCHLIST);
+    }
+
+    /**
+     * Create a watchlist and map the securities to the watchlist.
+     * @param watchlist A watchlist containing securities to be created if necessary.
+     */
+    public void createWatchlist(final Watchlist watchlist) {
+
         final RuntimeExceptionDao<Security, String> securityDao = getDaoByKey(Security.class, String.class);
+        final List<Security> securities = watchlist.getSecurities();
+
         securityDao.callBatchTasks(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                for (String symbol : MAIN_WATCHLIST) {
-                    Security security = new Security(symbol);
-                    if (!securityDao.idExists(symbol)) {
-                        securityDao.create(security);
-                    }
-                }
-
-                for (String symbol : INDEX_WATCHLIST) {
-                    Security security = new Security(symbol);
-                    if (!securityDao.idExists(symbol)) {
+                for (Security security : securities) {
+                    if (!securityDao.idExists(security.getSymbol())) {
                         securityDao.create(security);
                     }
                 }
@@ -82,24 +87,14 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         });
 
         RuntimeExceptionDao<Watchlist, Integer> watchlistDao = getDaoByKey(Watchlist.class, Integer.class);
-        final Watchlist mainWatchlist = new Watchlist("Main");
-        final Watchlist indexWatchlist = new Watchlist("Index");
-
-        watchlistDao.create(mainWatchlist);
-        watchlistDao.create(indexWatchlist);
-
+        watchlistDao.create(watchlist);
 
         final RuntimeExceptionDao<WatchlistSecurity, Integer> watchlistSecurityDao = getDaoByKey(WatchlistSecurity.class, Integer.class);
         watchlistSecurityDao.callBatchTasks(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                for (String symbol : MAIN_WATCHLIST) {
-                    WatchlistSecurity watchlistSecurity = new WatchlistSecurity(mainWatchlist, new Security(symbol));
-                    watchlistSecurityDao.create(watchlistSecurity);
-                }
-
-                for (String symbol : INDEX_WATCHLIST) {
-                    WatchlistSecurity watchlistSecurity = new WatchlistSecurity(indexWatchlist, new Security(symbol));
+                for (Security security : securities) {
+                    WatchlistSecurity watchlistSecurity = new WatchlistSecurity(watchlist, security);
                     watchlistSecurityDao.create(watchlistSecurity);
                 }
                 return null;
@@ -159,5 +154,22 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Should only be used by the initial database creation.
+     * @param watchlistName Name to create
+     * @param symbols An array of symbols
+     */
+    private void createInitialWatchlist(String watchlistName, String[] symbols) {
+        List<Security> securities = new ArrayList<>();
+        for (String symbol : symbols) {
+            Security security = new Security(symbol);
+            securities.add(security);
+        }
+
+        Watchlist watchlist = new Watchlist(watchlistName);
+        watchlist.setSecurities(securities);
+        this.createWatchlist(watchlist);
     }
 }

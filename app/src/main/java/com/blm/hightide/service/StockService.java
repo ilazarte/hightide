@@ -6,7 +6,9 @@ import android.util.Log;
 import com.blm.corals.Tick;
 import com.blm.corals.study.Operators;
 import com.blm.corals.study.window.Average;
+import com.blm.hightide.R;
 import com.blm.hightide.db.DatabaseHelper;
+import com.blm.hightide.events.FilesNotificationEvent;
 import com.blm.hightide.model.Security;
 import com.blm.hightide.model.Watchlist;
 import com.blm.hightide.util.YahooPriceHelper;
@@ -15,6 +17,8 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.manolovn.colorbrewer.ColorBrewer;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -158,13 +162,24 @@ public class StockService {
         YahooPriceHelper helper = new YahooPriceHelper(context);
 
         List<Security> securities = watchlist.getSecurities();
+        int max = securities.size();
+        int i = 0;
+
         for (Security security : securities) {
-            Log.i(TAG, "requesting daily for: " + security.getSymbol());
+
+            if (!security.isEnabled()) {
+                i++;
+                continue;
+            }
+
+            String message = context.getString(R.string.request_files_msg_fmt, security.getSymbol());
+            EventBus.getDefault().post(new FilesNotificationEvent(message, i, max));
 
             List<String> lines = helper.daily(security.getSymbol());
             helper.write(lines, security.getDailyFilename());
             List<Tick> ticks = helper.readDaily(lines);
             security.setTicks(ticks);
+            i++;
         }
     }
 
@@ -177,11 +192,24 @@ public class StockService {
         YahooPriceHelper helper = new YahooPriceHelper(context);
 
         List<Security> securities = watchlist.getSecurities();
+        int max = securities.size();
+        int i = 0;
+
         for (Security security : securities) {
-            Log.i(TAG, "reading daily for: " + security.getSymbol());
+
+            if (!security.isEnabled()) {
+                i++;
+                continue;
+
+            }
+
+            String message = context.getString(R.string.read_files_msg_fmt, security.getSymbol());
+            EventBus.getDefault().post(new FilesNotificationEvent(message, i, max));
+
             List<String> lines = helper.read(security.getDailyFilename());
             List<Tick> ticks = helper.readDaily(lines);
             security.setTicks(ticks);
+            i++;
         }
     }
 
@@ -200,6 +228,4 @@ public class StockService {
         }
         return axis;
     }
-
-
 }
