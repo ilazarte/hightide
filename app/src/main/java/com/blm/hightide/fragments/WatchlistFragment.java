@@ -1,5 +1,6 @@
 package com.blm.hightide.fragments;
 
+import android.app.usage.UsageEvents;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -23,12 +24,16 @@ import android.widget.TextView;
 
 import com.blm.hightide.R;
 import com.blm.hightide.activity.RelativePerformanceActivity;
+import com.blm.hightide.events.RequestFilesCompleteEvent;
+import com.blm.hightide.events.RequestFilesInitEvent;
 import com.blm.hightide.events.RequestFilesStartEvent;
 import com.blm.hightide.model.Security;
 import com.blm.hightide.model.Watchlist;
 import com.blm.hightide.service.StockService;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -119,14 +124,17 @@ public class WatchlistFragment extends Fragment {
     @SuppressWarnings("unused")
     void selectWatchlist(int position) {
         Watchlist watchlist = watchlists.get(position);
-        Log.i(TAG, "selectWatchlist: selected:" + watchlist);
         this.selectedWatchlist = watchlist;
+        EventBus.getDefault().post(new RequestFilesInitEvent(this.selectedWatchlist));
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
+        Log.i(TAG, "onCreateView: creating view in ACTIVITY");
+
+        EventBus.getDefault().register(this);
         setHasOptionsMenu(true);
         View view = inflater.inflate(R.layout.fragment_stock_compare, container, false);
         ButterKnife.bind(this, view);
@@ -138,6 +146,7 @@ public class WatchlistFragment extends Fragment {
 
         ActionBar supportActionBar = activity.getSupportActionBar();
         if (supportActionBar != null) {
+            supportActionBar.setTitle(null);
             supportActionBar.setDisplayHomeAsUpEnabled(false);
         }
 
@@ -152,6 +161,12 @@ public class WatchlistFragment extends Fragment {
         this.setSpinner(supportActionBar);
 
         return view;
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onRequestCompleted(RequestFilesCompleteEvent event) {
+        adapter = new Adapter(event.getWatchlist().getSecurities());
+        recyclerView.setAdapter(adapter);
     }
 
     @Override
@@ -215,7 +230,7 @@ public class WatchlistFragment extends Fragment {
                 startActivity(intent);
                 break;
             case R.id.action_refresh:
-                EventBus.getDefault().post(new RequestFilesStartEvent(this.selectedWatchlist));
+                EventBus.getDefault().post(new RequestFilesInitEvent(this.selectedWatchlist));
                 break;
             case R.id.action_settings:
                 Log.i(TAG, "onOptionsItemSelected: settings");
@@ -228,6 +243,7 @@ public class WatchlistFragment extends Fragment {
 
     @Override
     public void onDestroy() {
+        EventBus.getDefault().unregister(this);
         super.onDestroy();
         service.release();
     }

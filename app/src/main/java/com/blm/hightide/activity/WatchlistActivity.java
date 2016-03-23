@@ -1,12 +1,12 @@
 package com.blm.hightide.activity;
 
-import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
 import com.blm.hightide.R;
 import com.blm.hightide.events.FilesNotificationEvent;
 import com.blm.hightide.events.RequestFilesCompleteEvent;
+import com.blm.hightide.events.RequestFilesInitEvent;
 import com.blm.hightide.events.RequestFilesStartEvent;
 import com.blm.hightide.fragments.WatchlistFragment;
 import com.blm.hightide.model.Watchlist;
@@ -23,10 +23,8 @@ public class WatchlistActivity extends AbstractBaseActivity {
 
     private StockService service = new StockService();
 
-    private ProgressDialog progressDialog;
-
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         service.init(this);
         EventBus.getDefault().register(this);
@@ -37,10 +35,18 @@ public class WatchlistActivity extends AbstractBaseActivity {
         return WatchlistFragment.newInstance();
     }
 
+    @Subscribe
+    public void onRequestInit(RequestFilesInitEvent event) {
+        Watchlist watchlist = event.getWatchlist();
+        service.findSecurities(watchlist);
+        this.initProgressDialog(R.string.request_files, watchlist.getSecurities().size());
+
+        EventBus.getDefault().post(new RequestFilesStartEvent(watchlist));
+    }
+
     @Subscribe(threadMode = ThreadMode.ASYNC)
     public void onRequestData(RequestFilesStartEvent event) {
         Watchlist watchlist = event.getWatchlist();
-        service.findSecurities(watchlist);
         service.requestDailyTicks(watchlist);
 
         EventBus.getDefault().post(new RequestFilesCompleteEvent(watchlist));
@@ -48,7 +54,7 @@ public class WatchlistActivity extends AbstractBaseActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onRequestNotification(FilesNotificationEvent event) {
-        notifyFileProgress(event, R.string.request_files);
+        notifyFileProgress(event);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

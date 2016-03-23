@@ -1,7 +1,5 @@
 package com.blm.hightide.events;
 
-import com.blm.hightide.model.Watchlist;
-
 public class LoadFilesCompleteEvent {
 
     private LineDataAvailableEvent lineDataAvailableEvent;

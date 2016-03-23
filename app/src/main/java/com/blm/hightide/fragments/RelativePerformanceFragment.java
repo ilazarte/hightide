@@ -6,11 +6,11 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.blm.hightide.R;
 import com.blm.hightide.events.LineDataAvailableEvent;
-import com.blm.hightide.events.LoadFilesStartEvent;
+import com.blm.hightide.events.LoadFilesInitEvent;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -34,6 +34,9 @@ public class RelativePerformanceFragment extends Fragment {
 
     @Bind(R.id.chart)
     LineChart chart;
+
+    @Bind(R.id.textview_overlay)
+    TextView textview;
 
     public static RelativePerformanceFragment newInstance(int watchlistId) {
         Bundle args = new Bundle();
@@ -64,6 +67,7 @@ public class RelativePerformanceFragment extends Fragment {
         ButterKnife.bind(this, view);
 
         chart.setNoDataText(this.getString(R.string.loading));
+        chart.setDescription(null);
         chart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
             @Override
             public void onValueSelected(Entry entry, int dataSetIndex, Highlight h) {
@@ -72,12 +76,10 @@ public class RelativePerformanceFragment extends Fragment {
 
                 ILineDataSet dataset = lineData.getDataSetByIndex(dataSetIndex);
                 String date = xAxis.getValues().get(h.getXIndex());
+                String val = Float.valueOf(entry.getVal()).toString();
+                String msg = date + " " + dataset.getLabel() + " " + val;
 
-                String msg = date + ": " + dataset.getLabel() + " => " + entry.getVal();
-                Toast.makeText(
-                        RelativePerformanceFragment.this.getActivity(),
-                        msg,
-                        Toast.LENGTH_LONG).show();
+                textview.setText(msg);
             }
 
             @Override
@@ -86,7 +88,7 @@ public class RelativePerformanceFragment extends Fragment {
         });
 
         int watchlistId = this.getArguments().getInt(WATCHLIST_ID);
-        EventBus.getDefault().post(new LoadFilesStartEvent(watchlistId));
+        EventBus.getDefault().post(new LoadFilesInitEvent(watchlistId));
 
         return view;
     }

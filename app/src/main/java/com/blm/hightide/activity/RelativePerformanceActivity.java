@@ -9,6 +9,7 @@ import com.blm.hightide.R;
 import com.blm.hightide.events.FilesNotificationEvent;
 import com.blm.hightide.events.LineDataAvailableEvent;
 import com.blm.hightide.events.LoadFilesCompleteEvent;
+import com.blm.hightide.events.LoadFilesInitEvent;
 import com.blm.hightide.events.LoadFilesStartEvent;
 import com.blm.hightide.fragments.RelativePerformanceFragment;
 import com.blm.hightide.model.Watchlist;
@@ -38,7 +39,7 @@ public class RelativePerformanceActivity extends AbstractBaseActivity {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         EventBus.getDefault().register(this);
         super.onCreate(savedInstanceState);
         service.init(this);
@@ -50,12 +51,21 @@ public class RelativePerformanceActivity extends AbstractBaseActivity {
         return RelativePerformanceFragment.newInstance(watchlistId);
     }
 
+    @Subscribe
+    public void onLoadFileInitEvent(LoadFilesInitEvent event) {
+
+        int watchlistId = event.getWatchlistId();
+        Watchlist watchlist = service.findWatchlist(watchlistId);
+        service.findSecurities(watchlist);
+        this.initProgressDialog(R.string.read_files, watchlist.getSecurities().size());
+
+        EventBus.getDefault().post(new LoadFilesStartEvent(watchlist));
+    }
+
     @Subscribe(threadMode = ThreadMode.ASYNC)
     public void onLoadRequest(LoadFilesStartEvent event) {
 
-        int id = event.getWatchlistId();
-        Watchlist watchlist = service.findWatchlist(id);
-        service.findSecurities(watchlist);
+        Watchlist watchlist = event.getWatchlist();
         service.readDailyTicks(watchlist);
 
         /**
@@ -74,13 +84,12 @@ public class RelativePerformanceActivity extends AbstractBaseActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onReadNotification(FilesNotificationEvent event) {
-        this.notifyFileProgress(event, R.string.read_files);
+        this.notifyFileProgress(event);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onLoadFilesCompleteEvent(LoadFilesCompleteEvent event) {
-        this.completeFileProgress(R.string.read_files_complete);
-        EventBus.getDefault().post(event.getLineDataAvailableEvent());
+        this.completeFileProgress(R.string.read_files_complete, event.getLineDataAvailableEvent());
     }
 
     @Subscribe

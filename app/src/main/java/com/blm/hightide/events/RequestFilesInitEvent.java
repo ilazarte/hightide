@@ -2,10 +2,11 @@ package com.blm.hightide.events;
 
 import com.blm.hightide.model.Watchlist;
 
-public class LoadFilesStartEvent {
+public class RequestFilesInitEvent {
+
     private Watchlist watchlist;
 
-    public LoadFilesStartEvent(Watchlist watchlist) {
+    public RequestFilesInitEvent(Watchlist watchlist) {
         this.watchlist = watchlist;
     }
 

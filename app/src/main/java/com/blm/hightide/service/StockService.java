@@ -7,6 +7,7 @@ import com.blm.corals.Tick;
 import com.blm.corals.study.Operators;
 import com.blm.corals.study.window.Average;
 import com.blm.hightide.R;
+import com.blm.hightide.activity.AbstractBaseActivity;
 import com.blm.hightide.db.DatabaseHelper;
 import com.blm.hightide.events.FilesNotificationEvent;
 import com.blm.hightide.model.Security;
@@ -163,23 +164,23 @@ public class StockService {
 
         List<Security> securities = watchlist.getSecurities();
         int max = securities.size();
-        int i = 0;
+        int incr = 1;
 
         for (Security security : securities) {
 
             if (!security.isEnabled()) {
-                i++;
+                incr++;
                 continue;
             }
 
             String message = context.getString(R.string.request_files_msg_fmt, security.getSymbol());
-            EventBus.getDefault().post(new FilesNotificationEvent(message, i, max));
+            EventBus.getDefault().post(new FilesNotificationEvent(message, incr, max));
 
             List<String> lines = helper.daily(security.getSymbol());
             helper.write(lines, security.getDailyFilename());
             List<Tick> ticks = helper.readDaily(lines);
             security.setTicks(ticks);
-            i++;
+            incr++;
         }
     }
 
@@ -193,23 +194,23 @@ public class StockService {
 
         List<Security> securities = watchlist.getSecurities();
         int max = securities.size();
-        int i = 0;
+        int incr = 1;
 
         for (Security security : securities) {
 
             if (!security.isEnabled()) {
-                i++;
+                incr++;
                 continue;
 
             }
 
             String message = context.getString(R.string.read_files_msg_fmt, security.getSymbol());
-            EventBus.getDefault().post(new FilesNotificationEvent(message, i, max));
+            EventBus.getDefault().post(new FilesNotificationEvent(message, incr, max));
 
             List<String> lines = helper.read(security.getDailyFilename());
             List<Tick> ticks = helper.readDaily(lines);
             security.setTicks(ticks);
-            i++;
+            incr++;
         }
     }
 
