@@ -38,6 +38,12 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             "USO","EEM","QQQ","TLT"
     };
 
+    private static final String[] BIGNAMES_WATCHLIST = new String[] {
+            "AAPL", "AMZN", "NFLX", "BAC", "GS",
+            "FSLR", "GOOG", "XOM", "GLD", "SLV",
+            "SPY", "QQQ"
+    };
+
     private static final String TAG = DatabaseHelper.class.getSimpleName();
 
     public DatabaseHelper(Context context) {
@@ -61,6 +67,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             throw new RuntimeException(e);
         }
 
+        this.createInitialWatchlist("Big Names", BIGNAMES_WATCHLIST);
         this.createInitialWatchlist("Main", MAIN_WATCHLIST);
         this.createInitialWatchlist("Index", INDEX_WATCHLIST);
     }
