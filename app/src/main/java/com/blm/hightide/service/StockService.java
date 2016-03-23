@@ -1,13 +1,11 @@
 package com.blm.hightide.service;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.blm.corals.Tick;
 import com.blm.corals.study.Operators;
 import com.blm.corals.study.window.Average;
 import com.blm.hightide.R;
-import com.blm.hightide.activity.AbstractBaseActivity;
 import com.blm.hightide.db.DatabaseHelper;
 import com.blm.hightide.events.FilesNotificationEvent;
 import com.blm.hightide.model.Security;
@@ -141,8 +139,6 @@ public class StockService {
         dataset.setDrawCircles(false);
         dataSets.add(dataset);
 
-
-        Log.i(TAG, "getPriceAndAverage: avg" + avg);
         LineDataSet study = toLineDataSet("Average(" + avgLen + ")", avg);
         study.setColor(colorPalette[1]);
         study.setDrawCircles(false);
@@ -278,7 +274,6 @@ public class StockService {
         List<String> lines = helper.daily(security.getSymbol());
         helper.write(lines, security.getDailyFilename());
         List<Tick> ticks = helper.readDaily(lines);
-        Log.i(TAG, "requestDailyTicks: " + ticks);
         security.setTicks(ticks);
     }
 }
