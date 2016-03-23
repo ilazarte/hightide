@@ -6,12 +6,9 @@ public class FilesNotificationEvent {
 
     private int increment;
 
-    private int max;
-
-    public FilesNotificationEvent(String message, int increment, int max) {
+    public FilesNotificationEvent(String message, int increment) {
         this.message = message;
         this.increment = increment;
-        this.max = max;
     }
 
     public String getMessage() {
@@ -28,13 +25,5 @@ public class FilesNotificationEvent {
 
     public void setIncrement(int increment) {
         this.increment = increment;
-    }
-
-    public int getMax() {
-        return max;
-    }
-
-    public void setMax(int max) {
-        this.max = max;
     }
 }

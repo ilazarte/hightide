@@ -10,4 +10,7 @@
     <string name="read_files">Reading cached price data...</string>
     <string name="read_files_msg_fmt">Reading %s</string>
     <string name="read_files_complete">Read files complete.</string>
+    <string name="chart_security">Loading ticks for security...</string>
+    <string name="chart_security_msg_fmt">Loading %s</string>
+    <string name="chart_security_complete">Load ticks complete</string>
 </resources>

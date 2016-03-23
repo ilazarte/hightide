@@ -116,6 +116,42 @@ public class StockService {
     }
 
     /**
+     * Return a close value and the average calcualted for it.
+     * @param security The source security with ticks.
+     * @param lastN The number of the values to use from the right.
+     * @param avgLen The length of the average.
+     * @return
+     */
+    public List<ILineDataSet> getPriceAndAverage(Security security, int lastN, int avgLen) {
+
+        List<ILineDataSet> dataSets = new ArrayList<>();
+
+        int[] colorPalette = ColorBrewer.Spectral.getColorPalette(2);
+        List<Tick> ticks = security.getTicks();
+
+        List<Double> fullval = op.get(ticks, "close");
+        List<Double> val = op.last(fullval, lastN);
+        List<Double> allavg = op.window(val, avgLen, new Average());
+
+        List<Double> close = op.range(val, avgLen);
+        List<Double> avg = op.range(allavg, avgLen);
+
+        LineDataSet dataset = toLineDataSet(security.getSymbol(), close);
+        dataset.setColor(colorPalette[0]);
+        dataset.setDrawCircles(false);
+        dataSets.add(dataset);
+
+
+        Log.i(TAG, "getPriceAndAverage: avg" + avg);
+        LineDataSet study = toLineDataSet("Average(" + avgLen + ")", avg);
+        study.setColor(colorPalette[1]);
+        study.setDrawCircles(false);
+        dataSets.add(study);
+
+        return dataSets;
+    }
+
+    /**
      * Perform a moving average calc over them.
      *
      * @param ticks Input
@@ -163,7 +199,6 @@ public class StockService {
         YahooPriceHelper helper = new YahooPriceHelper(context);
 
         List<Security> securities = watchlist.getSecurities();
-        int max = securities.size();
         int incr = 1;
 
         for (Security security : securities) {
@@ -174,7 +209,7 @@ public class StockService {
             }
 
             String message = context.getString(R.string.request_files_msg_fmt, security.getSymbol());
-            EventBus.getDefault().post(new FilesNotificationEvent(message, incr, max));
+            EventBus.getDefault().post(new FilesNotificationEvent(message, incr));
 
             List<String> lines = helper.daily(security.getSymbol());
             helper.write(lines, security.getDailyFilename());
@@ -193,7 +228,6 @@ public class StockService {
         YahooPriceHelper helper = new YahooPriceHelper(context);
 
         List<Security> securities = watchlist.getSecurities();
-        int max = securities.size();
         int incr = 1;
 
         for (Security security : securities) {
@@ -205,7 +239,7 @@ public class StockService {
             }
 
             String message = context.getString(R.string.read_files_msg_fmt, security.getSymbol());
-            EventBus.getDefault().post(new FilesNotificationEvent(message, incr, max));
+            EventBus.getDefault().post(new FilesNotificationEvent(message, incr));
 
             List<String> lines = helper.read(security.getDailyFilename());
             List<Tick> ticks = helper.readDaily(lines);
@@ -228,5 +262,23 @@ public class StockService {
             axis.add(sdf.format(tick.getTimestamp()));
         }
         return axis;
+    }
+
+    public Security findSecurity(String symbol) {
+        return helper.findSecurity(symbol);
+    }
+
+    public void requestDailyTicks(Security security) {
+
+        YahooPriceHelper helper = new YahooPriceHelper(context);
+
+        String message = context.getString(R.string.chart_security_msg_fmt, security.getSymbol());
+        EventBus.getDefault().post(new FilesNotificationEvent(message, 1));
+
+        List<String> lines = helper.daily(security.getSymbol());
+        helper.write(lines, security.getDailyFilename());
+        List<Tick> ticks = helper.readDaily(lines);
+        Log.i(TAG, "requestDailyTicks: " + ticks);
+        security.setTicks(ticks);
     }
 }

@@ -24,6 +24,7 @@ import android.widget.TextView;
 
 import com.blm.hightide.R;
 import com.blm.hightide.activity.RelativePerformanceActivity;
+import com.blm.hightide.activity.SecurityActivity;
 import com.blm.hightide.events.RequestFilesCompleteEvent;
 import com.blm.hightide.events.RequestFilesInitEvent;
 import com.blm.hightide.events.RequestFilesStartEvent;
@@ -40,6 +41,7 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.OnItemSelected;
 
 public class WatchlistFragment extends Fragment {
@@ -82,6 +84,12 @@ public class WatchlistFragment extends Fragment {
             symbol.setText(security.getSymbol());
             enabled.setChecked(security.isEnabled());
             this.security = security;
+        }
+
+        @OnClick(R.id.list_item_textview_security_symbol)
+        void clickSymbol() {
+            Intent intent = SecurityActivity.newIntent(WatchlistFragment.this.getActivity(), security.getSymbol());
+            startActivity(intent);
         }
     }
 

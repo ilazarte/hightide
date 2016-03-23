@@ -172,4 +172,9 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         watchlist.setSecurities(securities);
         this.createWatchlist(watchlist);
     }
+
+    public Security findSecurity(String symbol) {
+        RuntimeExceptionDao<Security, String> securityDao = this.getDaoByKey(Security.class, String.class);
+        return securityDao.queryForId(symbol);
+    }
 }
