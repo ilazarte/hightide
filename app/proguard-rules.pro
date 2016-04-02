@@ -27,3 +27,5 @@
 -keepclasseswithmembernames class * {
     @butterknife.* <methods>;
 }
+
+-dontwarn java.lang.invoke.*

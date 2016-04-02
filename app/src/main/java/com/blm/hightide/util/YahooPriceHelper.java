@@ -8,6 +8,7 @@ import com.blm.corals.PeriodType;
 import com.blm.corals.Tick;
 import com.blm.corals.YahooTickReader;
 import com.blm.corals.loader.HTTPURLLoader;
+import com.blm.hightide.model.Security;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
@@ -55,6 +56,17 @@ public class YahooPriceHelper {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Download and cache the ticks in a file
+     * @param security
+     * @return
+     */
+    public List<Tick> downloadAndCacheDailyTicks(Security security) {
+        List<String> lines = daily(security.getSymbol());
+        write(lines, security.getDailyFilename());
+        return readDaily(lines);
     }
 
     public List<String> read(String filename) {

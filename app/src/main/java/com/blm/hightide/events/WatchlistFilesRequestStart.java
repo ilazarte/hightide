@@ -1,10 +1,10 @@
 package com.blm.hightide.events;
 
-public class LoadFilesInitEvent {
+public class WatchlistFilesRequestStart {
 
     private int watchlistId;
 
-    public LoadFilesInitEvent(int watchlistId) {
+    public WatchlistFilesRequestStart(int watchlistId) {
         this.watchlistId = watchlistId;
     }
 

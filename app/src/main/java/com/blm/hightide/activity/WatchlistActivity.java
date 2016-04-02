@@ -2,20 +2,25 @@ package com.blm.hightide.activity;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 
 import com.blm.hightide.R;
-import com.blm.hightide.events.FilesNotificationEvent;
-import com.blm.hightide.events.RequestFilesCompleteEvent;
-import com.blm.hightide.events.RequestFilesInitEvent;
-import com.blm.hightide.events.RequestFilesStartEvent;
+import com.blm.hightide.events.WatchlistFilesRequestComplete;
+import com.blm.hightide.events.WatchlistFilesRequestStart;
 import com.blm.hightide.fragments.WatchlistFragment;
+import com.blm.hightide.model.Security;
 import com.blm.hightide.model.Watchlist;
 import com.blm.hightide.service.StockService;
+import com.blm.hightide.util.YahooPriceHelper;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.SubscriberExceptionEvent;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.List;
+
+import rx.Observable;
+import rx.schedulers.Schedulers;
 
 public class WatchlistActivity extends AbstractBaseActivity {
 
@@ -35,36 +40,41 @@ public class WatchlistActivity extends AbstractBaseActivity {
         return WatchlistFragment.newInstance();
     }
 
-    @Subscribe
-    public void onRequestInit(RequestFilesInitEvent event) {
-        Watchlist watchlist = event.getWatchlist();
-        service.findSecurities(watchlist);
-        this.initProgressDialog(R.string.request_files, watchlist.getSecurities().size());
-
-        EventBus.getDefault().post(new RequestFilesStartEvent(watchlist));
-    }
-
     @Subscribe(threadMode = ThreadMode.ASYNC)
-    public void onRequestData(RequestFilesStartEvent event) {
-        Watchlist watchlist = event.getWatchlist();
-        service.requestDailyTicks(watchlist);
+    @SuppressWarnings("unused")
+    public void onWatchlistFilesRequestStart(WatchlistFilesRequestStart event) {
 
-        EventBus.getDefault().post(new RequestFilesCompleteEvent(watchlist));
-    }
+        int watchlistId = event.getWatchlistId();
+        List<Watchlist> watchlists = service.findAllWatchlists();
+        final Watchlist wl = watchlistId < 0 ?
+                watchlists.get(0) :
+                service.findWatchlist(watchlistId);
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onRequestNotification(FilesNotificationEvent event) {
-        notifyFileProgress(event);
-    }
+        List<Security> securities = service.findSecurities(wl);
+        YahooPriceHelper helper = new YahooPriceHelper(this);
+        String fmt = this.getString(R.string.request_files_msg_fmt);
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onRequestCompleted(RequestFilesCompleteEvent event) {
-        completeFileProgress(R.string.request_files_complete);
-    }
+        initProgressDialog(R.string.request_files, securities.size());
 
-    @Subscribe
-    public void error(SubscriberExceptionEvent event) {
-        handleThrowable(TAG, event);
+        Observable.from(securities)
+                .filter(Security::isEnabled)
+                .flatMap(security ->
+                        Observable.just(security)
+                                .map(sec -> {
+                                    String msg = String.format(fmt, sec.getSymbol());
+                                    this.notifyFileProgress(msg, 1);
+                                    sec.setTicks(helper.downloadAndCacheDailyTicks(sec));
+                                    return sec;
+                                })
+                                .subscribeOn(Schedulers.io()))
+                .toList()
+                .subscribe(loadedSecurities -> {
+                    wl.setSecurities(loadedSecurities);
+                    this.completeFileProgress(R.string.request_files_complete, new WatchlistFilesRequestComplete(watchlists, wl));
+
+                }, error -> {
+                    Log.e(TAG, "onWatchlistFilesRequestStart: ", error);
+                });
     }
 
     @Override

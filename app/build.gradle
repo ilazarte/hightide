@@ -1,5 +1,6 @@
 repositories {
-     maven { url "https://jitpack.io" }
+    mavenCentral()
+    maven { url "https://jitpack.io" }
 }
 
 buildscript {
@@ -7,12 +8,12 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+        classpath 'me.tatarka:gradle-retrolambda:3.2.5'
     }
 }
 
 apply plugin: 'com.android.application'
-apply plugin: 'com.neenbedankt.android-apt'
+apply plugin: 'me.tatarka.retrolambda'
 
 android {
     compileSdkVersion 23
@@ -33,6 +34,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
@@ -49,6 +55,9 @@ dependencies {
     compile 'com.j256.ormlite:ormlite-android:4.48'
     compile 'com.j256.ormlite:ormlite-core:4.48'
     compile 'com.github.PhilJay:MPAndroidChart:v2.2.3'
+    compile 'io.reactivex:rxandroid:1.1.0'
+    compile 'io.reactivex:rxjava:1.1.2'
+
     compile 'com.google.guava:guava:19.0'
     compile 'com.manolovn:colorbrewer:1.0.1'
 }

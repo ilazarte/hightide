@@ -9,8 +9,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.blm.hightide.R;
-import com.blm.hightide.events.LineDataAvailableEvent;
-import com.blm.hightide.events.LoadFilesInitEvent;
+import com.blm.hightide.events.LineDataAvailable;
+import com.blm.hightide.events.WatchlistLoadFilesStart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -54,7 +54,7 @@ public class RelativePerformanceFragment extends Fragment {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onLineDataAvailable(LineDataAvailableEvent event) {
+    public void onLineDataAvailable(LineDataAvailable event) {
         chart.setData(event.getLineData());
         chart.invalidate();
     }
@@ -88,7 +88,7 @@ public class RelativePerformanceFragment extends Fragment {
         });
 
         int watchlistId = this.getArguments().getInt(WATCHLIST_ID);
-        EventBus.getDefault().post(new LoadFilesInitEvent(watchlistId));
+        EventBus.getDefault().post(new WatchlistLoadFilesStart(watchlistId));
 
         return view;
     }

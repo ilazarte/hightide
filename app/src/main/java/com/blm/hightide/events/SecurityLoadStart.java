@@ -1,10 +1,10 @@
 package com.blm.hightide.events;
 
-public class LoadSecurityInitEvent {
+public class SecurityLoadStart {
 
     private String symbol;
 
-    public LoadSecurityInitEvent(String symbol) {
+    public SecurityLoadStart(String symbol) {
         this.symbol = symbol;
     }
 

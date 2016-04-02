@@ -5,29 +5,19 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
+import com.blm.corals.Tick;
 import com.blm.hightide.R;
-import com.blm.hightide.events.FilesNotificationEvent;
-import com.blm.hightide.events.LineDataAvailableEvent;
-import com.blm.hightide.events.LoadFilesCompleteEvent;
-import com.blm.hightide.events.LoadFilesInitEvent;
-import com.blm.hightide.events.LoadFilesStartEvent;
-import com.blm.hightide.events.LoadSecurityInitEvent;
-import com.blm.hightide.events.LoadSecurityStartEvent;
-import com.blm.hightide.events.RequestFilesCompleteEvent;
-import com.blm.hightide.events.RequestFilesInitEvent;
-import com.blm.hightide.events.RequestFilesStartEvent;
-import com.blm.hightide.fragments.RelativePerformanceFragment;
+import com.blm.hightide.events.LineDataAvailable;
+import com.blm.hightide.events.SecurityLoadStart;
 import com.blm.hightide.fragments.SecurityFragment;
-import com.blm.hightide.fragments.WatchlistFragment;
 import com.blm.hightide.model.Security;
-import com.blm.hightide.model.Watchlist;
 import com.blm.hightide.service.StockService;
+import com.blm.hightide.util.YahooPriceHelper;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.SubscriberExceptionEvent;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
@@ -59,25 +49,27 @@ public class SecurityActivity extends AbstractBaseActivity {
         return SecurityFragment.newInstance(symbol);
     }
 
-    @Subscribe
-    public void onLoadSecurityInitEvent(LoadSecurityInitEvent event) {
+    /**
+     * TODO Make study params a ui configurable via RPF
+     * @param event the security load start
+     */
+    @Subscribe(threadMode = ThreadMode.ASYNC)
+    @SuppressWarnings("unused")
+    public void onSecurityLoadStart(SecurityLoadStart event) {
 
         String symbol = event.getSymbol();
         Security security = service.findSecurity(symbol);
         this.initProgressDialog(R.string.chart_security, 1);
 
-        EventBus.getDefault().post(new LoadSecurityStartEvent(security));
-    }
+        YahooPriceHelper helper = new YahooPriceHelper(this);
+        String message = this.getString(R.string.chart_security_msg_fmt, security.getSymbol());
+        this.notifyFileProgress(message, 1);
 
-    @Subscribe(threadMode = ThreadMode.ASYNC)
-    public void onLoadSecurity(LoadSecurityStartEvent event) {
+        List<String> lines = helper.daily(security.getSymbol());
+        helper.write(lines, security.getDailyFilename());
+        List<Tick> ticks = helper.readDaily(lines);
+        security.setTicks(ticks);
 
-        Security security = event.getSecurity();
-        service.requestDailyTicks(security);
-
-        /**
-         * Make this a ui configurable via RPF
-         */
         int lastN = 60;
         int avgLen = 20;
         int lastNTicks = lastN - avgLen;
@@ -86,22 +78,7 @@ public class SecurityActivity extends AbstractBaseActivity {
         List<String> xvals = service.toXAxis(security.getTicks(), lastNTicks);
         LineData data = new LineData(xvals, datasets);
 
-        EventBus.getDefault().post(new LoadFilesCompleteEvent(new LineDataAvailableEvent(data)));
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onReadNotification(FilesNotificationEvent event) {
-        this.notifyFileProgress(event);
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onLoadFilesCompleteEvent(LoadFilesCompleteEvent event) {
-        this.completeFileProgress(R.string.chart_security_complete, event.getLineDataAvailableEvent());
-    }
-
-    @Subscribe
-    public void error(SubscriberExceptionEvent event) {
-        handleThrowable(TAG, event);
+        this.completeFileProgress(R.string.chart_security_complete, new LineDataAvailable(data));
     }
 
     @Override

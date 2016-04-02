@@ -1,6 +1,5 @@
 package com.blm.hightide.fragments;
 
-import android.app.usage.UsageEvents;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -25,12 +24,10 @@ import android.widget.TextView;
 import com.blm.hightide.R;
 import com.blm.hightide.activity.RelativePerformanceActivity;
 import com.blm.hightide.activity.SecurityActivity;
-import com.blm.hightide.events.RequestFilesCompleteEvent;
-import com.blm.hightide.events.RequestFilesInitEvent;
-import com.blm.hightide.events.RequestFilesStartEvent;
+import com.blm.hightide.events.WatchlistFilesRequestComplete;
+import com.blm.hightide.events.WatchlistFilesRequestStart;
 import com.blm.hightide.model.Security;
 import com.blm.hightide.model.Watchlist;
-import com.blm.hightide.service.StockService;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -50,13 +47,13 @@ public class WatchlistFragment extends Fragment {
 
     private static final String WATCHLIST_ID = "WATCHLIST_ID";
 
-    private StockService service = new StockService();
-
     private List<Watchlist> watchlists;
 
     private Watchlist selectedWatchlist;
 
-    private Adapter adapter;
+    private ActionBar supportActionBar;
+
+    private boolean resettingSpinner = true;
 
     public static WatchlistFragment newInstance() {
         Bundle args = new Bundle();
@@ -87,6 +84,7 @@ public class WatchlistFragment extends Fragment {
         }
 
         @OnClick(R.id.list_item_textview_security_symbol)
+        @SuppressWarnings("unused")
         void clickSymbol() {
             Intent intent = SecurityActivity.newIntent(WatchlistFragment.this.getActivity(), security.getSymbol());
             startActivity(intent);
@@ -131,16 +129,18 @@ public class WatchlistFragment extends Fragment {
     @OnItemSelected(R.id.spinner_watchlist)
     @SuppressWarnings("unused")
     void selectWatchlist(int position) {
+        if (resettingSpinner) {
+            resettingSpinner = false;
+            return;
+        }
         Watchlist watchlist = watchlists.get(position);
         this.selectedWatchlist = watchlist;
-        EventBus.getDefault().post(new RequestFilesInitEvent(this.selectedWatchlist));
+        EventBus.getDefault().post(new WatchlistFilesRequestStart(watchlist.getId()));
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        Log.i(TAG, "onCreateView: creating view in ACTIVITY");
 
         EventBus.getDefault().register(this);
         setHasOptionsMenu(true);
@@ -148,7 +148,6 @@ public class WatchlistFragment extends Fragment {
         ButterKnife.bind(this, view);
 
         AppCompatActivity activity = (AppCompatActivity) this.getActivity();
-        service.init(activity);
 
         activity.setSupportActionBar(toolbar);
 
@@ -158,23 +157,30 @@ public class WatchlistFragment extends Fragment {
             supportActionBar.setDisplayHomeAsUpEnabled(false);
         }
 
-        watchlists = service.findAllWatchlists();
-        this.setSelectedWatchlist(savedInstanceState);
-        service.findSecurities(this.selectedWatchlist);
-
-        adapter = new Adapter(selectedWatchlist.getSecurities());
+        this.supportActionBar = supportActionBar;
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));
-        recyclerView.setAdapter(adapter);
+        recyclerView.setAdapter(new Adapter(new ArrayList<>()));
 
-        this.setSpinner(supportActionBar);
+        int watchlistId = this.getWatchlistId(savedInstanceState);
+        EventBus.getDefault().post(new WatchlistFilesRequestStart(watchlistId));
 
         return view;
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onRequestCompleted(RequestFilesCompleteEvent event) {
-        adapter = new Adapter(event.getWatchlist().getSecurities());
+    @SuppressWarnings("unused")
+    public void onRequestCompleted(WatchlistFilesRequestComplete event) {
+
+        Watchlist watchlist = event.getWatchlist();
+        List<Watchlist> watchlists = event.getWatchlists();
+        List<Security> securities = watchlist.getSecurities();
+
+        this.selectedWatchlist = watchlist;
+        this.watchlists = watchlists;
+
+        Adapter adapter = new Adapter(securities);
         recyclerView.setAdapter(adapter);
+        this.resetSpinner();
     }
 
     @Override
@@ -183,34 +189,24 @@ public class WatchlistFragment extends Fragment {
         inflater.inflate(R.menu.menu_stock_compare, menu);
     }
 
-    private void setSelectedWatchlist(Bundle savedInstanceState) {
-
-        int id = savedInstanceState == null ? -1 : savedInstanceState.getInt(WATCHLIST_ID, -1);
-
-        if (id != -1) {
-            for (Watchlist watchlist : watchlists) {
-                if (watchlist.getId().equals(id)) {
-                    this.selectedWatchlist = watchlist;
-                    break;
-                }
-            }
-        } else {
-            this.selectedWatchlist = watchlists.get(0);
-        }
+    private int getWatchlistId(Bundle savedInstanceState) {
+        return savedInstanceState == null ? -1 : savedInstanceState.getInt(WATCHLIST_ID, -1);
     }
 
-    private void setSpinner(ActionBar supportActionBar) {
+    private void resetSpinner() {
 
+        resettingSpinner = true;
         List<String> names = new ArrayList<>();
+
         for (Watchlist watchlist : watchlists) {
             names.add(watchlist.getName());
         }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(supportActionBar.getThemedContext(),
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(supportActionBar.getThemedContext(),
                 android.R.layout.simple_spinner_item,
                 names);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(spinnerAdapter);
 
         int idx = 0;
         for (Watchlist watchlist : watchlists) {
@@ -238,7 +234,7 @@ public class WatchlistFragment extends Fragment {
                 startActivity(intent);
                 break;
             case R.id.action_refresh:
-                EventBus.getDefault().post(new RequestFilesInitEvent(this.selectedWatchlist));
+                EventBus.getDefault().post(new WatchlistFilesRequestStart(this.selectedWatchlist.getId()));
                 break;
             case R.id.action_settings:
                 Log.i(TAG, "onOptionsItemSelected: settings");
@@ -253,6 +249,5 @@ public class WatchlistFragment extends Fragment {
     public void onDestroy() {
         EventBus.getDefault().unregister(this);
         super.onDestroy();
-        service.release();
     }
 }

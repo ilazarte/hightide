@@ -2,11 +2,11 @@ package com.blm.hightide.events;
 
 import com.github.mikephil.charting.data.LineData;
 
-public class LineDataAvailableEvent {
+public class LineDataAvailable {
 
     private LineData lineData;
 
-    public LineDataAvailableEvent(LineData watchlist) {
+    public LineDataAvailable(LineData watchlist) {
         this.lineData = watchlist;
     }
 

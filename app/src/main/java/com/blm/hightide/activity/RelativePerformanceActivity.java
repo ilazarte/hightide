@@ -4,25 +4,28 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 
+import com.blm.corals.Tick;
 import com.blm.hightide.R;
-import com.blm.hightide.events.FilesNotificationEvent;
-import com.blm.hightide.events.LineDataAvailableEvent;
-import com.blm.hightide.events.LoadFilesCompleteEvent;
-import com.blm.hightide.events.LoadFilesInitEvent;
-import com.blm.hightide.events.LoadFilesStartEvent;
+import com.blm.hightide.events.LineDataAvailable;
+import com.blm.hightide.events.WatchlistLoadFilesStart;
 import com.blm.hightide.fragments.RelativePerformanceFragment;
+import com.blm.hightide.model.Security;
 import com.blm.hightide.model.Watchlist;
 import com.blm.hightide.service.StockService;
+import com.blm.hightide.util.YahooPriceHelper;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.SubscriberExceptionEvent;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
+
+import rx.Observable;
+import rx.schedulers.Schedulers;
 
 public class RelativePerformanceActivity extends AbstractBaseActivity {
 
@@ -51,50 +54,53 @@ public class RelativePerformanceActivity extends AbstractBaseActivity {
         return RelativePerformanceFragment.newInstance(watchlistId);
     }
 
-    @Subscribe
-    public void onLoadFileInitEvent(LoadFilesInitEvent event) {
+    /**
+     * TODO make study parameters configurable via ui
+     * @param event The starting watchlist id
+     */
+    @Subscribe(threadMode = ThreadMode.ASYNC)
+    @SuppressWarnings("unused")
+    public void onWatchlistLoadFilesStart(WatchlistLoadFilesStart event) {
 
         int watchlistId = event.getWatchlistId();
         Watchlist watchlist = service.findWatchlist(watchlistId);
-        service.findSecurities(watchlist);
+        List<Security> securities = service.findSecurities(watchlist);
+        watchlist.setSecurities(securities);
+
+        YahooPriceHelper helper = new YahooPriceHelper(this);
+        String fmt = this.getString(R.string.read_files_msg_fmt);
+
         this.initProgressDialog(R.string.read_files, watchlist.getSecurities().size());
 
-        EventBus.getDefault().post(new LoadFilesStartEvent(watchlist));
-    }
+        Observable.from(securities)
+                .filter(Security::isEnabled)
+                .flatMap(security ->
+                        Observable.just(security)
+                                .map(sec -> {
+                                    String message = String.format(fmt, sec.getSymbol());
+                                    this.notifyFileProgress(message, 1);
+                                    List<String> lines = helper.read(sec.getDailyFilename());
+                                    List<Tick> ticks = helper.readDaily(lines);
+                                    sec.setTicks(ticks);
+                                    return sec;
+                                })
+                                .subscribeOn(Schedulers.io()))
+                .toList()
+                .subscribe(loadedSecurities -> {
 
-    @Subscribe(threadMode = ThreadMode.ASYNC)
-    public void onLoadRequest(LoadFilesStartEvent event) {
+                    int lastN = 60;
+                    int avgLen = 20;
+                    int lastNTicks = lastN - avgLen;
 
-        Watchlist watchlist = event.getWatchlist();
-        service.readDailyTicks(watchlist);
+                    watchlist.setSecurities(loadedSecurities);
+                    List<ILineDataSet> relative = service.getRelativeForAverage(watchlist, lastN, avgLen);
+                    List<String> xvals = service.toXAxis(watchlist.getSecurities().get(0).getTicks(), lastNTicks);
+                    LineData data = new LineData(xvals, relative);
 
-        /**
-         * Make this a ui configurable via RPF
-         */
-        int lastN = 60;
-        int avgLen = 20;
-        int lastNTicks = lastN - avgLen;
-
-        List<ILineDataSet> relative = service.getRelativeForAverage(watchlist, lastN, avgLen);
-        List<String> xvals = service.toXAxis(watchlist.getSecurities().get(0).getTicks(), lastNTicks);
-        LineData data = new LineData(xvals, relative);
-
-        EventBus.getDefault().post(new LoadFilesCompleteEvent(new LineDataAvailableEvent(data)));
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onReadNotification(FilesNotificationEvent event) {
-        this.notifyFileProgress(event);
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onLoadFilesCompleteEvent(LoadFilesCompleteEvent event) {
-        this.completeFileProgress(R.string.read_files_complete, event.getLineDataAvailableEvent());
-    }
-
-    @Subscribe
-    public void error(SubscriberExceptionEvent event) {
-        handleThrowable(TAG, event);
+                    this.completeFileProgress(R.string.read_files_complete, new LineDataAvailable(data));
+                }, error -> {
+                    Log.e(TAG, "onWatchlistLoadFilesStart: ", error);
+                });
     }
 
     @Override
@@ -104,4 +110,3 @@ public class RelativePerformanceActivity extends AbstractBaseActivity {
         service.release();
     }
 }
-

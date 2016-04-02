@@ -1,7 +1,6 @@
 package com.blm.hightide.activity;
 
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -12,15 +11,17 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.blm.hightide.R;
-import com.blm.hightide.events.FilesNotificationEvent;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.SubscriberExceptionEvent;
 
 import java.io.FileNotFoundException;
 import java.net.UnknownHostException;
 
 public abstract class AbstractBaseActivity extends AppCompatActivity {
+
+    private static final String TAG = AbstractBaseActivity.class.getSimpleName();
 
     private ProgressDialog progressDialog;
 
@@ -40,13 +41,9 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Displaying ongoing notification.
-     * @param event the file notification event.
-     */
-    public void notifyFileProgress(FilesNotificationEvent event) {
-        progressDialog.setProgress(event.getIncrement());
-        progressDialog.setMessage(event.getMessage());
+    @Subscribe
+    public void error(SubscriberExceptionEvent event) {
+        handleThrowable(TAG, event);
     }
 
     /**
@@ -56,21 +53,22 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
      * @param max The total number of notification points the dialog will receive
      */
     public void initProgressDialog(int initialMessage, int max) {
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage(getString(initialMessage));
-        progressDialog.setIndeterminate(false);
-        progressDialog.setMax(max);
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        progressDialog.setCancelable(false);
-        progressDialog.show();
+        this.runOnUiThread(() -> {
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setMessage(getString(initialMessage));
+            progressDialog.setIndeterminate(false);
+            progressDialog.setMax(max);
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        });
     }
 
-    /**
-     * @see #completeFileProgress(int, Object)
-     * @param completeMessage The message to render via snackbar
-     */
-    public void completeFileProgress(int completeMessage) {
-        completeFileProgress(completeMessage, null);
+    public void notifyFileProgress(String message, int incr) {
+        this.runOnUiThread(() -> {
+            progressDialog.setMessage(message);
+            progressDialog.setProgress(incr);
+        });
     }
 
     /**
@@ -79,24 +77,25 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
      * @param event A new event to trigger.  May be null.
      */
     public void completeFileProgress(final int completeMessage, final Object event) {
-        progressDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
+        this.runOnUiThread(() -> {
+            progressDialog.setOnDismissListener(dialog -> {
                 snack(getString(completeMessage));
                 if (event != null) {
                     EventBus.getDefault().post(event);
                 }
-            }
+            });
+            progressDialog.dismiss();
         });
-        progressDialog.dismiss();
     }
 
     public void handleThrowable(String tag, SubscriberExceptionEvent event) {
 
-        boolean showing = progressDialog != null && progressDialog.isShowing();
-        if (showing) {
-            progressDialog.dismiss();
-        }
+        this.runOnUiThread(() -> {
+            boolean showing = progressDialog != null && progressDialog.isShowing();
+            if (showing) {
+                progressDialog.dismiss();
+            }
+        });
 
         Throwable throwable = event.throwable;
         Log.e(tag, "handleThrowable: error in event handling:", throwable);

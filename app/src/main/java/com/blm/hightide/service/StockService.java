@@ -5,19 +5,14 @@ import android.content.Context;
 import com.blm.corals.Tick;
 import com.blm.corals.study.Operators;
 import com.blm.corals.study.window.Average;
-import com.blm.hightide.R;
 import com.blm.hightide.db.DatabaseHelper;
-import com.blm.hightide.events.FilesNotificationEvent;
 import com.blm.hightide.model.Security;
 import com.blm.hightide.model.Watchlist;
-import com.blm.hightide.util.YahooPriceHelper;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.manolovn.colorbrewer.ColorBrewer;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,6 +27,9 @@ public class StockService {
 
     private DatabaseHelper helper;
 
+    /**
+     * TODO leaving this in, as probably will migrate composable observables back
+     */
     private Context context;
 
     public StockService() {
@@ -182,66 +180,8 @@ public class StockService {
      * Load the securities for the watchlist.
      * @param watchlist A fresh watchlist from the db.
      */
-    public void findSecurities(Watchlist watchlist) {
-        List<Security> securities = helper.findSecuritiesByWatchlist(watchlist);
-        watchlist.setSecurities(securities);
-    }
-
-    /**
-     * @param watchlist the watchlist with preloaded securities, to load ticks for.
-     */
-    public void requestDailyTicks(Watchlist watchlist) {
-
-        YahooPriceHelper helper = new YahooPriceHelper(context);
-
-        List<Security> securities = watchlist.getSecurities();
-        int incr = 1;
-
-        for (Security security : securities) {
-
-            if (!security.isEnabled()) {
-                incr++;
-                continue;
-            }
-
-            String message = context.getString(R.string.request_files_msg_fmt, security.getSymbol());
-            EventBus.getDefault().post(new FilesNotificationEvent(message, incr));
-
-            List<String> lines = helper.daily(security.getSymbol());
-            helper.write(lines, security.getDailyFilename());
-            List<Tick> ticks = helper.readDaily(lines);
-            security.setTicks(ticks);
-            incr++;
-        }
-    }
-
-    /**
-     * Read from the request cache of an already downloaded file.
-     * @param watchlist the watchlist to load already requested tick files for
-     */
-    public void readDailyTicks(Watchlist watchlist) {
-
-        YahooPriceHelper helper = new YahooPriceHelper(context);
-
-        List<Security> securities = watchlist.getSecurities();
-        int incr = 1;
-
-        for (Security security : securities) {
-
-            if (!security.isEnabled()) {
-                incr++;
-                continue;
-
-            }
-
-            String message = context.getString(R.string.read_files_msg_fmt, security.getSymbol());
-            EventBus.getDefault().post(new FilesNotificationEvent(message, incr));
-
-            List<String> lines = helper.read(security.getDailyFilename());
-            List<Tick> ticks = helper.readDaily(lines);
-            security.setTicks(ticks);
-            incr++;
-        }
+    public List<Security> findSecurities(Watchlist watchlist) {
+        return helper.findSecuritiesByWatchlist(watchlist);
     }
 
     /**
@@ -262,18 +202,5 @@ public class StockService {
 
     public Security findSecurity(String symbol) {
         return helper.findSecurity(symbol);
-    }
-
-    public void requestDailyTicks(Security security) {
-
-        YahooPriceHelper helper = new YahooPriceHelper(context);
-
-        String message = context.getString(R.string.chart_security_msg_fmt, security.getSymbol());
-        EventBus.getDefault().post(new FilesNotificationEvent(message, 1));
-
-        List<String> lines = helper.daily(security.getSymbol());
-        helper.write(lines, security.getDailyFilename());
-        List<Tick> ticks = helper.readDaily(lines);
-        security.setTicks(ticks);
     }
 }
