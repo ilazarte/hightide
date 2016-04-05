@@ -135,7 +135,7 @@ public class WatchlistFragment extends Fragment {
         }
         Watchlist watchlist = watchlists.get(position);
         this.selectedWatchlist = watchlist;
-        EventBus.getDefault().post(new WatchlistFilesRequestStart(watchlist.getId()));
+        EventBus.getDefault().post(new WatchlistFilesRequestStart(watchlist.getId(), false));
     }
 
     @Nullable
@@ -162,7 +162,7 @@ public class WatchlistFragment extends Fragment {
         recyclerView.setAdapter(new Adapter(new ArrayList<>()));
 
         int watchlistId = this.getWatchlistId(savedInstanceState);
-        EventBus.getDefault().post(new WatchlistFilesRequestStart(watchlistId));
+        EventBus.getDefault().post(new WatchlistFilesRequestStart(watchlistId, true));
 
         return view;
     }
@@ -234,7 +234,7 @@ public class WatchlistFragment extends Fragment {
                 startActivity(intent);
                 break;
             case R.id.action_refresh:
-                EventBus.getDefault().post(new WatchlistFilesRequestStart(this.selectedWatchlist.getId()));
+                EventBus.getDefault().post(new WatchlistFilesRequestStart(this.selectedWatchlist.getId(), true));
                 break;
             case R.id.action_settings:
                 Log.i(TAG, "onOptionsItemSelected: settings");

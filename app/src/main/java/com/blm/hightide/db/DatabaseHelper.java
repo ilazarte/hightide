@@ -18,7 +18,6 @@ import com.j256.ormlite.table.TableUtils;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
@@ -81,31 +80,25 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         final RuntimeExceptionDao<Security, String> securityDao = getDaoByKey(Security.class, String.class);
         final List<Security> securities = watchlist.getSecurities();
 
-        securityDao.callBatchTasks(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                for (Security security : securities) {
-                    if (!securityDao.idExists(security.getSymbol())) {
-                        securityDao.create(security);
-                    }
+        securityDao.callBatchTasks(() -> {
+            for (Security security : securities) {
+                if (!securityDao.idExists(security.getSymbol())) {
+                    securityDao.create(security);
                 }
-                return null;
             }
+            return null;
         });
 
         RuntimeExceptionDao<Watchlist, Integer> watchlistDao = getDaoByKey(Watchlist.class, Integer.class);
         watchlistDao.create(watchlist);
 
         final RuntimeExceptionDao<WatchlistSecurity, Integer> watchlistSecurityDao = getDaoByKey(WatchlistSecurity.class, Integer.class);
-        watchlistSecurityDao.callBatchTasks(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                for (Security security : securities) {
-                    WatchlistSecurity watchlistSecurity = new WatchlistSecurity(watchlist, security);
-                    watchlistSecurityDao.create(watchlistSecurity);
-                }
-                return null;
+        watchlistSecurityDao.callBatchTasks(() -> {
+            for (Security security : securities) {
+                WatchlistSecurity watchlistSecurity = new WatchlistSecurity(watchlist, security);
+                watchlistSecurityDao.create(watchlistSecurity);
             }
+            return null;
         });
     }
 
@@ -113,6 +106,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
         try {
             Log.i(TAG, "Upgrade");
+            TableUtils.dropTable(connectionSource, WatchlistSecurity.class, true);
             TableUtils.dropTable(connectionSource, Security.class, true);
             TableUtils.dropTable(connectionSource, Watchlist.class, true);
             onCreate(database, connectionSource);

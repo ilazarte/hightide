@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.blm.hightide.R;
 
@@ -79,7 +80,7 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
     public void completeFileProgress(final int completeMessage, final Object event) {
         this.runOnUiThread(() -> {
             progressDialog.setOnDismissListener(dialog -> {
-                snack(getString(completeMessage));
+                snackbar(getString(completeMessage));
                 if (event != null) {
                     EventBus.getDefault().post(event);
                 }
@@ -101,9 +102,9 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
         Log.e(tag, "handleThrowable: error in event handling:", throwable);
 
         if (UnknownHostException.class.isAssignableFrom(throwable.getClass())) {
-            snack("error: " + throwable.getMessage());
+            snackbar("error: " + throwable.getMessage());
         } else if (FileNotFoundException.class.isAssignableFrom(throwable.getClass())) {
-            snack("error: " + throwable.getMessage());
+            snackbar("error: " + throwable.getMessage());
         } else {
             throw new RuntimeException(throwable);
         }
@@ -114,7 +115,27 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
         return viewById.getChildAt(0);
     }
 
-    public void snack(String message) {
+    /**
+     * Simple toast value
+     * @param id a resource id.
+     */
+    public void toast(int id) {
+        this.runOnUiThread(() -> {
+            String message = this.getString(id);
+            Toast toast = Toast.makeText(this, message, Toast.LENGTH_LONG);
+            toast.show();
+        });
+    }
+
+    /**
+     * Snackbar
+     * @param id a resourceid
+     */
+    public void snackbar(int id) {
+        snackbar(this.getString(id));
+    }
+
+    public void snackbar(String message) {
         Snackbar.make(this.getRootView(), message, Snackbar.LENGTH_LONG).show();
     }
 

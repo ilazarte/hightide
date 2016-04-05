@@ -1,10 +1,8 @@
 package com.blm.hightide.model;
 
-import com.blm.corals.Tick;
+import com.blm.corals.PriceData;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-
-import java.util.List;
 
 @DatabaseTable(tableName = "security")
 public class Security {
@@ -17,7 +15,7 @@ public class Security {
     @DatabaseField
     private boolean enabled = true;
 
-    private List<Tick> ticks;
+    private PriceData priceData;
 
     public Security() {
     }
@@ -42,12 +40,12 @@ public class Security {
         this.enabled = enabled;
     }
 
-    public List<Tick> getTicks() {
-        return ticks;
+    public PriceData getPriceData() {
+        return priceData;
     }
 
-    public void setTicks(List<Tick> ticks) {
-        this.ticks = ticks;
+    public void setPriceData(PriceData priceData) {
+        this.priceData = priceData;
     }
 
     public String getDailyFilename() {

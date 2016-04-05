@@ -8,19 +8,11 @@ import com.blm.hightide.R;
 import com.blm.hightide.events.WatchlistFilesRequestComplete;
 import com.blm.hightide.events.WatchlistFilesRequestStart;
 import com.blm.hightide.fragments.WatchlistFragment;
-import com.blm.hightide.model.Security;
-import com.blm.hightide.model.Watchlist;
 import com.blm.hightide.service.StockService;
-import com.blm.hightide.util.YahooPriceHelper;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-
-import java.util.List;
-
-import rx.Observable;
-import rx.schedulers.Schedulers;
 
 public class WatchlistActivity extends AbstractBaseActivity {
 
@@ -44,34 +36,17 @@ public class WatchlistActivity extends AbstractBaseActivity {
     @SuppressWarnings("unused")
     public void onWatchlistFilesRequestStart(WatchlistFilesRequestStart event) {
 
+        toast(R.string.read_files);
+
         int watchlistId = event.getWatchlistId();
-        List<Watchlist> watchlists = service.findAllWatchlists();
-        final Watchlist wl = watchlistId < 0 ?
-                watchlists.get(0) :
-                service.findWatchlist(watchlistId);
-
-        List<Security> securities = service.findSecurities(wl);
-        YahooPriceHelper helper = new YahooPriceHelper(this);
-        String fmt = this.getString(R.string.request_files_msg_fmt);
-
-        initProgressDialog(R.string.request_files, securities.size());
-
-        Observable.from(securities)
-                .filter(Security::isEnabled)
-                .flatMap(security ->
-                        Observable.just(security)
-                                .map(sec -> {
-                                    String msg = String.format(fmt, sec.getSymbol());
-                                    this.notifyFileProgress(msg, 1);
-                                    sec.setTicks(helper.downloadAndCacheDailyTicks(sec));
-                                    return sec;
-                                })
-                                .subscribeOn(Schedulers.io()))
-                .toList()
-                .subscribe(loadedSecurities -> {
-                    wl.setSecurities(loadedSecurities);
-                    this.completeFileProgress(R.string.request_files_complete, new WatchlistFilesRequestComplete(watchlists, wl));
-
+        boolean readRequest = event.isReadRequest();
+        service.findWatchlists()
+                .concatMap(wls ->
+                        service.findWatchlist(watchlistId, wls, true)
+                                .concatMap(wl -> service.setWatchlistPriceData(wl, readRequest))
+                                .map(wl -> new WatchlistFilesRequestComplete(wls, wl)))
+                .subscribe(complete -> {
+                    EventBus.getDefault().post(complete);
                 }, error -> {
                     Log.e(TAG, "onWatchlistFilesRequestStart: ", error);
                 });
