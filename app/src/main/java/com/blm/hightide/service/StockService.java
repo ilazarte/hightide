@@ -4,10 +4,13 @@ import android.content.Context;
 import android.util.Log;
 
 import com.blm.corals.PriceData;
+import com.blm.corals.ReadError;
 import com.blm.corals.Tick;
 import com.blm.corals.study.Operators;
 import com.blm.corals.study.window.Average;
 import com.blm.hightide.db.DatabaseHelper;
+import com.blm.hightide.model.FileData;
+import com.blm.hightide.model.FileLine;
 import com.blm.hightide.model.Security;
 import com.blm.hightide.model.Watchlist;
 import com.blm.hightide.util.YahooPriceHelper;
@@ -22,6 +25,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -177,6 +181,45 @@ public class StockService {
         if (helper != null) {
             OpenHelperManager.releaseHelper();
         }
+    }
+
+    /**
+     * @param security Using a populated instance, retrieve file data.
+     * @return Loaded file data
+     */
+    public FileData getFileData(Security security) {
+
+        List<FileLine> fileLines = new ArrayList<>();
+        PriceData priceData = yahooPriceHelper.readPriceData(security);
+        List<String> lines = yahooPriceHelper.read(security.getDailyFilename());
+
+        List<ReadError> errors = priceData.getErrors();
+        int lineNum = 1;
+
+        for (String line : lines) {
+            FileLine fileLine = new FileLine();
+            fileLine.setNum(lineNum);
+            fileLine.setLine(line);
+
+            if (errors != null && errors.size() != 0) {
+                Iterator<ReadError> it = errors.iterator();
+                while (it.hasNext()) {
+                    ReadError re = it.next();
+                    if (re.getLine() == lineNum) {
+                        fileLine.add(re);
+                        it.remove();
+                    }
+                }
+            }
+
+            fileLines.add(fileLine);
+            lineNum++;
+        }
+
+        FileData fileData = new FileData();
+        fileData.setName(security.getDailyFilename());
+        fileData.setLines(fileLines);
+        return fileData;
     }
 
     /**

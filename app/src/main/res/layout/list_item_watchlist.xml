@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+
+    <android.support.v7.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/list_item_cardview"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        card_view:cardCornerRadius="4dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/list_item_textview_security_symbol"
+                android:paddingTop="4dp"
+                android:paddingLeft="16dp"
+                android:paddingBottom="4dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="IWM" />
+
+            <TextView
+                android:id="@+id/list_item_textview_ticks_errors"
+                android:layout_marginLeft="8dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/list_item_textview_security_symbol"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="(0, 234)"/>
+
+            <CheckBox
+                android:id="@+id/list_item_checkbox_security_enabled"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:padding="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <ImageButton
+                android:id="@+id/list_item_imagebutton_load_file"
+                android:layout_toLeftOf="@id/list_item_checkbox_security_enabled"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_load_file"
+                android:padding="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <ImageButton
+                android:id="@+id/list_item_imagebutton_chart_security"
+                android:layout_toLeftOf="@id/list_item_imagebutton_load_file"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_chart_security"
+                android:padding="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
+</RelativeLayout>

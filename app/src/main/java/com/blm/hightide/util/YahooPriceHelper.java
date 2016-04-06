@@ -91,6 +91,11 @@ public class YahooPriceHelper {
         return this.readDaily(lines);
     }
 
+    /**
+     * Read the raw fileto a list of strings.
+     * @param filename
+     * @return
+     */
     public List<String> read(String filename) {
         File file = toFile(filename);
         List<String> lines;

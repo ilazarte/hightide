@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:clipChildren="false"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/list_item_textview_line_num"
+        android:layout_marginLeft="8dp"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        tools:text="84"/>
+
+    <TextView
+        android:id="@+id/list_item_textview_line_string"
+        android:layout_toRightOf="@id/list_item_textview_line_num"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Date,Open,High,Low,Close,Volume,Adj Close"/>
+
+</RelativeLayout>

@@ -22,9 +22,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.blm.hightide.activity.RelativePerformanceActivity"/>
+        <activity android:name=".activity.RelativePerformanceActivity"/>
 
-        <activity android:name="com.blm.hightide.activity.SecurityActivity"/>
+        <activity android:name=".activity.SecurityActivity"/>
+
+        <activity android:name=".activity.FileActivity"/>
     </application>
 
 </manifest>

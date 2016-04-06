@@ -18,10 +18,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.blm.corals.PriceData;
 import com.blm.hightide.R;
+import com.blm.hightide.activity.FileActivity;
 import com.blm.hightide.activity.RelativePerformanceActivity;
 import com.blm.hightide.activity.SecurityActivity;
 import com.blm.hightide.events.WatchlistFilesRequestComplete;
@@ -67,8 +70,30 @@ public class WatchlistFragment extends Fragment {
         @Bind(R.id.list_item_textview_security_symbol)
         TextView symbol;
 
+        @Bind(R.id.list_item_textview_ticks_errors)
+        TextView ticksErrors;
+
         @Bind(R.id.list_item_checkbox_security_enabled)
         CheckBox enabled;
+
+        @OnClick(R.id.list_item_imagebutton_load_file)
+        void clickFile(ImageButton imageButton) {
+            Intent intent = FileActivity.newIntent(WatchlistFragment.this.getActivity(), security.getSymbol());
+            startActivity(intent);
+        }
+
+        @OnClick(R.id.list_item_imagebutton_chart_security)
+        void clickChart(ImageButton imageButton) {
+            Intent intent = SecurityActivity.newIntent(WatchlistFragment.this.getActivity(), security.getSymbol());
+            startActivity(intent);
+        }
+
+        @OnClick(R.id.list_item_textview_security_symbol)
+        @SuppressWarnings("unused")
+        void clickSymbol() {
+            Intent intent = SecurityActivity.newIntent(WatchlistFragment.this.getActivity(), security.getSymbol());
+            startActivity(intent);
+        }
 
         private Security security;
 
@@ -78,16 +103,11 @@ public class WatchlistFragment extends Fragment {
         }
 
         public void bind(Security security) {
+            PriceData priceData = security.getPriceData();
             symbol.setText(security.getSymbol());
+            ticksErrors.setText(String.format("(%s, %s)", priceData.getTicks().size(), priceData.getErrors().size()));
             enabled.setChecked(security.isEnabled());
             this.security = security;
-        }
-
-        @OnClick(R.id.list_item_textview_security_symbol)
-        @SuppressWarnings("unused")
-        void clickSymbol() {
-            Intent intent = SecurityActivity.newIntent(WatchlistFragment.this.getActivity(), security.getSymbol());
-            startActivity(intent);
         }
     }
 
@@ -101,7 +121,7 @@ public class WatchlistFragment extends Fragment {
         @Override
         public Holder onCreateViewHolder(ViewGroup parent, int viewType) {
             LayoutInflater inflator = LayoutInflater.from(getActivity());
-            View view = inflator.inflate(R.layout.list_item_security, parent, false);
+            View view = inflator.inflate(R.layout.list_item_watchlist, parent, false);
             return new Holder(view);
         }
 
@@ -144,7 +164,7 @@ public class WatchlistFragment extends Fragment {
 
         EventBus.getDefault().register(this);
         setHasOptionsMenu(true);
-        View view = inflater.inflate(R.layout.fragment_stock_compare, container, false);
+        View view = inflater.inflate(R.layout.fragment_watchlist, container, false);
         ButterKnife.bind(this, view);
 
         AppCompatActivity activity = (AppCompatActivity) this.getActivity();
