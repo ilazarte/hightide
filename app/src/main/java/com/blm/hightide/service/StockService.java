@@ -236,7 +236,7 @@ public class StockService {
             }
         }
 
-        int[] colorPalette = ColorBrewer.Spectral.getColorPalette(num);
+        int[] colorPalette = ColorBrewer.Accent.getColorPalette(num);
 
         List<Tick> availableTicks = null;
         int i = 0;
@@ -255,6 +255,7 @@ public class StockService {
             LineDataSet dataset = toLineDataSet(security.getSymbol(), study);
             dataset.setColor(colorPalette[i++]);
             dataset.setDrawCircles(false);
+            dataset.setLineWidth(2f);
             dataSets.add(dataset);
         }
 
@@ -275,7 +276,7 @@ public class StockService {
 
         List<ILineDataSet> dataSets = new ArrayList<>();
 
-        int[] colorPalette = ColorBrewer.Spectral.getColorPalette(2);
+        int[] colorPalette = ColorBrewer.Accent.getColorPalette(2);
         List<Tick> ticks = security.getPriceData().getTicks();
 
         List<Double> fullval = op.get(ticks, "close");
@@ -288,11 +289,15 @@ public class StockService {
         LineDataSet dataset = toLineDataSet(security.getSymbol(), close);
         dataset.setColor(colorPalette[0]);
         dataset.setDrawCircles(false);
+        dataset.setLineWidth(2f);
+
         dataSets.add(dataset);
 
         LineDataSet study = toLineDataSet("Average(" + avgLen + ")", avg);
         study.setColor(colorPalette[1]);
         study.setDrawCircles(false);
+        study.setLineWidth(2f);
+
         dataSets.add(study);
 
         int lastNTicks = lastN - avgLen;
