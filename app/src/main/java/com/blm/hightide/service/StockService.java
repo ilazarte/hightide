@@ -164,11 +164,6 @@ public class StockService {
                         priceData = yahooPriceHelper.downloadAndCacheDailyPriceData(sec);
                     }
 
-                    int size = priceData.getErrors().size();
-                    if (size > 0) {
-                        Log.i(TAG, "setPriceData: errors: " + security.getSymbol() + "(" + size + "), sample: " + priceData.getErrors().get(0));
-                    }
-
                     sec.setPriceData(priceData);
                     return sec;
                 });
