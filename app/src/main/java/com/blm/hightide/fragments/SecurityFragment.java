@@ -28,15 +28,19 @@ import butterknife.ButterKnife;
 
 public class SecurityFragment extends Fragment {
 
+    @SuppressWarnings("unused")
     private static final String TAG = SecurityFragment.class.getSimpleName();
 
     private static final String SECURITY_SYMBOL = "SECURITY_SYMBOL";
 
+    @Bind(R.id.textview_title)
+    TextView title;
+
+    @Bind(R.id.textview_datapoint)
+    TextView datapoint;
+
     @Bind(R.id.chart)
     LineChart chart;
-
-    @Bind(R.id.textview_overlay)
-    TextView textview;
 
     public static SecurityFragment newInstance(String symbol) {
         Bundle args = new Bundle();
@@ -56,6 +60,7 @@ public class SecurityFragment extends Fragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     @SuppressWarnings("unused")
     public void onLineDataAvailable(LineDataAvailable event) {
+        title.setText(event.getSecurity().getSymbol());
         chart.setData(event.getLineData());
         chart.invalidate();
     }
@@ -80,7 +85,7 @@ public class SecurityFragment extends Fragment {
                 String val = Float.valueOf(entry.getVal()).toString();
                 String msg = date + " " + dataset.getLabel() + " " + val;
 
-                textview.setText(msg);
+                datapoint.setText(msg);
             }
 
             @Override

@@ -1,7 +1,6 @@
 package com.blm.hightide.service;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.blm.corals.PriceData;
 import com.blm.corals.ReadError;
@@ -34,6 +33,7 @@ import rx.schedulers.Schedulers;
 
 public class StockService {
 
+    @SuppressWarnings("unused")
     private static final String TAG = StockService.class.getSimpleName();
 
     private Operators op = new Operators();

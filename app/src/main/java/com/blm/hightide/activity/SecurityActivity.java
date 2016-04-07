@@ -18,6 +18,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 public class SecurityActivity extends AbstractBaseActivity {
 
+    @SuppressWarnings("unused")
     private static final String TAG = SecurityActivity.class.getSimpleName();
 
     private static final String SECURITY_SYMBOL = "com.blm.hightide.activity.SECURITY_SYMBOL";
@@ -62,7 +63,7 @@ public class SecurityActivity extends AbstractBaseActivity {
                     int avgLen = 20;
                     LineData data = service.getPriceAndAverage(security, lastN, avgLen);
 
-                    EventBus.getDefault().post(new LineDataAvailable(data));
+                    EventBus.getDefault().post(new LineDataAvailable(security, data));
                 });
     }
 

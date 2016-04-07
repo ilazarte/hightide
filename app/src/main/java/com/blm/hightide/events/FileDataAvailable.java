@@ -8,9 +8,6 @@ public class FileDataAvailable {
 
     private FileData fileData;
 
-    public FileDataAvailable() {
-    }
-
     public FileDataAvailable(String symbol, FileData fileData) {
         this.symbol = symbol;
         this.fileData = fileData;

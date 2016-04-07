@@ -3,9 +3,7 @@ package com.blm.hightide.fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -18,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -44,7 +41,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnItemSelected;
 
-public class WatchlistFragment extends Fragment {
+public class WatchlistFragment extends BaseFragment {
 
     private static final String TAG = WatchlistFragment.class.getSimpleName();
 
@@ -77,13 +74,15 @@ public class WatchlistFragment extends Fragment {
         CheckBox enabled;
 
         @OnClick(R.id.list_item_imagebutton_load_file)
-        void clickFile(ImageButton imageButton) {
+        @SuppressWarnings("unused")
+        void clickFile() {
             Intent intent = FileActivity.newIntent(WatchlistFragment.this.getActivity(), security.getSymbol());
             startActivity(intent);
         }
 
         @OnClick(R.id.list_item_imagebutton_chart_security)
-        void clickChart(ImageButton imageButton) {
+        @SuppressWarnings("unused")
+        void clickChart() {
             Intent intent = SecurityActivity.newIntent(WatchlistFragment.this.getActivity(), security.getSymbol());
             startActivity(intent);
         }
@@ -167,18 +166,8 @@ public class WatchlistFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_watchlist, container, false);
         ButterKnife.bind(this, view);
 
-        AppCompatActivity activity = (AppCompatActivity) this.getActivity();
-
-        activity.setSupportActionBar(toolbar);
-
-        ActionBar supportActionBar = activity.getSupportActionBar();
-        if (supportActionBar != null) {
-            supportActionBar.setTitle(null);
-            supportActionBar.setDisplayHomeAsUpEnabled(false);
-        }
-
-        this.supportActionBar = supportActionBar;
-        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
+        this.supportActionBar = this.getSupportActionBar(toolbar);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this.getAppCompatActivity()));
         recyclerView.setAdapter(new Adapter(new ArrayList<>()));
 
         int watchlistId = this.getWatchlistId(savedInstanceState);

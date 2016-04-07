@@ -45,7 +45,6 @@ public class RelativePerformanceActivity extends AbstractBaseActivity {
     }
 
     /**
-     *
      * TODO make study parameters configurable via ui
      * @param event The starting watchlist id
      */
@@ -64,7 +63,7 @@ public class RelativePerformanceActivity extends AbstractBaseActivity {
                     int avgLen = 20;
                     LineData data = service.getRelativeForAverage(wl, lastN, avgLen);
 
-                    EventBus.getDefault().post(new LineDataAvailable(data));
+                    EventBus.getDefault().post(new LineDataAvailable(wl, data));
                 }, error -> {
                     Log.e(TAG, "onWatchlistLoadFilesStart: ", error);
                 });

@@ -8,11 +8,9 @@ import android.support.v4.app.Fragment;
 import com.blm.hightide.R;
 import com.blm.hightide.events.FileDataAvailable;
 import com.blm.hightide.events.FileLoadStart;
-import com.blm.hightide.events.LineDataAvailable;
 import com.blm.hightide.fragments.FileFragment;
 import com.blm.hightide.model.FileData;
 import com.blm.hightide.service.StockService;
-import com.github.mikephil.charting.data.LineData;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -20,6 +18,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 public class FileActivity extends AbstractBaseActivity {
 
+    @SuppressWarnings("unused")
     private static final String TAG = FileActivity.class.getSimpleName();
 
     private static final String SECURITY_SYMBOL = "com.blm.hightide.activity.SECURITY_SYMBOL";

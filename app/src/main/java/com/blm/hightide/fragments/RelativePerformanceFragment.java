@@ -2,7 +2,6 @@ package com.blm.hightide.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,17 +25,21 @@ import org.greenrobot.eventbus.ThreadMode;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class RelativePerformanceFragment extends Fragment {
+public class RelativePerformanceFragment extends BaseFragment {
 
+    @SuppressWarnings("unused")
     private static final String TAG = RelativePerformanceFragment.class.getSimpleName();
 
     private static final String WATCHLIST_ID = "WATCHLIST_ID";
 
+    @Bind(R.id.textview_title)
+    TextView title;
+
+    @Bind(R.id.textview_datapoint)
+    TextView datapoint;
+
     @Bind(R.id.chart)
     LineChart chart;
-
-    @Bind(R.id.textview_overlay)
-    TextView textview;
 
     public static RelativePerformanceFragment newInstance(int watchlistId) {
         Bundle args = new Bundle();
@@ -54,7 +57,9 @@ public class RelativePerformanceFragment extends Fragment {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
+    @SuppressWarnings("unused")
     public void onLineDataAvailable(LineDataAvailable event) {
+        title.setText(event.getWatchlist().getName());
         chart.setData(event.getLineData());
         chart.invalidate();
     }
@@ -79,7 +84,7 @@ public class RelativePerformanceFragment extends Fragment {
                 String val = Float.valueOf(entry.getVal()).toString();
                 String msg = date + " " + dataset.getLabel() + " " + val;
 
-                textview.setText(msg);
+                datapoint.setText(msg);
             }
 
             @Override

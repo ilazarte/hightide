@@ -1,15 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/textview_overlay"
-        android:paddingLeft="16dp"
+    <!-- http://stackoverflow.com/questions/5611411/what-is-the-default-text-size-on-android -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="36dp"
-        android:gravity="center_vertical"/>
+        android:layout_height="?attr/actionBarSize"
+        android:theme="@style/Dark.Overlay"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textview_title"
+            android:layout_width="wrap_content"
+            android:layout_height="?attr/actionBarSize"
+            android:paddingStart="16dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            style="?android:attr/spinnerItemStyle"
+            android:gravity="center_vertical"
+            tools:text="Title"/>
+
+        <TextView
+            android:id="@+id/textview_datapoint"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:paddingStart="16dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:gravity="right|center_vertical"
+            tools:text="Hello"/>
+
+    </LinearLayout>
 
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/chart"
