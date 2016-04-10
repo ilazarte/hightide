@@ -12,6 +12,7 @@ import com.blm.hightide.model.FileData;
 import com.blm.hightide.model.FileLine;
 import com.blm.hightide.model.Security;
 import com.blm.hightide.model.Watchlist;
+import com.blm.hightide.util.StandardPriceData;
 import com.blm.hightide.util.YahooPriceHelper;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
@@ -69,7 +70,7 @@ public class StockService {
 
         Observable<List<Security>> listObservable = Observable.from(watchlist.getSecurities())
                 .filter(Security::isEnabled)
-                .flatMap(security -> this.setPriceData(security, readRequest)
+                .flatMap(security -> this.setStandardPriceData(security, readRequest)
                         .subscribeOn(Schedulers.io()))
                 .toSortedList((s1, s2) -> s1.getSymbol().compareTo(s2.getSymbol()));
 
@@ -146,7 +147,7 @@ public class StockService {
      * @param readRequest A boolean to request a read only operation if possible.
      * @return observable security
      */
-    public Observable<Security> setPriceData(Security security, boolean readRequest) {
+    public Observable<Security> setStandardPriceData(Security security, boolean readRequest) {
 
         return Observable.just(security)
                 .map(sec -> {
@@ -157,14 +158,14 @@ public class StockService {
                     boolean recent = (System.currentTimeMillis() - file.lastModified()) < fourhours;
                     boolean read = readRequest && file.exists() && recent;
 
-                    PriceData priceData = null;
+                    StandardPriceData priceData = null;
                     if (read) {
                         priceData = yahooPriceHelper.readPriceData(sec);
                     } else {
                         priceData = yahooPriceHelper.downloadAndCacheDailyPriceData(sec);
                     }
 
-                    sec.setPriceData(priceData);
+                    sec.setStandardPriceData(priceData);
                     return sec;
                 });
     }
@@ -246,7 +247,7 @@ public class StockService {
                 continue;
             }
 
-            List<Tick> ticks = security.getPriceData().getTicks();
+            List<Tick> ticks = security.getStandardPriceData().getTicks();
             if (availableTicks == null) {
                 availableTicks = ticks;
             }
@@ -277,7 +278,7 @@ public class StockService {
         List<ILineDataSet> dataSets = new ArrayList<>();
 
         int[] colorPalette = ColorBrewer.Accent.getColorPalette(2);
-        List<Tick> ticks = security.getPriceData().getTicks();
+        List<Tick> ticks = security.getStandardPriceData().getTicks();
 
         List<Double> fullval = op.get(ticks, "close");
         List<Double> val = op.last(fullval, lastN);
@@ -301,7 +302,7 @@ public class StockService {
         dataSets.add(study);
 
         int lastNTicks = lastN - avgLen;
-        List<String> xvals = this.toXAxis(security.getPriceData().getTicks(), lastNTicks);
+        List<String> xvals = this.toXAxis(security.getStandardPriceData().getTicks(), lastNTicks);
 
         return new LineData(xvals, dataSets);
     }

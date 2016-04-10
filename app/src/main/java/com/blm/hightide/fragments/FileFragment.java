@@ -35,11 +35,11 @@ public class FileFragment extends Fragment {
 
     private static final String SECURITY_SYMBOL = "SECURITY_SYMBOL";
 
-    @Bind(R.id.recyclerview_file)
-    RecyclerView recyclerView;
-
     @Bind(R.id.textview_filename)
     TextView textView;
+
+    @Bind(R.id.recyclerview_file)
+    RecyclerView recyclerView;
 
     public static FileFragment newInstance(String symbol) {
         Bundle args = new Bundle();

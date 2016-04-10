@@ -18,6 +18,10 @@ public class Watchlist {
 
     private List<Security> securities;
 
+    /**
+     * Required for ORMLite
+     */
+    @SuppressWarnings("unused")
     public Watchlist() {
     }
 

@@ -1,6 +1,6 @@
 package com.blm.hightide.model;
 
-import com.blm.corals.PriceData;
+import com.blm.hightide.util.StandardPriceData;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -15,8 +15,12 @@ public class Security {
     @DatabaseField
     private boolean enabled = true;
 
-    private PriceData priceData;
+    private StandardPriceData standardPriceData;
 
+    /**
+     * Required for ORMLite
+     */
+    @SuppressWarnings("unused")
     public Security() {
     }
 
@@ -40,12 +44,12 @@ public class Security {
         this.enabled = enabled;
     }
 
-    public PriceData getPriceData() {
-        return priceData;
+    public StandardPriceData getStandardPriceData() {
+        return standardPriceData;
     }
 
-    public void setPriceData(PriceData priceData) {
-        this.priceData = priceData;
+    public void setStandardPriceData(StandardPriceData standardPriceData) {
+        this.standardPriceData = standardPriceData;
     }
 
     public String getDailyFilename() {

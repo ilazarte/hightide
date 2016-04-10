@@ -55,7 +55,7 @@ public class FileActivity extends AbstractBaseActivity {
 
         String symbol = event.getSymbol();
         service.findSecurity(symbol)
-                .flatMap(security -> service.setPriceData(security, true))
+                .flatMap(security -> service.setStandardPriceData(security, true))
                 .subscribe(security -> {
                     FileData fileData = service.getFileData(security);
                     FileDataAvailable available = new FileDataAvailable(symbol, fileData);

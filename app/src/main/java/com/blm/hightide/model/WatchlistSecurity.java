@@ -24,6 +24,10 @@ public class WatchlistSecurity {
     @DatabaseField(foreign = true, columnName = SECURITY_SYMBOL)
     private Security security;
 
+    /**
+     * Required for ORMLite
+     */
+    @SuppressWarnings("unused")
     public WatchlistSecurity() {
     }
 

@@ -1,8 +1,10 @@
 package com.blm.hightide.fragments;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,12 +16,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.blm.corals.PriceData;
 import com.blm.hightide.R;
 import com.blm.hightide.activity.FileActivity;
 import com.blm.hightide.activity.RelativePerformanceActivity;
@@ -28,13 +28,17 @@ import com.blm.hightide.events.WatchlistFilesRequestComplete;
 import com.blm.hightide.events.WatchlistFilesRequestStart;
 import com.blm.hightide.model.Security;
 import com.blm.hightide.model.Watchlist;
+import com.blm.hightide.util.StandardPriceData;
+import com.dgreenhalgh.android.simpleitemdecoration.linear.DividerItemDecoration;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -67,8 +71,11 @@ public class WatchlistFragment extends BaseFragment {
         @Bind(R.id.list_item_textview_security_symbol)
         TextView symbol;
 
-        @Bind(R.id.list_item_textview_ticks_errors)
-        TextView ticksErrors;
+        @Bind(R.id.list_item_textview_last_update)
+        TextView lastUpdate;
+
+        @Bind(R.id.list_item_textview_data_counts)
+        TextView dataCounts;
 
         @Bind(R.id.list_item_checkbox_security_enabled)
         CheckBox enabled;
@@ -102,9 +109,16 @@ public class WatchlistFragment extends BaseFragment {
         }
 
         public void bind(Security security) {
-            PriceData priceData = security.getPriceData();
+            StandardPriceData priceData = security.getStandardPriceData();
+            SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy HH:mm", Locale.US);
+            String datestr = sdf.format(priceData.getDate());
+            String msg = String.format("%s, %s",
+                    priceData.getTicks().size(),
+                    priceData.getErrors().size());
+
             symbol.setText(security.getSymbol());
-            ticksErrors.setText(String.format("(%s, %s)", priceData.getTicks().size(), priceData.getErrors().size()));
+            lastUpdate.setText(datestr);
+            dataCounts.setText(msg);
             enabled.setChecked(security.isEnabled());
             this.security = security;
         }
@@ -166,6 +180,9 @@ public class WatchlistFragment extends BaseFragment {
         View view = inflater.inflate(R.layout.fragment_watchlist, container, false);
         ButterKnife.bind(this, view);
 
+        Drawable dividerDrawable = ContextCompat.getDrawable(this.getAppCompatActivity(), android.R.drawable.divider_horizontal_bright);
+        recyclerView.addItemDecoration(new DividerItemDecoration(dividerDrawable));
+
         this.supportActionBar = this.getSupportActionBar(toolbar);
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getAppCompatActivity()));
         recyclerView.setAdapter(new Adapter(new ArrayList<>()));
@@ -211,11 +228,7 @@ public class WatchlistFragment extends BaseFragment {
             names.add(watchlist.getName());
         }
 
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(supportActionBar.getThemedContext(),
-                android.R.layout.simple_spinner_item,
-                names);
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(spinnerAdapter);
+        spinner.setAdapter(this.getSimpleArrayAdapter(supportActionBar.getThemedContext(), names));
 
         int idx = 0;
         for (Watchlist watchlist : watchlists) {

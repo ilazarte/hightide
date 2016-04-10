@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.Charset;
+import java.util.Date;
 import java.util.List;
 
 import okhttp3.OkHttpClient;
@@ -47,10 +48,6 @@ public class YahooPriceHelper {
         return download(url);
     }
 
-    public PriceData readDaily(List<String> lines) {
-        return reader.daily(lines);
-    }
-
     public List<String> intraday(String symbol) {
         String url = urls.intraday(symbol);
         return download(url);
@@ -74,10 +71,12 @@ public class YahooPriceHelper {
      * @param security The security containing a symbol
      * @return list of tick data
      */
-    public PriceData downloadAndCacheDailyPriceData(Security security) {
+    public StandardPriceData downloadAndCacheDailyPriceData(Security security) {
         List<String> lines = daily(security.getSymbol());
+        Date date = new Date();
         write(lines, security.getDailyFilename());
-        return readDaily(lines);
+        PriceData priceData = reader.daily(lines);
+        return new StandardPriceData(priceData, date);
     }
 
     /**
@@ -86,9 +85,12 @@ public class YahooPriceHelper {
      * @param security The security containing a symbol
      * @return parseresult
      */
-    public PriceData readPriceData(Security security) {
+    public StandardPriceData readPriceData(Security security) {
+        File file = this.toFile(security.getDailyFilename());
+        Date date = new Date(file.lastModified());
         List<String> lines = this.read(security.getDailyFilename());
-        return this.readDaily(lines);
+        PriceData priceData = reader.daily(lines);
+        return new StandardPriceData(priceData, date);
     }
 
     /**

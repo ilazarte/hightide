@@ -27,6 +27,8 @@
         <activity android:name=".activity.SecurityActivity"/>
 
         <activity android:name=".activity.FileActivity"/>
+
+        <activity android:name=".activity.TableActivity"/>
     </application>
 
 </manifest>
