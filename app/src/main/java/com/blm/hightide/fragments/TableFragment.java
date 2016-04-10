@@ -3,6 +3,8 @@ package com.blm.hightide.fragments;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.LoginFilter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +24,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
@@ -64,11 +67,13 @@ public class TableFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
+        Log.i(TAG, "onCreateView: creating table fragment");
         EventBus.getDefault().register(this);
-        View view = inflater.inflate(R.layout.fragment_file, container, false);
+        View view = inflater.inflate(R.layout.fragment_table, container, false);
         ButterKnife.bind(this, view);
 
         String symbol = getArguments().getString(SECURITY_SYMBOL);
+        Log.i(TAG, "onCreateView: posting security start");
         EventBus.getDefault().post(new SecurityLoadStart(symbol));
 
         return view;
@@ -78,10 +83,11 @@ public class TableFragment extends Fragment {
     @SuppressWarnings("unused")
     public void onSecurityLoad(SecurityLoadComplete event) {
 
+        Log.i(TAG, "onSecurityLoad: received security load");
         Security security = event.getSecurity();
 
         textView.setText(security.getSymbol());
-        table = toTableLayout(security.getStandardPriceData());
+        setTableData(security.getStandardPriceData());
     }
 
     @Override
@@ -90,33 +96,34 @@ public class TableFragment extends Fragment {
         super.onDestroy();
     }
 
-    private TableLayout toTableLayout(StandardPriceData priceData) {
+    private void setTableData(StandardPriceData priceData) {
 
         SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy", Locale.US);
+        DecimalFormat df = new DecimalFormat("#.00");
 
-        TableLayout tl = new TableLayout(this.getActivity());
         HorizontalScrollView.LayoutParams lp = new HorizontalScrollView.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
-        tl.setLayoutParams(lp);
+        table.setLayoutParams(lp);
 
         List<Tick> ticks = priceData.getTicks();
-        tl.addView(tableRow("TICKNUM", "TIMESTAMP", "OPEN", "HIGH", "LOW", "ADJCLOSE"));
+        Log.i(TAG, "setTableData: table data: " + ticks);
+        table.addView(tableRow("ROW", "TIMESTAMP", "OPEN", "HIGH", "LOW", "CLOSE", "ADJCLOSE"));
         Integer i = 0;
 
         for (Tick tick : ticks) {
             TableRow row = tableRow(
                     i.toString(),
                     sdf.format(tick.getTimestamp()),
-                    tick.get("open").toString(),
-                    tick.get("high").toString(),
-                    tick.get("low").toString(),
-                    tick.get("adjclose").toString());
-            tl.addView(row);
+                    df.format(tick.get("open")),
+                    df.format(tick.get("high")),
+                    df.format(tick.get("low")),
+                    df.format(tick.get("close")),
+                    df.format(tick.get("adjclose")));
+            table.addView(row);
             i++;
+            Log.i(TAG, "setTableData: setting row: " + i);
         }
-
-        return tl;
     }
 
     private TableRow tableRow(String... texts) {

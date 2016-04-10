@@ -280,7 +280,7 @@ public class StockService {
         int[] colorPalette = ColorBrewer.Accent.getColorPalette(2);
         List<Tick> ticks = security.getStandardPriceData().getTicks();
 
-        List<Double> fullval = op.get(ticks, "close");
+        List<Double> fullval = op.get(ticks, "adjclose");
         List<Double> val = op.last(fullval, lastN);
         List<Double> allavg = op.window(val, avgLen, new Average());
 
@@ -316,7 +316,7 @@ public class StockService {
      * @return The study
      */
     public List<Double> getCloseByAverage(List<Tick> ticks, int lastN, int avgLen) {
-        List<Double> fullval = op.get(ticks, "close");
+        List<Double> fullval = op.get(ticks, "adjclose");
 
         List<Double> val = op.last(fullval, lastN);
         List<Double> avgs = op.window(val, avgLen, new Average());
