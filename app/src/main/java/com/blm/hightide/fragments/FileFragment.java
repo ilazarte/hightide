@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,9 +63,10 @@ public class FileFragment extends Fragment {
         }
 
         public void bind(FileLine fileLine) {
+
+            /*http://stackoverflow.com/questions/22196453/linearlayout-in-horizontalscrollview-is-not-expanding*/
             lineNum.setText(Integer.valueOf(fileLine.getNum()).toString());
             lineString.setText(fileLine.getLine());
-            /*http://stackoverflow.com/questions/22196453/linearlayout-in-horizontalscrollview-is-not-expanding*/
             lineString.setSingleLine();
         }
     }
@@ -127,7 +127,6 @@ public class FileFragment extends Fragment {
 
         textView.setText(fileData.getName());
         List<FileLine> lines = fileData.getLines();
-        Log.i(TAG, "onFileDataAvailable: line count: " + lines.size());
         recyclerView.setAdapter(new Adapter(lines));
     }
 

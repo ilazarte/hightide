@@ -50,16 +50,13 @@ public class TableActivity extends AbstractBaseActivity {
     @SuppressWarnings("unused")
     public void onSecurityLoadStart(SecurityLoadStart event) {
 
-        Log.i(TAG, "onFileLoadStart: received start event");
         toast(R.string.read_file);
 
         String symbol = event.getSymbol();
         service.findSecurity(symbol)
                 .flatMap(security -> service.setStandardPriceData(security, true))
                 .subscribe(security -> {
-                    SecurityLoadComplete complete = new SecurityLoadComplete(security);
-                    Log.i(TAG, "onFileLoadStart: posting security load complete: " + complete.getSecurity());
-                    EventBus.getDefault().post(complete);
+                    EventBus.getDefault().post(new SecurityLoadComplete(security));
                 });
     }
 
