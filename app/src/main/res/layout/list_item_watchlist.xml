@@ -64,8 +64,17 @@
         android:layout_height="wrap_content"/>
 
     <ImageButton
-        android:id="@+id/list_item_imagebutton_chart_security"
+        android:id="@+id/list_item_imagebutton_load_table"
         android:layout_toLeftOf="@id/list_item_imagebutton_load_file"
+        android:layout_centerVertical="true"
+        android:src="@drawable/ic_load_table"
+        android:padding="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <ImageButton
+        android:id="@+id/list_item_imagebutton_chart_security"
+        android:layout_toLeftOf="@id/list_item_imagebutton_load_table"
         android:layout_centerVertical="true"
         android:src="@drawable/ic_chart_security"
         android:padding="8dp"

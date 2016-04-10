@@ -24,6 +24,7 @@ import com.blm.hightide.R;
 import com.blm.hightide.activity.FileActivity;
 import com.blm.hightide.activity.RelativePerformanceActivity;
 import com.blm.hightide.activity.SecurityActivity;
+import com.blm.hightide.activity.TableActivity;
 import com.blm.hightide.events.WatchlistFilesRequestComplete;
 import com.blm.hightide.events.WatchlistFilesRequestStart;
 import com.blm.hightide.model.Security;
@@ -79,6 +80,13 @@ public class WatchlistFragment extends BaseFragment {
 
         @Bind(R.id.list_item_checkbox_security_enabled)
         CheckBox enabled;
+
+        @OnClick(R.id.list_item_imagebutton_load_table)
+        @SuppressWarnings("unused")
+        void clickTable() {
+            Intent intent = TableActivity.newIntent(WatchlistFragment.this.getActivity(), security.getSymbol());
+            startActivity(intent);
+        }
 
         @OnClick(R.id.list_item_imagebutton_load_file)
         @SuppressWarnings("unused")
