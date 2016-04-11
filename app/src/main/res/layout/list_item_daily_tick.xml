@@ -7,59 +7,59 @@
     android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/list_item_table_num"
-        android:layout_marginLeft="8dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="84"/>
-
-    <TextView
         android:id="@+id/list_item_table_timestamp"
-        android:layout_marginLeft="48dp"
+        android:layout_marginLeft="8dp"
+        android:textSize="12sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="84"/>
+        tools:text="04-19-1975"/>
 
     <TextView
         android:id="@+id/list_item_table_open"
-        android:layout_marginLeft="88dp"
+        android:layout_marginLeft="70dp"
+        android:textSize="12sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="84"/>
+        tools:text="184.21"/>
 
     <TextView
         android:id="@+id/list_item_table_high"
-        android:layout_marginLeft="128dp"
+        android:layout_marginLeft="114dp"
+        android:textSize="12sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="84"/>
+        tools:text="284.21"/>
 
     <TextView
         android:id="@+id/list_item_table_low"
-        android:layout_marginLeft="168dp"
+        android:layout_marginLeft="150dp"
+        android:textSize="12sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="84"/>
+        tools:text="384.21"/>
 
     <TextView
         android:id="@+id/list_item_table_close"
-        android:layout_marginLeft="208dp"
+        android:layout_marginLeft="190dp"
+        android:textSize="12sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="84"/>
+        tools:text="484.21"/>
 
     <TextView
         android:id="@+id/list_item_table_volume"
-        android:layout_marginLeft="248dp"
+        android:layout_marginLeft="230dp"
+        android:textSize="12sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="84"/>
+        tools:text="34253201"/>
 
     <TextView
         android:id="@+id/list_item_table_adjclose"
-        android:layout_marginLeft="288dp"
+        android:layout_marginLeft="285dp"
+        android:textSize="12sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="84"/>
-
+        tools:text="532.21"/>
+-->
 </RelativeLayout>

@@ -4,19 +4,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 
 import com.blm.hightide.R;
-import com.blm.hightide.events.FileLoadStart;
 import com.blm.hightide.events.SecurityLoadComplete;
 import com.blm.hightide.events.SecurityLoadStart;
-import com.blm.hightide.fragments.FileFragment;
 import com.blm.hightide.fragments.TableFragment;
 import com.blm.hightide.service.StockService;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.List;
 
 public class TableActivity extends AbstractBaseActivity {
 
@@ -56,7 +55,8 @@ public class TableActivity extends AbstractBaseActivity {
         service.findSecurity(symbol)
                 .flatMap(security -> service.setStandardPriceData(security, true))
                 .subscribe(security -> {
-                    EventBus.getDefault().post(new SecurityLoadComplete(security));
+                    List<String> columns = service.toColumns(security.getStandardPriceData().getTicks());
+                    EventBus.getDefault().post(new SecurityLoadComplete(security, columns));
                 });
     }
 
