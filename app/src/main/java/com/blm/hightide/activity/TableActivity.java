@@ -15,8 +15,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.List;
-
 public class TableActivity extends AbstractBaseActivity {
 
     @SuppressWarnings("unused")
@@ -55,7 +53,7 @@ public class TableActivity extends AbstractBaseActivity {
         service.findSecurity(symbol)
                 .flatMap(security -> service.setStandardPriceData(security, true))
                 .subscribe(security -> {
-                    EventBus.getDefault().post(new SecurityLoadComplete(security, null));
+                    EventBus.getDefault().post(new SecurityLoadComplete(security));
                 });
     }
 

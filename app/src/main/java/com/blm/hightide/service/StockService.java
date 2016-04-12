@@ -354,28 +354,4 @@ public class StockService {
         }
         return axis;
     }
-
-    /**
-     * Flatten the data to a single list.
-     * @param ticks
-     * @return
-     */
-    public List<String> toColumns(List<Tick> ticks) {
-
-        List<String> strs = new ArrayList<>();
-        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy", Locale.US);
-        DecimalFormat df = new DecimalFormat("#.00");
-
-        for (Tick tick : ticks) {
-            strs.add(sdf.format(tick.getTimestamp()));
-            strs.add(df.format(tick.get("open")));
-            strs.add(df.format(tick.get("high")));
-            strs.add(df.format(tick.get("low")));
-            strs.add(df.format(tick.get("close")));
-            strs.add(String.format("%s", tick.get("volume").intValue()));
-            strs.add(df.format(tick.get("adjclose")));
-        }
-
-        return strs;
-    }
 }
