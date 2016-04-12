@@ -55,8 +55,7 @@ public class TableActivity extends AbstractBaseActivity {
         service.findSecurity(symbol)
                 .flatMap(security -> service.setStandardPriceData(security, true))
                 .subscribe(security -> {
-                    List<String> columns = service.toColumns(security.getStandardPriceData().getTicks());
-                    EventBus.getDefault().post(new SecurityLoadComplete(security, columns));
+                    EventBus.getDefault().post(new SecurityLoadComplete(security, null));
                 });
     }
 

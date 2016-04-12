@@ -1,16 +1,16 @@
 package com.blm.hightide.fragments;
 
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.blm.corals.Tick;
 import com.blm.hightide.R;
 import com.blm.hightide.events.SecurityLoadComplete;
 import com.blm.hightide.events.SecurityLoadStart;
@@ -20,8 +20,11 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -33,40 +36,74 @@ public class TableFragment extends Fragment {
 
     private static final String SECURITY_SYMBOL = "SECURITY_SYMBOL";
 
-    class StringHolder extends RecyclerView.ViewHolder {
+    /**
+     * Pretty neat, a totally reusable data holder.
+     */
+    class Binder {
+        @Bind(R.id.list_item_table_timestamp)
+        TextView timestamp;
 
-        @Bind(R.id.grid_item_textview)
-        TextView textview;
+        @Bind(R.id.list_item_table_open)
+        TextView open;
 
-        public StringHolder(View view) {
+        @Bind(R.id.list_item_table_high)
+        TextView high;
+
+        @Bind(R.id.list_item_table_low)
+        TextView low;
+
+        @Bind(R.id.list_item_table_close)
+        TextView close;
+
+        @Bind(R.id.list_item_table_volume)
+        TextView volume;
+
+        @Bind(R.id.list_item_table_adjclose)
+        TextView adjclose;
+    }
+
+    class TickHolder extends RecyclerView.ViewHolder {
+
+        Binder binder = new Binder();
+
+        public TickHolder(View view) {
             super(view);
-            ButterKnife.bind(this, view);
+            ButterKnife.bind(binder, view);
         }
 
-        public void bind(String item, int position) {
-            textview.setText(item);
+        public void bind(Tick tick) {
+            SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy", Locale.US);
+            DecimalFormat df = new DecimalFormat("#.00");
+
+            binder.timestamp.setText(sdf.format(tick.getTimestamp()));
+            binder.open.setText(df.format(tick.get("open")));
+            binder.high.setText(df.format(tick.get("high")));
+            binder.low.setText(df.format(tick.get("low")));
+            binder.close.setText(df.format(tick.get("close")));
+            binder.volume.setText(String.format("%s", tick.get("volume").intValue()));
+            binder.adjclose.setText(df.format(tick.get("adjclose")));
         }
     }
 
-    class StringAdapter extends RecyclerView.Adapter<StringHolder> {
+    class TickAdapter extends RecyclerView.Adapter<TickHolder> {
 
-        private List<String> items;
+        private List<Tick> items;
 
-        public StringAdapter(List<String> items) {
+        public TickAdapter(List<Tick> items) {
             this.items = items;
         }
 
         @Override
-        public StringHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public TickHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             LayoutInflater inflator = LayoutInflater.from(getActivity());
-            View view = inflator.inflate(R.layout.grid_item_textview, parent, false);
-            return new StringHolder(view);
+            View view = inflator.inflate(R.layout.list_item_daily_tick, parent, false);
+            return new TickHolder(view);
         }
 
         @Override
-        public void onBindViewHolder(StringHolder holder, int position) {
-            String item = items.get(position);
-            holder.bind(item, position);
+        public void onBindViewHolder(TickHolder holder, int position) {
+            Tick item = items.get(position);
+            holder.bind(item);
         }
 
         @Override
@@ -74,6 +111,8 @@ public class TableFragment extends Fragment {
             return items.size();
         }
     }
+
+    Binder header = new Binder();
 
     @Bind(R.id.textview_security_symbol)
     TextView textView;
@@ -97,31 +136,21 @@ public class TableFragment extends Fragment {
         EventBus.getDefault().register(this);
         View view = inflater.inflate(R.layout.fragment_table, container, false);
         ButterKnife.bind(this, view);
+        ButterKnife.bind(header, view);
 
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this.getActivity(), 7);
-        //gridLayoutManager.setAutoMeasureEnabled(true);
+        header.timestamp.setText(R.string.timestamp_label);
+        header.timestamp.setSingleLine();
+        header.open.setText(R.string.open_label);
+        header.high.setText(R.string.high_label);
+        header.low.setText(R.string.low_label);
+        header.close.setText(R.string.close_label);
+        header.volume.setText(R.string.volume_label);
+        header.adjclose.setText(R.string.adjclose_label);
+        header.adjclose.setSingleLine();
 
-        table.setLayoutManager(gridLayoutManager);
-        table.setAdapter(new StringAdapter(new ArrayList<>()));
-        table.addItemDecoration(new RecyclerView.ItemDecoration() {
-            @Override
-            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-                outRect.left = 10;
-                outRect.right = 10;
-                /*
-                int position = parent.getChildAdapterPosition(view);
-                int column = position % 7;
-                switch (column) {
-                    case 0:
-                        outRect.right = 10;
-                        break;
-                    default:
-                        outRect.left = 10;
-                        outRect.right = 10;
-                }
-                */
-            }
-        });
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this.getActivity());
+        table.setLayoutManager(linearLayoutManager);
+        table.setAdapter(new TickAdapter(new ArrayList<>()));
 
         String symbol = getArguments().getString(SECURITY_SYMBOL);
         EventBus.getDefault().post(new SecurityLoadStart(symbol));
@@ -133,10 +162,10 @@ public class TableFragment extends Fragment {
     @SuppressWarnings("unused")
     public void onSecurityLoad(SecurityLoadComplete event) {
         Security security = event.getSecurity();
-        List<String> columns = event.getColumns();
+        List<Tick> ticks = security.getStandardPriceData().getTicks();
 
         textView.setText(security.getSymbol());
-        table.setAdapter(new StringAdapter(columns));
+        table.setAdapter(new TickAdapter(new ArrayList<>(ticks)));
     }
 
     @Override

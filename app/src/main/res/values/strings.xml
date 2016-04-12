@@ -8,4 +8,12 @@
     <string name="read_files">Reading price data.</string>
     <string name="chart_security">Loading price data for security.</string>
     <string name="read_file">Loading file data.</string>
+
+    <string name="timestamp_label">TIMESTAMP</string>
+    <string name="open_label">OPEN</string>
+    <string name="high_label">HIGH</string>
+    <string name="low_label">LOW</string>
+    <string name="close_label">CLOSE</string>
+    <string name="volume_label">VOLUME</string>
+    <string name="adjclose_label">ADJCLOSE</string>
 </resources>
