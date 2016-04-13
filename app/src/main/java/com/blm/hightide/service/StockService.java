@@ -10,6 +10,7 @@ import com.blm.corals.study.window.Average;
 import com.blm.hightide.db.DatabaseHelper;
 import com.blm.hightide.model.FileData;
 import com.blm.hightide.model.FileLine;
+import com.blm.hightide.model.RelativeTick;
 import com.blm.hightide.model.Security;
 import com.blm.hightide.model.Watchlist;
 import com.blm.hightide.util.StandardPriceData;
@@ -22,13 +23,14 @@ import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.manolovn.colorbrewer.ColorBrewer;
 
 import java.io.File;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import rx.Observable;
 import rx.schedulers.Schedulers;
@@ -240,7 +242,7 @@ public class StockService {
 
         int[] colorPalette = ColorBrewer.Accent.getColorPalette(num);
 
-        List<Tick> availableTicks = null;
+        List<Tick> availableTicks = null; /*the first usable dataset for xaxis*/
         int i = 0;
         for (Security security : securities) {
 
@@ -265,6 +267,70 @@ public class StockService {
         List<String> xvals = this.toXAxis(availableTicks, lastNTicks);
 
         return new LineData(xvals, dataSets);
+    }
+
+    /**
+     * Given a valid watchlist with ticks for every security,
+     * return a line of datasets.
+     * @param watchlist Input watchlist containing securities and ticks.
+     * @param lastN Last n values from the ticks.
+     * @param avgLen Length of the average
+     * @param rowCount Choose the top N values on each date.
+     * @return A single list where each rowCount is a 'row' sorted from highest to lowest.
+     *   Each rowcount of items will represent a single tick.
+     */
+    public List<RelativeTick> getRelativeTableForAverage(Watchlist watchlist, int lastN, int avgLen, int rowCount) {
+        List<Security> securities = watchlist.getSecurities();
+
+        int num = 0;
+        for (Security security : securities) {
+            if (security.isEnabled()) {
+                num++;
+            }
+        }
+
+        int[] colorPalette = ColorBrewer.Accent.getColorPalette(num);
+
+        Map<String, Integer> colorMap = new HashMap<>();
+        Map<String, List<Double>> valueMap = new HashMap<>();
+        List<Tick> availableTicks = new ArrayList<>(); /*the first usable dataset for xaxis*/
+        int colorIncr = 0;
+
+        for (Security security : securities) {
+
+            if (!security.isEnabled()) {
+                continue;
+            }
+
+            List<Tick> ticks = security.getStandardPriceData().getTicks();
+            if (availableTicks.size() == 0) {
+                availableTicks = last(ticks, lastN);
+            }
+
+            List<Double> study = getCloseByAverage(ticks, lastN, avgLen);
+
+            colorMap.put(security.getSymbol(), colorPalette[colorIncr++]);
+            valueMap.put(security.getSymbol(), study);
+        }
+
+        List<String> symbols = new ArrayList<>(valueMap.keySet());
+        List<RelativeTick> allTicks = new ArrayList<>();
+        List<RelativeTick> sampleTicks = new ArrayList<>();
+
+        for (int i = 0; i < availableTicks.size(); i++) {
+            sampleTicks.clear();
+            for (String symbol : symbols) {
+                sampleTicks.add(new RelativeTick(symbol, valueMap.get(symbol).get(i), colorMap.get(symbol)));
+            }
+            Collections.sort(sampleTicks, RelativeTick.COMPARATOR);
+
+            for (int j = sampleTicks.size() - 1, min = j - rowCount; j > min; j--) {
+                allTicks.add(sampleTicks.get(j));
+            }
+            allTicks.addAll(sampleTicks);
+        }
+
+        return allTicks;
     }
 
     /**
@@ -337,6 +403,23 @@ public class StockService {
         }
 
         return new LineDataSet(entries, symbol);
+    }
+
+    /**
+     * TODO migrate to Corals.
+     * Return the last items
+     * @param items A list of items.
+     * @param lastN The number to return
+     * @param <T> The generic type
+     * @return The last n items in a list.
+     */
+    public <T> List<T> last(List<T> items, int lastN) {
+        List<T> lastItems = new ArrayList<>();
+        for (int i = items.size() - lastN; i < items.size(); i++) {
+            T item = items.get(i);
+            lastItems.add(item);
+        }
+        return lastItems;
     }
 
     /**

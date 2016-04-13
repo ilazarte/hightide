@@ -23,6 +23,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -64,6 +65,9 @@ public class TableFragment extends Fragment {
 
     class TickHolder extends RecyclerView.ViewHolder {
 
+        private final SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy", Locale.US);
+        private final DecimalFormat df = new DecimalFormat("#.00");
+
         Binder binder = new Binder();
 
         public TickHolder(View view) {
@@ -72,9 +76,6 @@ public class TableFragment extends Fragment {
         }
 
         public void bind(Tick tick) {
-            SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy", Locale.US);
-            DecimalFormat df = new DecimalFormat("#.00");
-
             binder.timestamp.setText(sdf.format(tick.getTimestamp()));
             binder.open.setText(df.format(tick.get("open")));
             binder.high.setText(df.format(tick.get("high")));
@@ -163,9 +164,10 @@ public class TableFragment extends Fragment {
     public void onSecurityLoad(SecurityLoadComplete event) {
         Security security = event.getSecurity();
         List<Tick> ticks = security.getStandardPriceData().getTicks();
+        Collections.reverse(ticks);
 
         textView.setText(security.getSymbol());
-        table.setAdapter(new TickAdapter(new ArrayList<>(ticks)));
+        table.setAdapter(new TickAdapter(ticks));
     }
 
     @Override

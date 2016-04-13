@@ -22,7 +22,7 @@ import android.widget.TextView;
 
 import com.blm.hightide.R;
 import com.blm.hightide.activity.FileActivity;
-import com.blm.hightide.activity.RelativePerformanceActivity;
+import com.blm.hightide.activity.RelativeChartActivity;
 import com.blm.hightide.activity.SecurityActivity;
 import com.blm.hightide.activity.TableActivity;
 import com.blm.hightide.events.WatchlistFilesRequestComplete;
@@ -260,7 +260,7 @@ public class WatchlistFragment extends BaseFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_execute:
-                Intent intent = RelativePerformanceActivity.newIntent(this.getActivity(), this.selectedWatchlist.getId());
+                Intent intent = RelativeChartActivity.newIntent(this.getActivity(), this.selectedWatchlist.getId());
                 startActivity(intent);
                 break;
             case R.id.action_refresh:

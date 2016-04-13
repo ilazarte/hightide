@@ -22,7 +22,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.RelativePerformanceActivity"/>
+        <activity android:name=".activity.RelativeChartActivity"/>
+
+        <activity android:name=".activity.RelativeTableActivity"/>
 
         <activity android:name=".activity.SecurityActivity"/>
 

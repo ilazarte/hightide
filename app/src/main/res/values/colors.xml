@@ -4,4 +4,8 @@
     <color name="blue_dark">#303F9F</color>
     <color name="hot_pink">#FF4081</color>
     <color name="white">#ffffff</color>
+    <color name="strong">#47a6ea</color>
+    <color name="strong_fade">#abc9e1</color>
+    <color name="weak">#ea9b9b</color>
+    <color name="weak_fade">#e4b9b9</color>
 </resources>

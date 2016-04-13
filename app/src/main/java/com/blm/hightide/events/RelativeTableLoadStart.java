@@ -1,0 +1,29 @@
+package com.blm.hightide.events;
+
+public class RelativeTableLoadStart {
+
+    private int watchlistId;
+
+    private boolean readRequest;
+
+    public RelativeTableLoadStart(int watchlistId, boolean readRequest) {
+        this.watchlistId = watchlistId;
+        this.readRequest = readRequest;
+    }
+
+    public int getWatchlistId() {
+        return watchlistId;
+    }
+
+    public void setWatchlistId(int watchlistId) {
+        this.watchlistId = watchlistId;
+    }
+
+    public boolean isReadRequest() {
+        return readRequest;
+    }
+
+    public void setReadRequest(boolean readRequest) {
+        this.readRequest = readRequest;
+    }
+}

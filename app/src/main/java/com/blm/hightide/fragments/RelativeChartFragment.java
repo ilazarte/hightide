@@ -25,10 +25,10 @@ import org.greenrobot.eventbus.ThreadMode;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class RelativePerformanceFragment extends BaseFragment {
+public class RelativeChartFragment extends BaseFragment {
 
     @SuppressWarnings("unused")
-    private static final String TAG = RelativePerformanceFragment.class.getSimpleName();
+    private static final String TAG = RelativeChartFragment.class.getSimpleName();
 
     private static final String WATCHLIST_ID = "WATCHLIST_ID";
 
@@ -41,11 +41,11 @@ public class RelativePerformanceFragment extends BaseFragment {
     @Bind(R.id.chart)
     LineChart chart;
 
-    public static RelativePerformanceFragment newInstance(int watchlistId) {
+    public static RelativeChartFragment newInstance(int watchlistId) {
         Bundle args = new Bundle();
         args.putInt(WATCHLIST_ID, watchlistId);
 
-        RelativePerformanceFragment fragment = new RelativePerformanceFragment();
+        RelativeChartFragment fragment = new RelativeChartFragment();
         fragment.setArguments(args);
         return fragment;
     }
@@ -68,7 +68,7 @@ public class RelativePerformanceFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_relative_performance, container, false);
+        View view = inflater.inflate(R.layout.fragment_relative_chart, container, false);
         ButterKnife.bind(this, view);
 
         chart.setNoDataText(this.getString(R.string.loading));
