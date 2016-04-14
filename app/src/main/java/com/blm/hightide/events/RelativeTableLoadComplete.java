@@ -1,6 +1,5 @@
 package com.blm.hightide.events;
 
-import com.blm.hightide.model.RelativeTick;
 import com.blm.hightide.model.Watchlist;
 
 import java.util.List;
@@ -9,11 +8,14 @@ public class RelativeTableLoadComplete {
 
     private Watchlist watchlist;
 
-    private List<RelativeTick> relativeTicks;
+    private List<Object> gridList;
 
-    public RelativeTableLoadComplete(Watchlist watchlist, List<RelativeTick> relativeTicks) {
+    private int topN;
+
+    public RelativeTableLoadComplete(Watchlist watchlist, List<Object> relativeTicks, int topN) {
         this.watchlist = watchlist;
-        this.relativeTicks = relativeTicks;
+        this.gridList = relativeTicks;
+        this.topN = topN;
     }
 
     public Watchlist getWatchlist() {
@@ -24,11 +26,19 @@ public class RelativeTableLoadComplete {
         this.watchlist = watchlist;
     }
 
-    public List<RelativeTick> getRelativeTicks() {
-        return relativeTicks;
+    public List<Object> getGridList() {
+        return gridList;
     }
 
-    public void setRelativeTicks(List<RelativeTick> relativeTicks) {
-        this.relativeTicks = relativeTicks;
+    public void setGridList(List<Object> gridList) {
+        this.gridList = gridList;
+    }
+
+    public int getTopN() {
+        return topN;
+    }
+
+    public void setTopN(int topN) {
+        this.topN = topN;
     }
 }

@@ -35,7 +35,15 @@ public class RelativeTableFragment extends Fragment {
 
     private static final String WATCHLIST_ID = "WATCHLIST_ID";
 
-    class RelativeTickHolder extends RecyclerView.ViewHolder {
+    abstract class BaseHolder<T> extends RecyclerView.ViewHolder {
+        public BaseHolder(View itemView) {
+            super(itemView);
+        }
+
+        public abstract void bind(T o);
+    }
+
+    class RelativeTickHolder extends BaseHolder<RelativeTick> {
 
         private final DecimalFormat df = new DecimalFormat("#.00");
 
@@ -60,25 +68,54 @@ public class RelativeTableFragment extends Fragment {
         }
     }
 
-    class RelativeTickAdapter extends RecyclerView.Adapter<RelativeTickHolder> {
+    class StringHolder extends BaseHolder<String> {
 
-        private List<RelativeTick> items;
+        @Bind(R.id.grid_item_textview)
+        TextView dateview;
 
-        public RelativeTickAdapter(List<RelativeTick> items) {
+        public StringHolder(View view) {
+            super(view);
+            ButterKnife.bind(this, view);
+        }
+
+        public void bind(String str) {
+            dateview.setText(str);
+        }
+    }
+
+    class GridAdapter extends RecyclerView.Adapter<BaseHolder> {
+
+        private List<Object> items;
+
+        private int totalRowCount;
+
+        public GridAdapter(List<Object> items, int topN) {
             this.items = items;
+            this.totalRowCount = topN + 1;
         }
 
         @Override
-        public RelativeTickHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public int getItemViewType(int position) {
+            return position % totalRowCount == 0 ? 0 : 1;
+        }
+
+        @Override
+        public BaseHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
             LayoutInflater inflator = LayoutInflater.from(getActivity());
-            View view = inflator.inflate(R.layout.grid_item_relative_tick, parent, false);
-            return new RelativeTickHolder(view);
+            if (viewType == 0) {
+                View view = inflator.inflate(R.layout.grid_item_textview, parent, false);
+                return new StringHolder(view);
+            } else {
+                View view = inflator.inflate(R.layout.grid_item_relative_tick, parent, false);
+                return new RelativeTickHolder(view);
+            }
         }
 
         @Override
-        public void onBindViewHolder(RelativeTickHolder holder, int position) {
-            RelativeTick item = items.get(position);
-            holder.bind(item);
+        @SuppressWarnings("unchecked")
+        public void onBindViewHolder(BaseHolder holder, int position) {
+            holder.bind(items.get(position));
         }
 
         @Override
@@ -107,12 +144,14 @@ public class RelativeTableFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         EventBus.getDefault().register(this);
-        View view = inflater.inflate(R.layout.fragment_table, container, false);
+        View view = inflater.inflate(R.layout.fragment_relative_table, container, false);
         ButterKnife.bind(this, view);
 
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this.getActivity(), 6);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this.getActivity(), 7);
+        gridLayoutManager.setAutoMeasureEnabled(true);
+
         table.setLayoutManager(gridLayoutManager);
-        table.setAdapter(new RelativeTickAdapter(new ArrayList<>()));
+        table.setAdapter(new GridAdapter(new ArrayList<>(), 0));
 
         int watchlistId = this.getArguments().getInt(WATCHLIST_ID);
         EventBus.getDefault().post(new RelativeTableLoadStart(watchlistId, true));
@@ -124,11 +163,11 @@ public class RelativeTableFragment extends Fragment {
     @SuppressWarnings("unused")
     public void onRelativeTableLoadComplete(RelativeTableLoadComplete event) {
 
-        List<RelativeTick> relativeTicks = event.getRelativeTicks();
+        List<Object> gridList = event.getGridList();
         Watchlist watchlist = event.getWatchlist();
 
         textView.setText(watchlist.getName());
-        table.setAdapter(new RelativeTickAdapter(relativeTicks));
+        table.setAdapter(new GridAdapter(gridList, event.getTopN()));
     }
 
     @Override

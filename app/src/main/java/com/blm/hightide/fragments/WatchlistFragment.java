@@ -23,6 +23,7 @@ import android.widget.TextView;
 import com.blm.hightide.R;
 import com.blm.hightide.activity.FileActivity;
 import com.blm.hightide.activity.RelativeChartActivity;
+import com.blm.hightide.activity.RelativeTableActivity;
 import com.blm.hightide.activity.SecurityActivity;
 import com.blm.hightide.activity.TableActivity;
 import com.blm.hightide.events.WatchlistFilesRequestComplete;
@@ -220,7 +221,7 @@ public class WatchlistFragment extends BaseFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.menu_stock_compare, menu);
+        inflater.inflate(R.menu.menu_watchlist, menu);
     }
 
     private int getWatchlistId(Bundle savedInstanceState) {
@@ -258,9 +259,14 @@ public class WatchlistFragment extends BaseFragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
         switch (item.getItemId()) {
             case R.id.action_execute:
-                Intent intent = RelativeChartActivity.newIntent(this.getActivity(), this.selectedWatchlist.getId());
+                intent = RelativeChartActivity.newIntent(this.getActivity(), this.selectedWatchlist.getId());
+                startActivity(intent);
+                break;
+            case R.id.action_table:
+                intent = RelativeTableActivity.newIntent(this.getActivity(), this.selectedWatchlist.getId());
                 startActivity(intent);
                 break;
             case R.id.action_refresh:

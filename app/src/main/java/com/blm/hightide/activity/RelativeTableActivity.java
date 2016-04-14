@@ -65,8 +65,8 @@ public class RelativeTableActivity extends AbstractBaseActivity {
                     int avgLen = 20;
                     int topN = 6;
 
-                    List<RelativeTick> relativeTicks = service.getRelativeTableForAverage(wl, lastN, avgLen, topN);
-                    EventBus.getDefault().post(new RelativeTableLoadComplete(wl, relativeTicks));
+                    List<Object> gridList = service.getRelativeTableForAverage(wl, lastN, avgLen, topN);
+                    EventBus.getDefault().post(new RelativeTableLoadComplete(wl, gridList, topN));
                 }, error -> {
                     Log.e(TAG, "onRelativeTableLoadStart: ", error);
                 });

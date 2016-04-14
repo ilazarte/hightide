@@ -1,6 +1,7 @@
 package com.blm.hightide.service;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.blm.corals.PriceData;
 import com.blm.corals.ReadError;
@@ -26,6 +27,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -277,9 +279,12 @@ public class StockService {
      * @param avgLen Length of the average
      * @param rowCount Choose the top N values on each date.
      * @return A single list where each rowCount is a 'row' sorted from highest to lowest.
-     *   Each rowcount of items will represent a single tick.
+     *   Each rowcount of items will represent a single tick.  Each row still start with 1 date instance.
+     *   So if rowCount is 6, it will be 7 items per row.
      */
-    public List<RelativeTick> getRelativeTableForAverage(Watchlist watchlist, int lastN, int avgLen, int rowCount) {
+    public List<Object> getRelativeTableForAverage(Watchlist watchlist, int lastN, int avgLen, int rowCount) {
+
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy", Locale.US);
         List<Security> securities = watchlist.getSecurities();
 
         int num = 0;
@@ -304,7 +309,9 @@ public class StockService {
 
             List<Tick> ticks = security.getStandardPriceData().getTicks();
             if (availableTicks.size() == 0) {
-                availableTicks = last(ticks, lastN);
+                Log.i(TAG, "getRelativeTableForAverage: ticks size: " + availableTicks.size());
+                availableTicks = last(ticks, lastN - avgLen);
+                Log.i(TAG, "getRelativeTableForAverage: ticks size after last: " + availableTicks.size());
             }
 
             List<Double> study = getCloseByAverage(ticks, lastN, avgLen);
@@ -314,23 +321,29 @@ public class StockService {
         }
 
         List<String> symbols = new ArrayList<>(valueMap.keySet());
-        List<RelativeTick> allTicks = new ArrayList<>();
+        List<Object> gridList = new ArrayList<>();
         List<RelativeTick> sampleTicks = new ArrayList<>();
 
         for (int i = 0; i < availableTicks.size(); i++) {
             sampleTicks.clear();
             for (String symbol : symbols) {
-                sampleTicks.add(new RelativeTick(symbol, valueMap.get(symbol).get(i), colorMap.get(symbol)));
+                List<Double> values = valueMap.get(symbol);
+                Log.i(TAG, "getRelativeTableForAverage: values size: " + values.size());
+                Double value = values.get(i);
+                Integer color = colorMap.get(symbol);
+                sampleTicks.add(new RelativeTick(symbol, value, color));
             }
             Collections.sort(sampleTicks, RelativeTick.COMPARATOR);
 
+            Date date = availableTicks.get(i).getTimestamp();
+            gridList.add(sdf.format(date));
+
             for (int j = sampleTicks.size() - 1, min = j - rowCount; j > min; j--) {
-                allTicks.add(sampleTicks.get(j));
+                gridList.add(sampleTicks.get(j));
             }
-            allTicks.addAll(sampleTicks);
         }
 
-        return allTicks;
+        return gridList;
     }
 
     /**

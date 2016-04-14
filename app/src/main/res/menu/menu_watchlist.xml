@@ -13,12 +13,18 @@
         android:id="@+id/action_execute"
         android:icon="@drawable/ic_execute"
         android:title="@string/action_execute"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/action_table"
+        android:icon="@drawable/ic_table"
+        android:title="@string/action_table"
+        app:showAsAction="always"/>
 
     <item
         android:id="@+id/action_refresh"
         android:icon="@drawable/ic_refresh"
         android:title="@string/action_refresh"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="never"/>
 
 </menu>
