@@ -309,9 +309,7 @@ public class StockService {
 
             List<Tick> ticks = security.getStandardPriceData().getTicks();
             if (availableTicks.size() == 0) {
-                Log.i(TAG, "getRelativeTableForAverage: ticks size: " + availableTicks.size());
                 availableTicks = last(ticks, lastN - avgLen);
-                Log.i(TAG, "getRelativeTableForAverage: ticks size after last: " + availableTicks.size());
             }
 
             List<Double> study = getCloseByAverage(ticks, lastN, avgLen);
@@ -328,7 +326,6 @@ public class StockService {
             sampleTicks.clear();
             for (String symbol : symbols) {
                 List<Double> values = valueMap.get(symbol);
-                Log.i(TAG, "getRelativeTableForAverage: values size: " + values.size());
                 Double value = values.get(i);
                 Integer color = colorMap.get(symbol);
                 sampleTicks.add(new RelativeTick(symbol, value, color));

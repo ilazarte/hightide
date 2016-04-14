@@ -8,7 +8,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.blm.hightide.R;
@@ -47,13 +46,7 @@ public class RelativeTableFragment extends Fragment {
 
         private final DecimalFormat df = new DecimalFormat("#.00");
 
-        @Bind(R.id.grid_item_container)
-        LinearLayout layout;
-
-        @Bind(R.id.grid_item_symbol)
-        TextView symbol;
-
-        @Bind(R.id.grid_item_value)
+        @Bind(R.id.grid_item_textview)
         TextView value;
 
         public RelativeTickHolder(View view) {
@@ -62,9 +55,8 @@ public class RelativeTableFragment extends Fragment {
         }
 
         public void bind(RelativeTick tick) {
-            layout.setBackgroundColor(tick.getColor());
-            symbol.setText(tick.getSymbol());
-            value.setText(df.format(tick.getValue()));
+            value.setBackgroundColor(tick.getColor());
+            value.setText(tick.getSymbol() + "\n" + df.format(tick.getValue()));
         }
     }
 
@@ -103,11 +95,10 @@ public class RelativeTableFragment extends Fragment {
         public BaseHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
             LayoutInflater inflator = LayoutInflater.from(getActivity());
+            View view = inflator.inflate(R.layout.grid_item_textview, parent, false);
             if (viewType == 0) {
-                View view = inflator.inflate(R.layout.grid_item_textview, parent, false);
                 return new StringHolder(view);
             } else {
-                View view = inflator.inflate(R.layout.grid_item_relative_tick, parent, false);
                 return new RelativeTickHolder(view);
             }
         }
