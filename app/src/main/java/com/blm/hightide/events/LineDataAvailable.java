@@ -12,6 +12,10 @@ public class LineDataAvailable {
 
     private LineData lineData;
 
+    private int last;
+
+    private int avgLen;
+
     public LineDataAvailable(Security security, LineData lineData) {
         this.security = security;
         this.lineData = lineData;
@@ -22,15 +26,49 @@ public class LineDataAvailable {
         this.lineData = lineData;
     }
 
+    public LineDataAvailable(Watchlist wl, LineData data, int last, int avgLen) {
+        this(wl, data);
+        this.last = last;
+        this.avgLen = avgLen;
+    }
+
     public Watchlist getWatchlist() {
         return watchlist;
+    }
+
+    public void setWatchlist(Watchlist watchlist) {
+        this.watchlist = watchlist;
     }
 
     public Security getSecurity() {
         return security;
     }
 
+    public void setSecurity(Security security) {
+        this.security = security;
+    }
+
     public LineData getLineData() {
         return lineData;
+    }
+
+    public void setLineData(LineData lineData) {
+        this.lineData = lineData;
+    }
+
+    public int getLast() {
+        return last;
+    }
+
+    public void setLast(int last) {
+        this.last = last;
+    }
+
+    public int getAvgLen() {
+        return avgLen;
+    }
+
+    public void setAvgLen(int avgLen) {
+        this.avgLen = avgLen;
     }
 }

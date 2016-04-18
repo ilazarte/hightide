@@ -49,12 +49,8 @@ public class RelativeChartActivity extends AbstractBaseActivity {
         service.findWatchlist(watchlistId)
                 .flatMap(wl -> service.setWatchlistPriceData(wl, true))
                 .subscribe(wl -> {
-
-                    int lastN = 60;
-                    int avgLen = 20;
-                    LineData data = service.getRelativeForAverage(wl, lastN, avgLen);
-
-                    EventBus.getDefault().post(new LineDataAvailable(wl, data));
+                    LineData data = service.getRelativeForAverage(wl, event.getLast(), event.getAvgLen());
+                    EventBus.getDefault().post(new LineDataAvailable(wl, data, event.getLast(), event.getAvgLen()));
                 }, error -> {
                     Log.e(TAG, "onWatchlistLoadFilesStart: ", error);
                 });

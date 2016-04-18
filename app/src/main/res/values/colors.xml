@@ -8,4 +8,5 @@
     <color name="strong_fade">#abc9e1</color>
     <color name="weak">#ea9b9b</color>
     <color name="weak_fade">#e4b9b9</color>
+    <color name="light_grey">#c6c6c6</color>
 </resources>

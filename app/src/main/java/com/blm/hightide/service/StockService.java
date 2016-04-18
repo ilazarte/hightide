@@ -84,10 +84,10 @@ public class StockService {
         return Observable.zip(wlo, listObservable,
                 (wl, securities) -> {
                     wl.setSecurities(securities);
-                    Log.i(TAG, "setWatchlistPriceData: " + securities.size());
+                    /*Log.i(TAG, "setWatchlistPriceData: " + securities.size());
                     for (Security sec : securities) {
                         Log.i(TAG, "setWatchlistPriceData: security: " + sec.getSymbol() + ", " + sec.getStandardPriceData().getTicks().size());
-                    }
+                    }*/
                     return wl;
                 });
     }
