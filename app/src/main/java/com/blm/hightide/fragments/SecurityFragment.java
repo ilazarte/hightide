@@ -2,7 +2,6 @@ package com.blm.hightide.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +25,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class SecurityFragment extends Fragment {
+public class SecurityFragment extends BaseFragment {
 
     @SuppressWarnings("unused")
     private static final String TAG = SecurityFragment.class.getSimpleName();
@@ -49,12 +48,6 @@ public class SecurityFragment extends Fragment {
         SecurityFragment fragment = new SecurityFragment();
         fragment.setArguments(args);
         return fragment;
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EventBus.getDefault().register(this);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -97,11 +90,5 @@ public class SecurityFragment extends Fragment {
         EventBus.getDefault().post(new SecurityLoadStart(symbol));
 
         return view;
-    }
-
-    @Override
-    public void onDestroy() {
-        EventBus.getDefault().unregister(this);
-        super.onDestroy();
     }
 }

@@ -44,7 +44,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile files('libs/corals-0.0.5-SNAPSHOT.jar')
+    compile files('libs/corals-0.0.7-SNAPSHOT.jar')
     compile 'com.android.support:appcompat-v7:23.3.0'
     compile 'com.android.support:design:23.3.0'
     compile 'com.android.support:cardview-v7:23.3.0'

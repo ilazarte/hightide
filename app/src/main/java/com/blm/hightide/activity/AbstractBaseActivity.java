@@ -1,6 +1,7 @@
 package com.blm.hightide.activity;
 
 import android.app.ProgressDialog;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -9,9 +10,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
 import com.blm.hightide.R;
+import com.blm.hightide.events.GlobalLayout;
+import com.blm.hightide.service.StockService;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -26,9 +30,14 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
 
     private ProgressDialog progressDialog;
 
+    private StockService stockService = new StockService();
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        stockService.init(this);
+        EventBus.getDefault().register(this);
+
         setContentView(R.layout.activity_fragment_container);
 
         FragmentManager fm = getSupportFragmentManager();
@@ -40,6 +49,32 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
                     .add(R.id.fragment_container, fragment)
                     .commit();
         }
+
+        /*layout is complete and the dimensions of myView and any child views are known.*/
+        View container = findViewById(R.id.main_container);
+        if (container == null) {
+            return;
+        }
+
+        container.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+                    container.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                } else {
+                    container.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                }
+                EventBus.getDefault().post(GlobalLayout.INSTANCE);
+            }
+        });
+    }
+
+    public StockService getStockService() {
+        return stockService;
+    }
+
+    public void setStockService(StockService stockService) {
+        this.stockService = stockService;
     }
 
     @Subscribe
@@ -50,8 +85,9 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
     /**
      * Used for initialization in preparation of notifications.
      * Must be called only once in a single threaded manner.
+     *
      * @param initialMessage An initial message to display to the user
-     * @param max The total number of notification points the dialog will receive
+     * @param max            The total number of notification points the dialog will receive
      */
     public void initProgressDialog(int initialMessage, int max) {
         this.runOnUiThread(() -> {
@@ -74,8 +110,9 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
 
     /**
      * Dismiss the progress notification.
+     *
      * @param completeMessage The message to render via a snackbar.
-     * @param event A new event to trigger.  May be null.
+     * @param event           A new event to trigger.  May be null.
      */
     public void completeFileProgress(final int completeMessage, final Object event) {
         this.runOnUiThread(() -> {
@@ -117,6 +154,7 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
 
     /**
      * Simple toast value
+     *
      * @param id a resource id.
      */
     public void toast(int id) {
@@ -129,6 +167,7 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
 
     /**
      * Snackbar
+     *
      * @param id a resourceid
      */
     public void snackbar(int id) {
@@ -140,4 +179,12 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
     }
 
     public abstract Fragment createFragment();
+
+
+    @Override
+    protected void onPause() {
+        EventBus.getDefault().unregister(this);
+        super.onPause();
+        stockService.release();
+    }
 }

@@ -2,7 +2,6 @@ package com.blm.hightide.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
@@ -23,19 +22,10 @@ public class RelativeChartActivity extends AbstractBaseActivity {
 
     private static final String WATCHLIST_ID = "com.blm.hightide.activity.WATCHLIST_ID";
 
-    private StockService service = new StockService();
-
     public static Intent newIntent(Context context, int watchlistId) {
         Intent intent = new Intent(context, RelativeChartActivity.class);
         intent.putExtra(WATCHLIST_ID, watchlistId);
         return intent;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        EventBus.getDefault().register(this);
-        super.onCreate(savedInstanceState);
-        service.init(this);
     }
 
     @Override
@@ -54,6 +44,7 @@ public class RelativeChartActivity extends AbstractBaseActivity {
 
         toast(R.string.chart_security);
 
+        StockService service = this.getStockService();
         int watchlistId = event.getWatchlistId();
         service.findWatchlist(watchlistId)
                 .flatMap(wl -> service.setWatchlistPriceData(wl, true))
@@ -67,12 +58,5 @@ public class RelativeChartActivity extends AbstractBaseActivity {
                 }, error -> {
                     Log.e(TAG, "onWatchlistLoadFilesStart: ", error);
                 });
-    }
-
-    @Override
-    protected void onDestroy() {
-        EventBus.getDefault().unregister(this);
-        super.onDestroy();
-        service.release();
     }
 }

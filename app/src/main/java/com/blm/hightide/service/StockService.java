@@ -42,7 +42,7 @@ public class StockService {
     @SuppressWarnings("unused")
     private static final String TAG = StockService.class.getSimpleName();
 
-    private Operators op = new Operators();
+    private Operators<Double> op = Operators.doubles();
 
     private DatabaseHelper helper;
 
@@ -84,6 +84,10 @@ public class StockService {
         return Observable.zip(wlo, listObservable,
                 (wl, securities) -> {
                     wl.setSecurities(securities);
+                    Log.i(TAG, "setWatchlistPriceData: " + securities.size());
+                    for (Security sec : securities) {
+                        Log.i(TAG, "setWatchlistPriceData: security: " + sec.getSymbol() + ", " + sec.getStandardPriceData().getTicks().size());
+                    }
                     return wl;
                 });
     }
@@ -284,7 +288,7 @@ public class StockService {
      */
     public List<Object> getRelativeTableForAverage(Watchlist watchlist, int lastN, int avgLen, int rowCount) {
 
-        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy", Locale.US);
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd\nyyyy", Locale.US);
         List<Security> securities = watchlist.getSecurities();
 
         int num = 0;
@@ -325,6 +329,7 @@ public class StockService {
         for (int i = 0; i < availableTicks.size(); i++) {
             sampleTicks.clear();
             for (String symbol : symbols) {
+                Log.i(TAG, "getRelativeTableForAverage: " + symbol + " thread: " + Thread.currentThread().getId());
                 List<Double> values = valueMap.get(symbol);
                 Double value = values.get(i);
                 Integer color = colorMap.get(symbol);

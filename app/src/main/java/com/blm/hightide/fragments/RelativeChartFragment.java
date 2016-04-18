@@ -50,11 +50,6 @@ public class RelativeChartFragment extends BaseFragment {
         return fragment;
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EventBus.getDefault().register(this);
-    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     @SuppressWarnings("unused")
@@ -72,6 +67,9 @@ public class RelativeChartFragment extends BaseFragment {
         ButterKnife.bind(this, view);
 
         chart.setNoDataText(this.getString(R.string.loading));
+        /*chart.setAutoScaleMinMaxEnabled(true);
+        chart.setVisibleXRangeMaximum(40);*/
+        chart.getLegend().setWordWrapEnabled(true);
         chart.setDescription(null);
         chart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
             @Override
@@ -96,11 +94,5 @@ public class RelativeChartFragment extends BaseFragment {
         EventBus.getDefault().post(new WatchlistLoadFilesStart(watchlistId));
 
         return view;
-    }
-
-    @Override
-    public void onDestroy() {
-        EventBus.getDefault().unregister(this);
-        super.onDestroy();
     }
 }

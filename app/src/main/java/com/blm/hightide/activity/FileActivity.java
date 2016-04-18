@@ -2,7 +2,6 @@ package com.blm.hightide.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
 import com.blm.hightide.R;
@@ -23,19 +22,10 @@ public class FileActivity extends AbstractBaseActivity {
 
     private static final String SECURITY_SYMBOL = "com.blm.hightide.activity.SECURITY_SYMBOL";
 
-    private StockService service = new StockService();
-
     public static Intent newIntent(Context context, String symbol) {
         Intent intent = new Intent(context, FileActivity.class);
         intent.putExtra(SECURITY_SYMBOL, symbol);
         return intent;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        EventBus.getDefault().register(this);
-        super.onCreate(savedInstanceState);
-        service.init(this);
     }
 
     @Override
@@ -53,6 +43,7 @@ public class FileActivity extends AbstractBaseActivity {
 
         toast(R.string.read_file);
 
+        StockService service = this.getStockService();
         String symbol = event.getSymbol();
         service.findSecurity(symbol)
                 .flatMap(security -> service.setStandardPriceData(security, true))
@@ -61,12 +52,5 @@ public class FileActivity extends AbstractBaseActivity {
                     FileDataAvailable available = new FileDataAvailable(symbol, fileData);
                     EventBus.getDefault().post(available);
                 });
-    }
-
-    @Override
-    protected void onDestroy() {
-        EventBus.getDefault().unregister(this);
-        super.onDestroy();
-        service.release();
     }
 }

@@ -2,7 +2,6 @@ package com.blm.hightide.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -27,7 +26,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class FileFragment extends Fragment {
+public class FileFragment extends BaseFragment {
 
     @SuppressWarnings("unused")
     private static final String TAG = FileFragment.class.getSimpleName();
@@ -65,7 +64,8 @@ public class FileFragment extends Fragment {
         public void bind(FileLine fileLine) {
 
             /*http://stackoverflow.com/questions/22196453/linearlayout-in-horizontalscrollview-is-not-expanding*/
-            lineNum.setText(Integer.valueOf(fileLine.getNum()).toString());
+            String text = Integer.valueOf(fileLine.getNum()).toString();
+            lineNum.setText(text);
             lineString.setText(fileLine.getLine());
             lineString.setSingleLine();
         }
@@ -102,7 +102,6 @@ public class FileFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        EventBus.getDefault().register(this);
         View view = inflater.inflate(R.layout.fragment_file, container, false);
         ButterKnife.bind(this, view);
 
@@ -128,11 +127,5 @@ public class FileFragment extends Fragment {
         textView.setText(fileData.getName());
         List<FileLine> lines = fileData.getLines();
         recyclerView.setAdapter(new Adapter(lines));
-    }
-
-    @Override
-    public void onDestroy() {
-        EventBus.getDefault().unregister(this);
-        super.onDestroy();
     }
 }

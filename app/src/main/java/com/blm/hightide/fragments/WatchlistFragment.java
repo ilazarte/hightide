@@ -51,8 +51,6 @@ public class WatchlistFragment extends BaseFragment {
 
     private static final String TAG = WatchlistFragment.class.getSimpleName();
 
-    private static final String WATCHLIST_ID = "WATCHLIST_ID";
-
     private List<Watchlist> watchlists;
 
     private Watchlist selectedWatchlist;
@@ -184,7 +182,6 @@ public class WatchlistFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        EventBus.getDefault().register(this);
         setHasOptionsMenu(true);
         View view = inflater.inflate(R.layout.fragment_watchlist, container, false);
         ButterKnife.bind(this, view);
@@ -195,9 +192,6 @@ public class WatchlistFragment extends BaseFragment {
         this.supportActionBar = this.getSupportActionBar(toolbar);
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getAppCompatActivity()));
         recyclerView.setAdapter(new Adapter(new ArrayList<>()));
-
-        int watchlistId = this.getWatchlistId(savedInstanceState);
-        EventBus.getDefault().post(new WatchlistFilesRequestStart(watchlistId, true));
 
         return view;
     }
@@ -224,10 +218,6 @@ public class WatchlistFragment extends BaseFragment {
         inflater.inflate(R.menu.menu_watchlist, menu);
     }
 
-    private int getWatchlistId(Bundle savedInstanceState) {
-        return savedInstanceState == null ? -1 : savedInstanceState.getInt(WATCHLIST_ID, -1);
-    }
-
     private void resetSpinner() {
 
         resettingSpinner = true;
@@ -247,14 +237,6 @@ public class WatchlistFragment extends BaseFragment {
             idx++;
         }
         spinner.setSelection(idx);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (selectedWatchlist != null) {
-            outState.putInt(WATCHLIST_ID, selectedWatchlist.getId());
-        }
     }
 
     @Override
@@ -279,11 +261,5 @@ public class WatchlistFragment extends BaseFragment {
                 break;
         }
         return false;
-    }
-
-    @Override
-    public void onDestroy() {
-        EventBus.getDefault().unregister(this);
-        super.onDestroy();
     }
 }

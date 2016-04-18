@@ -2,7 +2,6 @@ package com.blm.hightide.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -30,7 +29,7 @@ import java.util.Locale;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class TableFragment extends Fragment {
+public class TableFragment extends BaseFragment {
 
     @SuppressWarnings("unused")
     private static final String TAG = TableFragment.class.getSimpleName();
@@ -134,7 +133,6 @@ public class TableFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        EventBus.getDefault().register(this);
         View view = inflater.inflate(R.layout.fragment_table, container, false);
         ButterKnife.bind(this, view);
         ButterKnife.bind(header, view);
@@ -168,11 +166,5 @@ public class TableFragment extends Fragment {
 
         textView.setText(security.getSymbol());
         table.setAdapter(new TickAdapter(ticks));
-    }
-
-    @Override
-    public void onDestroy() {
-        EventBus.getDefault().unregister(this);
-        super.onDestroy();
     }
 }

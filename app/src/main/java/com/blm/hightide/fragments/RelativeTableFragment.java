@@ -2,7 +2,6 @@ package com.blm.hightide.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -27,7 +26,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class RelativeTableFragment extends Fragment {
+public class RelativeTableFragment extends BaseFragment {
 
     @SuppressWarnings("unused")
     private static final String TAG = RelativeTableFragment.class.getSimpleName();
@@ -55,8 +54,9 @@ public class RelativeTableFragment extends Fragment {
         }
 
         public void bind(RelativeTick tick) {
+            String text = tick.getSymbol() + "\n" + df.format(tick.getValue());
             value.setBackgroundColor(tick.getColor());
-            value.setText(tick.getSymbol() + "\n" + df.format(tick.getValue()));
+            value.setText(text);
         }
     }
 
@@ -134,7 +134,6 @@ public class RelativeTableFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        EventBus.getDefault().register(this);
         View view = inflater.inflate(R.layout.fragment_relative_table, container, false);
         ButterKnife.bind(this, view);
 
@@ -159,11 +158,5 @@ public class RelativeTableFragment extends Fragment {
 
         textView.setText(watchlist.getName());
         table.setAdapter(new GridAdapter(gridList, event.getTopN()));
-    }
-
-    @Override
-    public void onDestroy() {
-        EventBus.getDefault().unregister(this);
-        super.onDestroy();
     }
 }

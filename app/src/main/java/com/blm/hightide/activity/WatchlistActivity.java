@@ -1,10 +1,10 @@
 package com.blm.hightide.activity;
 
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
 import com.blm.hightide.R;
+import com.blm.hightide.events.GlobalLayout;
 import com.blm.hightide.events.WatchlistFilesRequestComplete;
 import com.blm.hightide.events.WatchlistFilesRequestStart;
 import com.blm.hightide.fragments.WatchlistFragment;
@@ -18,15 +18,6 @@ public class WatchlistActivity extends AbstractBaseActivity {
 
     private static final String TAG = WatchlistActivity.class.getSimpleName();
 
-    private StockService service = new StockService();
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        service.init(this);
-        EventBus.getDefault().register(this);
-    }
-
     @Override
     public Fragment createFragment() {
         return WatchlistFragment.newInstance();
@@ -34,8 +25,17 @@ public class WatchlistActivity extends AbstractBaseActivity {
 
     @Subscribe(threadMode = ThreadMode.ASYNC)
     @SuppressWarnings("unused")
+    public void onGlobalLayout(GlobalLayout event) {
+        Log.i(TAG, "onGlobalLayout: using global layout to run!");
+        onWatchlistFilesRequestStart(new WatchlistFilesRequestStart(-1, true));
+    }
+    
+    @Subscribe(threadMode = ThreadMode.ASYNC)
+    @SuppressWarnings("unused")
     public void onWatchlistFilesRequestStart(WatchlistFilesRequestStart event) {
 
+        Log.i(TAG, "onWatchlistFilesRequestStart: invoking main worker function");
+        StockService service = this.getStockService();
         toast(R.string.read_files);
 
         int watchlistId = event.getWatchlistId();
@@ -50,12 +50,5 @@ public class WatchlistActivity extends AbstractBaseActivity {
                 }, error -> {
                     Log.e(TAG, "onWatchlistFilesRequestStart: ", error);
                 });
-    }
-
-    @Override
-    protected void onDestroy() {
-        EventBus.getDefault().unregister(this);
-        super.onDestroy();
-        service.release();
     }
 }

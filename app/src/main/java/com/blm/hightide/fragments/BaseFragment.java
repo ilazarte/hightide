@@ -1,11 +1,15 @@
 package com.blm.hightide.fragments;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.widget.ArrayAdapter;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
@@ -13,6 +17,18 @@ public class BaseFragment extends Fragment {
 
     public AppCompatActivity getAppCompatActivity() {
         return (AppCompatActivity) this.getActivity();
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        EventBus.getDefault().register(this);
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onPause() {
+        EventBus.getDefault().unregister(this);
+        super.onPause();
     }
 
     public ActionBar getSupportActionBar(Toolbar toolbar) {
