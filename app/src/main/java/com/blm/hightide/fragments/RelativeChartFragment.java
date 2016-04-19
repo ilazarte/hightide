@@ -17,6 +17,8 @@ import android.widget.TextView;
 import com.blm.hightide.R;
 import com.blm.hightide.events.LineDataAvailable;
 import com.blm.hightide.events.WatchlistLoadFilesStart;
+import com.blm.hightide.model.MovingAvgParams;
+import com.blm.hightide.model.Watchlist;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -41,12 +43,6 @@ public class RelativeChartFragment extends BaseFragment {
     @SuppressWarnings("unused")
     private static final String TAG = RelativeChartFragment.class.getSimpleName();
 
-    private static final Integer LAST_DEFAULT = 60;
-
-    private static final Integer AVG_LEN_DEFAULT = 20;
-
-    private static final String WATCHLIST_ID = "WATCHLIST_ID";
-
     @Bind(R.id.toolbar_settings)
     Toolbar toolbar;
 
@@ -69,26 +65,36 @@ public class RelativeChartFragment extends BaseFragment {
 
     private List<Integer> numbers = new ArrayList<>();
 
-    private int last;
+    private Watchlist watchlist;
 
-    private int avgLen;
+    private MovingAvgParams params;
+
+    private boolean avgLengthReset = true;
+
+    private boolean numberReset = true;
 
     @OnItemSelected(R.id.spinner_number)
     @SuppressWarnings("unused")
     void selectNumber(int position) {
-        last = numbers.get(position);
+        if (numberReset) {
+            numberReset = false;
+            return;
+        }
+        params.setLength(numbers.get(position));
     }
 
     @OnItemSelected(R.id.spinner_average_length)
     @SuppressWarnings("unused")
     void selectAverageLength(int position) {
-        avgLen = numbers.get(position);
+        if (avgLengthReset) {
+            avgLengthReset = false;
+            return;
+        }
+        params.setAvgLength(numbers.get(position));
     }
 
-    public static RelativeChartFragment newInstance(int watchlistId) {
+    public static RelativeChartFragment newInstance() {
         Bundle args = new Bundle();
-        args.putInt(WATCHLIST_ID, watchlistId);
-
         RelativeChartFragment fragment = new RelativeChartFragment();
         fragment.setArguments(args);
         return fragment;
@@ -97,6 +103,15 @@ public class RelativeChartFragment extends BaseFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     @SuppressWarnings("unused")
     public void onLineDataAvailable(LineDataAvailable event) {
+        params = event.getParams();
+        watchlist = event.getWatchlist();
+
+        int lengthValue = numbers.indexOf(params.getLength());
+        int avgLengthValue = numbers.indexOf(params.getAvgLength());
+
+        spinnerNumber.setSelection(lengthValue);
+        spinnerAverageLength.setSelection(avgLengthValue);
+
         title.setText(event.getWatchlist().getName());
         chart.setData(event.getLineData());
         chart.invalidate();
@@ -112,16 +127,14 @@ public class RelativeChartFragment extends BaseFragment {
 
         supportActionBar = this.getSupportActionBar(toolbar);
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 10; i < 101; i += 10) {
             numbers.add(i);
         }
 
         Context themedContext = supportActionBar.getThemedContext();
-        spinnerNumber.setAdapter(this.getSimpleArrayAdapter(themedContext, numbers));
-        spinnerNumber.setSelection(LAST_DEFAULT);
 
+        spinnerNumber.setAdapter(this.getSimpleArrayAdapter(themedContext, numbers));
         spinnerAverageLength.setAdapter(this.getSimpleArrayAdapter(themedContext, numbers));
-        spinnerAverageLength.setSelection(AVG_LEN_DEFAULT);
 
         chart.setNoDataText(this.getString(R.string.loading));
         /*chart.setAutoScaleMinMaxEnabled(true);
@@ -147,10 +160,6 @@ public class RelativeChartFragment extends BaseFragment {
             }
         });
 
-        int watchlistId = this.getArguments().getInt(WATCHLIST_ID);
-        WatchlistLoadFilesStart event = new WatchlistLoadFilesStart(watchlistId, LAST_DEFAULT, AVG_LEN_DEFAULT);
-        EventBus.getDefault().post(event);
-
         return view;
     }
 
@@ -164,8 +173,7 @@ public class RelativeChartFragment extends BaseFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_execute:
-                int watchlistId = this.getArguments().getInt(WATCHLIST_ID);
-                WatchlistLoadFilesStart event = new WatchlistLoadFilesStart(watchlistId, last, avgLen);
+                WatchlistLoadFilesStart event = new WatchlistLoadFilesStart(watchlist.getId(), params);
                 EventBus.getDefault().post(event);
                 break;
             default:

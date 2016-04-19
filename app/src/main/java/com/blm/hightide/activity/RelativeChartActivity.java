@@ -6,9 +6,11 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 
 import com.blm.hightide.R;
+import com.blm.hightide.events.GlobalLayout;
 import com.blm.hightide.events.LineDataAvailable;
 import com.blm.hightide.events.WatchlistLoadFilesStart;
 import com.blm.hightide.fragments.RelativeChartFragment;
+import com.blm.hightide.model.MovingAvgParams;
 import com.blm.hightide.service.StockService;
 import com.github.mikephil.charting.data.LineData;
 
@@ -22,6 +24,7 @@ public class RelativeChartActivity extends AbstractBaseActivity {
 
     private static final String WATCHLIST_ID = "com.blm.hightide.activity.WATCHLIST_ID";
 
+
     public static Intent newIntent(Context context, int watchlistId) {
         Intent intent = new Intent(context, RelativeChartActivity.class);
         intent.putExtra(WATCHLIST_ID, watchlistId);
@@ -30,12 +33,17 @@ public class RelativeChartActivity extends AbstractBaseActivity {
 
     @Override
     public Fragment createFragment() {
+        return RelativeChartFragment.newInstance();
+    }
+
+    @Subscribe(threadMode = ThreadMode.ASYNC)
+    @SuppressWarnings("unused")
+    public void onGlobalLayout(GlobalLayout event) {
         int watchlistId = this.getIntent().getExtras().getInt(WATCHLIST_ID);
-        return RelativeChartFragment.newInstance(watchlistId);
+        onWatchlistLoadFilesStart(new WatchlistLoadFilesStart(watchlistId, new MovingAvgParams()));
     }
 
     /**
-     * TODO make study parameters configurable via ui
      * @param event The starting watchlist id
      */
     @Subscribe(threadMode = ThreadMode.ASYNC)
@@ -49,8 +57,9 @@ public class RelativeChartActivity extends AbstractBaseActivity {
         service.findWatchlist(watchlistId)
                 .flatMap(wl -> service.setWatchlistPriceData(wl, true))
                 .subscribe(wl -> {
-                    LineData data = service.getRelativeForAverage(wl, event.getLast(), event.getAvgLen());
-                    EventBus.getDefault().post(new LineDataAvailable(wl, data, event.getLast(), event.getAvgLen()));
+                    MovingAvgParams params = event.getParams();
+                    LineData data = service.getRelativeForAverage(wl, params.getLength(), params.getAvgLength());
+                    EventBus.getDefault().post(new LineDataAvailable(wl, data, params));
                 }, error -> {
                     Log.e(TAG, "onWatchlistLoadFilesStart: ", error);
                 });

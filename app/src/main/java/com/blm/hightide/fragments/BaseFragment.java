@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 
 import org.greenrobot.eventbus.EventBus;
@@ -14,6 +15,9 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.List;
 
 public class BaseFragment extends Fragment {
+
+    @SuppressWarnings("unused")
+    private static final String TAG = BaseFragment.class.getSimpleName();
 
     public AppCompatActivity getAppCompatActivity() {
         return (AppCompatActivity) this.getActivity();

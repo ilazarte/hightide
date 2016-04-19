@@ -26,7 +26,6 @@ public class WatchlistActivity extends AbstractBaseActivity {
     @Subscribe(threadMode = ThreadMode.ASYNC)
     @SuppressWarnings("unused")
     public void onGlobalLayout(GlobalLayout event) {
-        Log.i(TAG, "onGlobalLayout: using global layout to run!");
         onWatchlistFilesRequestStart(new WatchlistFilesRequestStart(-1, true));
     }
     
@@ -34,7 +33,6 @@ public class WatchlistActivity extends AbstractBaseActivity {
     @SuppressWarnings("unused")
     public void onWatchlistFilesRequestStart(WatchlistFilesRequestStart event) {
 
-        Log.i(TAG, "onWatchlistFilesRequestStart: invoking main worker function");
         StockService service = this.getStockService();
         toast(R.string.read_files);
 
