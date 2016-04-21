@@ -11,6 +11,7 @@ import com.blm.corals.study.window.Average;
 import com.blm.hightide.db.DatabaseHelper;
 import com.blm.hightide.model.FileData;
 import com.blm.hightide.model.FileLine;
+import com.blm.hightide.model.MovingAvgGridParams;
 import com.blm.hightide.model.RelativeTick;
 import com.blm.hightide.model.Security;
 import com.blm.hightide.model.Watchlist;
@@ -279,14 +280,16 @@ public class StockService {
      * Given a valid watchlist with ticks for every security,
      * return a line of datasets.
      * @param watchlist Input watchlist containing securities and ticks.
-     * @param lastN Last n values from the ticks.
-     * @param avgLen Length of the average
-     * @param rowCount Choose the top N values on each date.
+     * @param params The configured parameters for generating the grid.
      * @return A single list where each rowCount is a 'row' sorted from highest to lowest.
      *   Each rowcount of items will represent a single tick.  Each row still start with 1 date instance.
      *   So if rowCount is 6, it will be 7 items per row.
      */
-    public List<Object> getRelativeTableForAverage(Watchlist watchlist, int lastN, int avgLen, int rowCount) {
+    public List<Object> getRelativeTableForAverage(Watchlist watchlist, MovingAvgGridParams params) {
+
+        int lastN = params.getLength();
+        int avgLen = params.getAvgLength();
+        int rowCount = params.getTopLength();
 
         SimpleDateFormat sdf = new SimpleDateFormat("MM-dd\nyyyy", Locale.US);
         List<Security> securities = watchlist.getSecurities();
@@ -313,7 +316,7 @@ public class StockService {
 
             List<Tick> ticks = security.getStandardPriceData().getTicks();
             if (availableTicks.size() == 0) {
-                availableTicks = last(ticks, lastN - avgLen);
+                availableTicks = op.last(ticks, lastN - avgLen);
             }
 
             List<Double> study = getCloseByAverage(ticks, lastN, avgLen);
@@ -329,7 +332,6 @@ public class StockService {
         for (int i = 0; i < availableTicks.size(); i++) {
             sampleTicks.clear();
             for (String symbol : symbols) {
-                Log.i(TAG, "getRelativeTableForAverage: " + symbol + " thread: " + Thread.currentThread().getId());
                 List<Double> values = valueMap.get(symbol);
                 Double value = values.get(i);
                 Integer color = colorMap.get(symbol);
@@ -418,23 +420,6 @@ public class StockService {
         }
 
         return new LineDataSet(entries, symbol);
-    }
-
-    /**
-     * TODO migrate to Corals.
-     * Return the last items
-     * @param items A list of items.
-     * @param lastN The number to return
-     * @param <T> The generic type
-     * @return The last n items in a list.
-     */
-    public <T> List<T> last(List<T> items, int lastN) {
-        List<T> lastItems = new ArrayList<>();
-        for (int i = items.size() - lastN; i < items.size(); i++) {
-            T item = items.get(i);
-            lastItems.add(item);
-        }
-        return lastItems;
     }
 
     /**

@@ -6,9 +6,11 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 
 import com.blm.hightide.R;
+import com.blm.hightide.events.GlobalLayout;
 import com.blm.hightide.events.RelativeTableLoadComplete;
 import com.blm.hightide.events.RelativeTableLoadStart;
 import com.blm.hightide.fragments.RelativeTableFragment;
+import com.blm.hightide.model.MovingAvgGridParams;
 import com.blm.hightide.service.StockService;
 
 import org.greenrobot.eventbus.EventBus;
@@ -32,8 +34,14 @@ public class RelativeTableActivity extends AbstractBaseActivity {
 
     @Override
     public Fragment createFragment() {
+        return RelativeTableFragment.newInstance();
+    }
+
+    @Subscribe(threadMode = ThreadMode.ASYNC)
+    @SuppressWarnings("unused")
+    public void onGlobalLayout(GlobalLayout event) {
         int watchlistId = this.getIntent().getExtras().getInt(WATCHLIST_ID);
-        return RelativeTableFragment.newInstance(watchlistId);
+        onRelativeTableLoadStart(new RelativeTableLoadStart(watchlistId, new MovingAvgGridParams(), true));
     }
 
     @Subscribe(threadMode = ThreadMode.ASYNC)
@@ -47,16 +55,9 @@ public class RelativeTableActivity extends AbstractBaseActivity {
         service.findWatchlist(watchlistId)
                 .flatMap(wl -> service.setWatchlistPriceData(wl, true))
                 .subscribe(wl -> {
-
-                    /* TODO arg, where to put these guys?
-                     * must match the relative chart activity.
-                     */
-                    int lastN = 60;
-                    int avgLen = 20;
-                    int topN = 6;
-
-                    List<Object> gridList = service.getRelativeTableForAverage(wl, lastN, avgLen, topN);
-                    EventBus.getDefault().post(new RelativeTableLoadComplete(wl, gridList, topN));
+                    MovingAvgGridParams params = event.getParams();
+                    List<Object> gridList = service.getRelativeTableForAverage(wl, params);
+                    EventBus.getDefault().post(new RelativeTableLoadComplete(wl, gridList, params));
                 }, error -> {
                     Log.e(TAG, "onRelativeTableLoadStart: ", error);
                 });

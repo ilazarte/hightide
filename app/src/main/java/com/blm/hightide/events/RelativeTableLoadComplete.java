@@ -1,5 +1,6 @@
 package com.blm.hightide.events;
 
+import com.blm.hightide.model.MovingAvgGridParams;
 import com.blm.hightide.model.Watchlist;
 
 import java.util.List;
@@ -10,12 +11,12 @@ public class RelativeTableLoadComplete {
 
     private List<Object> gridList;
 
-    private int topN;
+    private MovingAvgGridParams params;
 
-    public RelativeTableLoadComplete(Watchlist watchlist, List<Object> relativeTicks, int topN) {
+    public RelativeTableLoadComplete(Watchlist watchlist, List<Object> relativeTicks, MovingAvgGridParams params) {
         this.watchlist = watchlist;
         this.gridList = relativeTicks;
-        this.topN = topN;
+        this.params = params;
     }
 
     public Watchlist getWatchlist() {
@@ -34,11 +35,11 @@ public class RelativeTableLoadComplete {
         this.gridList = gridList;
     }
 
-    public int getTopN() {
-        return topN;
+    public MovingAvgGridParams getParams() {
+        return params;
     }
 
-    public void setTopN(int topN) {
-        this.topN = topN;
+    public void setParams(MovingAvgGridParams params) {
+        this.params = params;
     }
 }

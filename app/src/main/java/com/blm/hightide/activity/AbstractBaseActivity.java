@@ -33,6 +33,7 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
     private StockService stockService = new StockService();
 
     @Override
+    @SuppressWarnings("deprecation")
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         stockService.init(this);
@@ -62,6 +63,7 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
                     container.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 } else {
+
                     container.getViewTreeObserver().removeGlobalOnLayoutListener(this);
                 }
                 EventBus.getDefault().post(GlobalLayout.INSTANCE);
@@ -73,11 +75,13 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
         return stockService;
     }
 
+    @SuppressWarnings("unused")
     public void setStockService(StockService stockService) {
         this.stockService = stockService;
     }
 
     @Subscribe
+    @SuppressWarnings("unused")
     public void error(SubscriberExceptionEvent event) {
         handleThrowable(TAG, event);
     }
@@ -89,6 +93,7 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
      * @param initialMessage An initial message to display to the user
      * @param max            The total number of notification points the dialog will receive
      */
+    @SuppressWarnings("unused")
     public void initProgressDialog(int initialMessage, int max) {
         this.runOnUiThread(() -> {
             progressDialog = new ProgressDialog(this);
@@ -101,6 +106,7 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
         });
     }
 
+    @SuppressWarnings("unused")
     public void notifyFileProgress(String message, int incr) {
         this.runOnUiThread(() -> {
             progressDialog.setMessage(message);
@@ -114,6 +120,7 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
      * @param completeMessage The message to render via a snackbar.
      * @param event           A new event to trigger.  May be null.
      */
+    @SuppressWarnings("unused")
     public void completeFileProgress(final int completeMessage, final Object event) {
         this.runOnUiThread(() -> {
             progressDialog.setOnDismissListener(dialog -> {
@@ -149,6 +156,9 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
 
     public View getRootView() {
         ViewGroup viewById = (ViewGroup) this.findViewById(android.R.id.content);
+        if (viewById == null) {
+            throw new RuntimeException("No view attached!");
+        }
         return viewById.getChildAt(0);
     }
 
@@ -170,6 +180,7 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
      *
      * @param id a resourceid
      */
+    @SuppressWarnings("unused")
     public void snackbar(int id) {
         snackbar(this.getString(id));
     }

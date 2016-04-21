@@ -28,7 +28,7 @@
         <Spinner
             android:id="@+id/spinner_number"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="48dp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -41,7 +41,7 @@
         <Spinner
             android:id="@+id/spinner_average_length"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="48dp" />
 
     </android.support.v7.widget.Toolbar>
 

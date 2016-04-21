@@ -26,7 +26,6 @@ public class LineDataAvailable {
         this.params = params;
     }
 
-
     public Watchlist getWatchlist() {
         return watchlist;
     }
