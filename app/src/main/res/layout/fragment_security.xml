@@ -1,41 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:tools="http://schemas.android.com/tools"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-    <!-- http://stackoverflow.com/questions/5611411/what-is-the-default-text-size-on-android -->
-    <LinearLayout
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar_settings"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:theme="@style/Dark.Overlay"
+        android:background="?attr/colorPrimary"
+        app:layout_scrollFlags="scroll|enterAlways"
+        android:theme="@style/AppTheme.Toolbar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="0dp"
+            android:layout_marginLeft="16dp"
+            style="?android:attr/spinnerItemStyle"
+            android:text="@string/number_label" />
+
+        <Spinner
+            android:id="@+id/spinner_number"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="0dp"
+            android:layout_marginLeft="16dp"
+            style="?android:attr/spinnerItemStyle"
+            android:text="@string/average_length_label" />
+
+        <Spinner
+            android:id="@+id/spinner_average_length"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp" />
+
+    </android.support.v7.widget.Toolbar>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:background="@color/light_grey"
         android:orientation="horizontal">
 
         <TextView
             android:id="@+id/textview_title"
+            android:layout_marginLeft="16dp"
             android:layout_width="wrap_content"
-            android:layout_height="?attr/actionBarSize"
-            android:paddingStart="16dp"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            style="?android:attr/spinnerItemStyle"
-            android:gravity="center_vertical"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:textSize="14sp"
             tools:text="Title"/>
 
         <TextView
             android:id="@+id/textview_datapoint"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:paddingStart="16dp"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="16dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
             android:textSize="14sp"
-            android:textStyle="bold"
-            android:gravity="right|center_vertical"
-            tools:text="Hello"/>
+            tools:text="Title"/>
 
-    </LinearLayout>
+    </RelativeLayout>
 
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/chart"

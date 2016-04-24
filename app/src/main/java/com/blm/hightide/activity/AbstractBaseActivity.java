@@ -7,7 +7,9 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -16,6 +18,7 @@ import android.widget.Toast;
 import com.blm.hightide.R;
 import com.blm.hightide.events.GlobalLayout;
 import com.blm.hightide.service.StockService;
+import com.blm.hightide.util.ScreenDimension;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -35,9 +38,9 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
     @Override
     @SuppressWarnings("deprecation")
     public void onCreate(Bundle savedInstanceState) {
+        Log.i(TAG, "onCreate: " + this.getClass().getSimpleName());
         super.onCreate(savedInstanceState);
-        stockService.init(this);
-        EventBus.getDefault().register(this);
+        Log.i(TAG, "onCreate screen dimension: " + getScreenDimension());
 
         setContentView(R.layout.activity_fragment_container);
 
@@ -163,6 +166,20 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
     }
 
     /**
+     * @return get screen dimension in dp
+     */
+    public ScreenDimension getScreenDimension() {
+        Display display = getWindowManager().getDefaultDisplay();
+        DisplayMetrics outMetrics = new DisplayMetrics();
+        display.getMetrics(outMetrics);
+
+        float density  = getResources().getDisplayMetrics().density;
+        float dpHeight = outMetrics.heightPixels / density;
+        float dpWidth  = outMetrics.widthPixels / density;
+        return new ScreenDimension(dpWidth, dpHeight);
+    }
+
+    /**
      * Simple toast value
      *
      * @param id a resource id.
@@ -193,9 +210,24 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
 
 
     @Override
+    protected void onResume() {
+        Log.i(TAG, "onResume: " + this.getClass().getSimpleName());
+        stockService.resume(this);
+        EventBus.getDefault().register(this);
+        super.onResume();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.i(TAG, "onDestroy: " + this.getClass().getSimpleName());
+        stockService.destroy();
+        super.onDestroy();
+    }
+
+    @Override
     protected void onPause() {
+        Log.i(TAG, "onPause: " + this.getClass().getSimpleName());
         EventBus.getDefault().unregister(this);
         super.onPause();
-        stockService.release();
     }
 }

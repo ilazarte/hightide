@@ -20,6 +20,7 @@ import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.blm.corals.Tick;
 import com.blm.hightide.R;
 import com.blm.hightide.activity.FileActivity;
 import com.blm.hightide.activity.RelativeChartActivity;
@@ -36,6 +37,7 @@ import com.dgreenhalgh.android.simpleitemdecoration.linear.DividerItemDecoration
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -73,6 +75,9 @@ public class WatchlistFragment extends BaseFragment {
 
         @Bind(R.id.list_item_textview_last_update)
         TextView lastUpdate;
+
+        @Bind(R.id.list_item_textview_last_date_received)
+        TextView lastDateReceived;
 
         @Bind(R.id.list_item_textview_data_counts)
         TextView dataCounts;
@@ -116,15 +121,20 @@ public class WatchlistFragment extends BaseFragment {
         }
 
         public void bind(Security security) {
+
             StandardPriceData priceData = security.getStandardPriceData();
+            List<Tick> ticks = priceData.getTicks();
+
             SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy HH:mm", Locale.US);
             String datestr = sdf.format(priceData.getDate());
+            String lastdatestr = sdf.format(ticks.get(ticks.size() - 1).getTimestamp());
             String msg = String.format("%s, %s",
-                    priceData.getTicks().size(),
+                    ticks.size(),
                     priceData.getErrors().size());
 
             symbol.setText(security.getSymbol());
             lastUpdate.setText(datestr);
+            lastDateReceived.setText(lastdatestr);
             dataCounts.setText(msg);
             enabled.setChecked(security.isEnabled());
             this.security = security;

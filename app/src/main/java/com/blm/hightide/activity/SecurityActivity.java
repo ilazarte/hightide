@@ -5,9 +5,11 @@ import android.content.Intent;
 import android.support.v4.app.Fragment;
 
 import com.blm.hightide.R;
+import com.blm.hightide.events.GlobalLayout;
 import com.blm.hightide.events.LineDataAvailable;
 import com.blm.hightide.events.SecurityLoadStart;
 import com.blm.hightide.fragments.SecurityFragment;
+import com.blm.hightide.model.MovingAvgParams;
 import com.blm.hightide.service.StockService;
 import com.github.mikephil.charting.data.LineData;
 
@@ -30,14 +32,16 @@ public class SecurityActivity extends AbstractBaseActivity {
 
     @Override
     public Fragment createFragment() {
-        String symbol = this.getIntent().getExtras().getString(SECURITY_SYMBOL);
-        return SecurityFragment.newInstance(symbol);
+        return SecurityFragment.newInstance();
     }
 
-    /**
-     * TODO Make study params a ui configurable via RPF
-     * @param event the security load start
-     */
+    @Subscribe(threadMode = ThreadMode.ASYNC)
+    @SuppressWarnings("unused")
+    public void onGlobalLayout(GlobalLayout event) {
+        String symbol = this.getIntent().getExtras().getString(SECURITY_SYMBOL);
+        onSecurityLoadStart(new SecurityLoadStart(symbol, new MovingAvgParams()));
+    }
+
     @Subscribe(threadMode = ThreadMode.ASYNC)
     @SuppressWarnings("unused")
     public void onSecurityLoadStart(SecurityLoadStart event) {
@@ -50,11 +54,10 @@ public class SecurityActivity extends AbstractBaseActivity {
                 .flatMap(security -> service.setStandardPriceData(security, true))
                 .subscribe(security -> {
 
-                    int lastN = 60;
-                    int avgLen = 20;
-                    LineData data = service.getPriceAndAverage(security, lastN, avgLen);
+                    MovingAvgParams params = event.getParams();
+                    LineData data = service.getPriceAndAverage(security, params);
 
-                    EventBus.getDefault().post(new LineDataAvailable(security, data));
+                    EventBus.getDefault().post(new LineDataAvailable(security, data, params));
                 });
     }
 }

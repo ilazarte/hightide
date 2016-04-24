@@ -26,6 +26,12 @@ public class LineDataAvailable {
         this.params = params;
     }
 
+    public LineDataAvailable(Security security, LineData data, MovingAvgParams params) {
+        this.security = security;
+        this.lineData = data;
+        this.params = params;
+    }
+
     public Watchlist getWatchlist() {
         return watchlist;
     }

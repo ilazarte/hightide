@@ -29,6 +29,9 @@ import java.util.Locale;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
+/**
+ * TODO convert this to include a dropdown to be able to select any stock
+ */
 public class TableFragment extends BaseFragment {
 
     @SuppressWarnings("unused")
@@ -36,9 +39,6 @@ public class TableFragment extends BaseFragment {
 
     private static final String SECURITY_SYMBOL = "SECURITY_SYMBOL";
 
-    /**
-     * Pretty neat, a totally reusable data holder.
-     */
     class Binder {
         @Bind(R.id.list_item_table_timestamp)
         TextView timestamp;

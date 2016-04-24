@@ -1,7 +1,6 @@
 package com.blm.hightide.service;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.blm.corals.PriceData;
 import com.blm.corals.ReadError;
@@ -12,6 +11,7 @@ import com.blm.hightide.db.DatabaseHelper;
 import com.blm.hightide.model.FileData;
 import com.blm.hightide.model.FileLine;
 import com.blm.hightide.model.MovingAvgGridParams;
+import com.blm.hightide.model.MovingAvgParams;
 import com.blm.hightide.model.RelativeTick;
 import com.blm.hightide.model.Security;
 import com.blm.hightide.model.Watchlist;
@@ -56,10 +56,20 @@ public class StockService {
      * Required to invoke onCreate
      * @param context Activity context
      */
-    public void init(Context context) {
+    public synchronized void resume(Context context) {
         this.yahooPriceHelper = new YahooPriceHelper(context);
         if (helper == null) {
             helper = OpenHelperManager.getHelper(context, DatabaseHelper.class);
+        }
+    }
+
+    /**
+     * Code to respond to a destroy event.
+     * Essentially assumes application is being exited?
+     */
+    public void destroy() {
+        if (helper != null) {
+            OpenHelperManager.releaseHelper();
         }
     }
 
@@ -178,15 +188,6 @@ public class StockService {
                     sec.setStandardPriceData(priceData);
                     return sec;
                 });
-    }
-
-    /**
-     * Preferably invoked in onDestroy
-     */
-    public void release() {
-        if (helper != null) {
-            OpenHelperManager.releaseHelper();
-        }
     }
 
     /**
@@ -353,11 +354,13 @@ public class StockService {
     /**
      * Return a close value and the average calcualted for it.
      * @param security The source security with ticks.
-     * @param lastN The number of the values to use from the right.
-     * @param avgLen The length of the average.
+     * @param params The params to apply to this price and average.
      * @return the list of line data
      */
-    public LineData getPriceAndAverage(Security security, int lastN, int avgLen) {
+    public LineData getPriceAndAverage(Security security, MovingAvgParams params) {
+
+        int lastN = params.getLength();
+        int avgLen = params.getAvgLength();
 
         List<ILineDataSet> dataSets = new ArrayList<>();
 

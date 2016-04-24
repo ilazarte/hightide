@@ -1,13 +1,10 @@
 package com.blm.hightide.fragments;
 
 import android.content.Context;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.widget.ArrayAdapter;
 
 import org.greenrobot.eventbus.EventBus;
@@ -24,9 +21,9 @@ public class BaseFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onResume() {
         EventBus.getDefault().register(this);
-        super.onCreate(savedInstanceState);
+        super.onResume();
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.blm.hightide.fragments;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
@@ -20,7 +21,9 @@ import com.blm.hightide.events.WatchlistLoadFilesStart;
 import com.blm.hightide.model.MovingAvgParams;
 import com.blm.hightide.model.Watchlist;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.highlight.Highlight;
@@ -159,6 +162,16 @@ public class RelativeChartFragment extends BaseFragment {
             public void onNothingSelected() {
             }
         });
+
+        LimitLine ll = new LimitLine(1.0f, "Minimum");
+        ll.setLineColor(Color.RED);
+        ll.setLineWidth(2f);
+        ll.enableDashedLine(20f, 20f, 0f);
+        ll.setTextColor(Color.BLACK);
+        ll.setTextSize(12f);
+
+        YAxis leftAxis = chart.getAxisLeft();
+        leftAxis.addLimitLine(ll);
 
         return view;
     }

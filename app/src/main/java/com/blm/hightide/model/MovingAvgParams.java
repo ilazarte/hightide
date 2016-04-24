@@ -2,7 +2,7 @@ package com.blm.hightide.model;
 
 public class MovingAvgParams {
 
-    private int length = 60;
+    private int length = 40;
 
     private int avgLength = 20;
 
