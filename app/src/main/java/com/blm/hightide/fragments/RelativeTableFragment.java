@@ -19,7 +19,6 @@ import android.widget.TextView;
 import com.blm.hightide.R;
 import com.blm.hightide.events.RelativeTableLoadComplete;
 import com.blm.hightide.events.RelativeTableLoadStart;
-import com.blm.hightide.events.WatchlistLoadFilesStart;
 import com.blm.hightide.model.MovingAvgGridParams;
 import com.blm.hightide.model.RelativeTick;
 import com.blm.hightide.model.Watchlist;

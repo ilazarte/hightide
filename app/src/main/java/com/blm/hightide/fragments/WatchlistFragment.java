@@ -37,7 +37,6 @@ import com.dgreenhalgh.android.simpleitemdecoration.linear.DividerItemDecoration
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
