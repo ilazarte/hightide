@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 
 import org.greenrobot.eventbus.EventBus;
@@ -22,12 +23,14 @@ public class BaseFragment extends Fragment {
 
     @Override
     public void onResume() {
+        /*Log.i(TAG, "onResume: " + this.getClass().getSimpleName());*/
         EventBus.getDefault().register(this);
         super.onResume();
     }
 
     @Override
     public void onPause() {
+        /*Log.i(TAG, "onPause: " + this.getClass().getSimpleName());*/
         EventBus.getDefault().unregister(this);
         super.onPause();
     }

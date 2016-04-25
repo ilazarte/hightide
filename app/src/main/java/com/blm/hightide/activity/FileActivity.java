@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import com.blm.hightide.R;
 import com.blm.hightide.events.FileDataAvailable;
 import com.blm.hightide.events.FileLoadStart;
+import com.blm.hightide.events.GlobalLayout;
 import com.blm.hightide.fragments.FileFragment;
 import com.blm.hightide.model.FileData;
 import com.blm.hightide.service.StockService;
@@ -31,7 +32,14 @@ public class FileActivity extends AbstractBaseActivity {
     @Override
     public Fragment createFragment() {
         String symbol = this.getIntent().getExtras().getString(SECURITY_SYMBOL);
-        return FileFragment.newInstance(symbol);
+        return FileFragment.newInstance();
+    }
+
+
+    @Subscribe(threadMode = ThreadMode.ASYNC)
+    public void onGlobalLayout(GlobalLayout event) {
+        String symbol = this.getIntent().getExtras().getString(SECURITY_SYMBOL);
+        onFileLoadStart(new FileLoadStart(symbol));
     }
 
     /**

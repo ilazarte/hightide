@@ -12,11 +12,9 @@ import android.widget.TextView;
 
 import com.blm.hightide.R;
 import com.blm.hightide.events.FileDataAvailable;
-import com.blm.hightide.events.FileLoadStart;
 import com.blm.hightide.model.FileData;
 import com.blm.hightide.model.FileLine;
 
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
@@ -31,17 +29,14 @@ public class FileFragment extends BaseFragment {
     @SuppressWarnings("unused")
     private static final String TAG = FileFragment.class.getSimpleName();
 
-    private static final String SECURITY_SYMBOL = "SECURITY_SYMBOL";
-
     @Bind(R.id.textview_filename)
     TextView textView;
 
     @Bind(R.id.recyclerview_file)
     RecyclerView recyclerView;
 
-    public static FileFragment newInstance(String symbol) {
+    public static FileFragment newInstance() {
         Bundle args = new Bundle();
-        args.putString(SECURITY_SYMBOL, symbol);
 
         FileFragment fragment = new FileFragment();
         fragment.setArguments(args);
@@ -111,9 +106,6 @@ public class FileFragment extends BaseFragment {
         layoutManager.setAutoMeasureEnabled(true);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(new Adapter(new ArrayList<>()));
-
-        String symbol = getArguments().getString(SECURITY_SYMBOL);
-        EventBus.getDefault().post(new FileLoadStart(symbol));
 
         return view;
     }

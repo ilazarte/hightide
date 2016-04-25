@@ -38,7 +38,7 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
     @Override
     @SuppressWarnings("deprecation")
     public void onCreate(Bundle savedInstanceState) {
-        Log.i(TAG, "onCreate: " + this.getClass().getSimpleName());
+        /*Log.i(TAG, "onCreate: " + this.getClass().getSimpleName());*/
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate screen dimension: " + getScreenDimension());
 
@@ -211,7 +211,7 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        Log.i(TAG, "onResume: " + this.getClass().getSimpleName());
+        /*Log.i(TAG, "onResume: " + this.getClass().getSimpleName());*/
         stockService.resume(this);
         EventBus.getDefault().register(this);
         super.onResume();
@@ -219,14 +219,14 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        Log.i(TAG, "onDestroy: " + this.getClass().getSimpleName());
+        /*Log.i(TAG, "onDestroy: " + this.getClass().getSimpleName());*/
         stockService.destroy();
         super.onDestroy();
     }
 
     @Override
     protected void onPause() {
-        Log.i(TAG, "onPause: " + this.getClass().getSimpleName());
+        /*Log.i(TAG, "onPause: " + this.getClass().getSimpleName());*/
         EventBus.getDefault().unregister(this);
         super.onPause();
     }

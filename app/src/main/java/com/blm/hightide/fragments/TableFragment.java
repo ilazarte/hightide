@@ -12,10 +12,8 @@ import android.widget.TextView;
 import com.blm.corals.Tick;
 import com.blm.hightide.R;
 import com.blm.hightide.events.SecurityLoadComplete;
-import com.blm.hightide.events.SecurityLoadStart;
 import com.blm.hightide.model.Security;
 
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
@@ -36,8 +34,6 @@ public class TableFragment extends BaseFragment {
 
     @SuppressWarnings("unused")
     private static final String TAG = TableFragment.class.getSimpleName();
-
-    private static final String SECURITY_SYMBOL = "SECURITY_SYMBOL";
 
     class Binder {
         @Bind(R.id.list_item_table_timestamp)
@@ -120,10 +116,8 @@ public class TableFragment extends BaseFragment {
     @Bind(R.id.recyclerview_table)
     RecyclerView table;
 
-    public static TableFragment newInstance(String symbol) {
+    public static TableFragment newInstance() {
         Bundle args = new Bundle();
-        args.putString(SECURITY_SYMBOL, symbol);
-
         TableFragment fragment = new TableFragment();
         fragment.setArguments(args);
         return fragment;
@@ -150,9 +144,6 @@ public class TableFragment extends BaseFragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this.getActivity());
         table.setLayoutManager(linearLayoutManager);
         table.setAdapter(new TickAdapter(new ArrayList<>()));
-
-        String symbol = getArguments().getString(SECURITY_SYMBOL);
-        EventBus.getDefault().post(new SecurityLoadStart(symbol));
 
         return view;
     }
