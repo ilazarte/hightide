@@ -5,8 +5,12 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
+
+import com.blm.hightide.R;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -33,6 +37,11 @@ public class BaseFragment extends Fragment {
         /*Log.i(TAG, "onPause: " + this.getClass().getSimpleName());*/
         EventBus.getDefault().unregister(this);
         super.onPause();
+    }
+
+    public void animateAppear(View view) {
+        Animation anim = AnimationUtils.loadAnimation(this.getAppCompatActivity(), R.anim.appear);
+        view.startAnimation(anim);
     }
 
     public ActionBar getSupportActionBar(Toolbar toolbar) {

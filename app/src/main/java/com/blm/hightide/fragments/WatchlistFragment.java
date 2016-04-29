@@ -1,11 +1,13 @@
 package com.blm.hightide.fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -16,6 +18,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -141,7 +145,9 @@ public class WatchlistFragment extends BaseFragment {
     }
 
     class Adapter extends RecyclerView.Adapter<Holder> {
+
         private List<Security> securities;
+
 
         public Adapter(List<Security> securities) {
             this.securities = securities;
@@ -158,6 +164,7 @@ public class WatchlistFragment extends BaseFragment {
         public void onBindViewHolder(Holder holder, int position) {
             Security security = securities.get(position);
             holder.bind(security);
+            WatchlistFragment.this.animateAppear(holder.itemView);
         }
 
         @Override
@@ -195,11 +202,13 @@ public class WatchlistFragment extends BaseFragment {
         View view = inflater.inflate(R.layout.fragment_watchlist, container, false);
         ButterKnife.bind(this, view);
 
-        Drawable dividerDrawable = ContextCompat.getDrawable(this.getAppCompatActivity(), android.R.drawable.divider_horizontal_bright);
+        AppCompatActivity activity = this.getAppCompatActivity();
+
+        Drawable dividerDrawable = ContextCompat.getDrawable(activity, android.R.drawable.divider_horizontal_bright);
         recyclerView.addItemDecoration(new DividerItemDecoration(dividerDrawable));
 
         this.supportActionBar = this.getSupportActionBar(toolbar);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this.getAppCompatActivity()));
+        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
         recyclerView.setAdapter(new Adapter(new ArrayList<>()));
 
         return view;
