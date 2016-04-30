@@ -5,10 +5,10 @@
     <string name="action_execute">Execute</string>
     <string name="action_table">Table</string>
     <string name="loading">Loading...</string>
-    <string name="request_files">Requesting or reading price data.</string>
-    <string name="read_files">Reading price data.</string>
-    <string name="chart_security">Loading price data for security.</string>
-    <string name="read_file">Loading file data.</string>
+    <string name="request_files">Requesting or reading price data</string>
+    <string name="read_files">Reading price data</string>
+    <string name="chart_security">Loading price data for security</string>
+    <string name="read_file">Loading file data</string>
 
     <string name="timestamp_label">TIMESTAMP</string>
     <string name="open_label">OPEN</string>
