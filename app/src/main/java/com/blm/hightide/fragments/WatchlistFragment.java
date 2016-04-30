@@ -1,6 +1,5 @@
 package com.blm.hightide.fragments;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -18,8 +17,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -33,6 +30,7 @@ import com.blm.hightide.activity.SecurityActivity;
 import com.blm.hightide.activity.TableActivity;
 import com.blm.hightide.events.WatchlistFilesRequestComplete;
 import com.blm.hightide.events.WatchlistFilesRequestStart;
+import com.blm.hightide.fragments.internal.BaseFragment;
 import com.blm.hightide.model.Security;
 import com.blm.hightide.model.Watchlist;
 import com.blm.hightide.util.StandardPriceData;
@@ -164,7 +162,7 @@ public class WatchlistFragment extends BaseFragment {
         public void onBindViewHolder(Holder holder, int position) {
             Security security = securities.get(position);
             holder.bind(security);
-            WatchlistFragment.this.animateAppear(holder.itemView);
+            //WatchlistFragment.this.animateAppear(holder.itemView);
         }
 
         @Override
@@ -225,8 +223,7 @@ public class WatchlistFragment extends BaseFragment {
         this.selectedWatchlist = watchlist;
         this.watchlists = watchlists;
 
-        Adapter adapter = new Adapter(securities);
-        recyclerView.setAdapter(adapter);
+        recyclerView.setAdapter(getAnimationAdapter(new Adapter(securities)));
         this.resetSpinner();
     }
 

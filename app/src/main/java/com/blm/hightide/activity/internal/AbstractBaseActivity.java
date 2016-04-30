@@ -1,4 +1,4 @@
-package com.blm.hightide.activity;
+package com.blm.hightide.activity.internal;
 
 import android.app.ProgressDialog;
 import android.os.Build;
@@ -66,7 +66,6 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
                     container.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 } else {
-
                     container.getViewTreeObserver().removeGlobalOnLayoutListener(this);
                 }
                 EventBus.getDefault().post(GlobalLayout.INSTANCE);

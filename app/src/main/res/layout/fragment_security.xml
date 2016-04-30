@@ -6,43 +6,6 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar_settings"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        app:layout_scrollFlags="scroll|enterAlways"
-        android:theme="@style/AppTheme.Toolbar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="0dp"
-            android:layout_marginLeft="16dp"
-            style="?android:attr/spinnerItemStyle"
-            android:text="@string/number_label" />
-
-        <Spinner
-            android:id="@+id/spinner_number"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="0dp"
-            android:layout_marginLeft="16dp"
-            style="?android:attr/spinnerItemStyle"
-            android:text="@string/average_length_label" />
-
-        <Spinner
-            android:id="@+id/spinner_average_length"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp" />
-
-    </android.support.v7.widget.Toolbar>
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="32dp"

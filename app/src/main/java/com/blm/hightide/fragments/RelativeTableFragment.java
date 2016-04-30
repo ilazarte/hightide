@@ -1,24 +1,21 @@
 package com.blm.hightide.fragments;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.blm.hightide.R;
 import com.blm.hightide.events.RelativeTableLoadComplete;
 import com.blm.hightide.events.RelativeTableLoadStart;
+import com.blm.hightide.fragments.internal.AbstractToolbarParamsFragment;
 import com.blm.hightide.model.MovingAvgGridParams;
 import com.blm.hightide.model.RelativeTick;
 import com.blm.hightide.model.Watchlist;
@@ -33,9 +30,8 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnItemSelected;
 
-public class RelativeTableFragment extends BaseFragment {
+public class RelativeTableFragment extends AbstractToolbarParamsFragment {
 
     @SuppressWarnings("unused")
     private static final String TAG = RelativeTableFragment.class.getSimpleName();
@@ -122,52 +118,13 @@ public class RelativeTableFragment extends BaseFragment {
         }
     }
 
-    @Bind(R.id.toolbar_settings)
-    Toolbar toolbar;
-
-    ActionBar supportActionBar;
-
-    @Bind(R.id.spinner_number)
-    Spinner spinnerNumber;
-
-    @Bind(R.id.spinner_average_length)
-    Spinner spinnerAverageLength;
-
     @Bind(R.id.textview_watchlist_name)
     TextView textView;
 
     @Bind(R.id.recyclerview_table)
     RecyclerView table;
 
-    private List<Integer> numbers = new ArrayList<>();
-
-    private boolean avgLengthReset = true;
-
-    private boolean numberReset = true;
-
     private Watchlist watchlist;
-
-    private MovingAvgGridParams params;
-
-    @OnItemSelected(R.id.spinner_number)
-    @SuppressWarnings("unused")
-    void selectNumber(int position) {
-        if (numberReset) {
-            numberReset = false;
-            return;
-        }
-        params.setLength(numbers.get(position));
-    }
-
-    @OnItemSelected(R.id.spinner_average_length)
-    @SuppressWarnings("unused")
-    void selectAverageLength(int position) {
-        if (avgLengthReset) {
-            avgLengthReset = false;
-            return;
-        }
-        params.setAvgLength(numbers.get(position));
-    }
 
     public static RelativeTableFragment newInstance() {
         Bundle args = new Bundle();
@@ -177,22 +134,21 @@ public class RelativeTableFragment extends BaseFragment {
         return fragment;
     }
 
+    @Override
+    public int stubLayout() {
+        return R.layout.fragment_relative_table;
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     @SuppressWarnings("unused")
     public void onRelativeTableLoadComplete(RelativeTableLoadComplete event) {
 
         List<Object> gridList = event.getGridList();
-        params = event.getParams();
         watchlist = event.getWatchlist();
 
-        int lengthValue = numbers.indexOf(params.getLength());
-        int avgLengthValue = numbers.indexOf(params.getAvgLength());
-
-        spinnerNumber.setSelection(lengthValue);
-        spinnerAverageLength.setSelection(avgLengthValue);
-
+        updateParams(event.getParams());
         textView.setText(watchlist.getName());
-        table.setAdapter(new GridAdapter(gridList, event.getParams().getTopLength()));
+        table.setAdapter(this.getAnimationAdapter(new GridAdapter(gridList, event.getParams().getTopLength())));
     }
 
     @Nullable
@@ -200,19 +156,7 @@ public class RelativeTableFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         setHasOptionsMenu(true);
-        View view = inflater.inflate(R.layout.fragment_relative_table, container, false);
-        ButterKnife.bind(this, view);
-
-        supportActionBar = this.getSupportActionBar(toolbar);
-
-        for (int i = 10; i < 101; i += 10) {
-            numbers.add(i);
-        }
-
-        Context themedContext = supportActionBar.getThemedContext();
-
-        spinnerNumber.setAdapter(this.getSimpleArrayAdapter(themedContext, numbers));
-        spinnerAverageLength.setAdapter(this.getSimpleArrayAdapter(themedContext, numbers));
+        View view = super.onCreateView(inflater, container, savedInstanceState);
 
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this.getActivity(), 7);
         gridLayoutManager.setAutoMeasureEnabled(true);
@@ -222,7 +166,6 @@ public class RelativeTableFragment extends BaseFragment {
 
         return view;
     }
-
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -234,7 +177,7 @@ public class RelativeTableFragment extends BaseFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_execute:
-                RelativeTableLoadStart event = new RelativeTableLoadStart(watchlist.getId(), params, true);
+                RelativeTableLoadStart event = new RelativeTableLoadStart(watchlist.getId(), (MovingAvgGridParams) this.getParams(), true);
                 EventBus.getDefault().post(event);
                 break;
             default:

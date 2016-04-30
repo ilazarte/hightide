@@ -8,6 +8,7 @@ import com.blm.corals.Tick;
 import com.blm.corals.study.Operators;
 import com.blm.corals.study.window.Average;
 import com.blm.hightide.db.DatabaseHelper;
+import com.blm.hightide.events.WatchlistLoadFilesStart;
 import com.blm.hightide.model.FileData;
 import com.blm.hightide.model.FileLine;
 import com.blm.hightide.model.MovingAvgGridParams;
@@ -139,13 +140,23 @@ public class StockService {
             .concatMap(id -> {
                 Watchlist wl = null;
                 if (id < 0) {
-                    wl = watchlists.get(0);
+
+                    int wlid = 999;
+                    for (Watchlist watchlist : watchlists) {
+                        if (watchlist.getId() < wlid) {
+                            wl = watchlist;
+                            wlid = watchlist.getId();
+                        }
+                    }
+
                 } else {
                     wl = helper.findWatchlist(id);
                 }
+
                 if (wl == null) {
                     return Observable.error(new IllegalStateException("No watchlist found with id " + id));
                 }
+
                 List<Security> securities = helper.findSecuritiesByWatchlist(wl);
                 wl.setSecurities(securities);
                 return Observable.just(wl);

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.v4.app.Fragment;
 
 import com.blm.hightide.R;
+import com.blm.hightide.activity.internal.AbstractBaseActivity;
 import com.blm.hightide.events.FileDataAvailable;
 import com.blm.hightide.events.FileLoadStart;
 import com.blm.hightide.events.GlobalLayout;

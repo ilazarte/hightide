@@ -1,20 +1,19 @@
-package com.blm.hightide.fragments;
+package com.blm.hightide.fragments.internal;
 
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
-
-import com.blm.hightide.R;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
+
+import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
+import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter;
 
 public class BaseFragment extends Fragment {
 
@@ -39,9 +38,12 @@ public class BaseFragment extends Fragment {
         super.onPause();
     }
 
-    public void animateAppear(View view) {
-        Animation anim = AnimationUtils.loadAnimation(this.getAppCompatActivity(), R.anim.appear);
-        view.startAnimation(anim);
+    public SlideInBottomAnimationAdapter getAnimationAdapter(RecyclerView.Adapter<? extends RecyclerView.ViewHolder> adapter) {
+
+        AlphaInAnimationAdapter alpha = new AlphaInAnimationAdapter(adapter);
+        SlideInBottomAnimationAdapter slide = new SlideInBottomAnimationAdapter(alpha);
+
+        return slide;
     }
 
     public ActionBar getSupportActionBar(Toolbar toolbar) {

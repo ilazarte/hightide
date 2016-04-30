@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.blm.corals.Tick;
 import com.blm.hightide.R;
 import com.blm.hightide.events.SecurityLoadComplete;
+import com.blm.hightide.fragments.internal.BaseFragment;
 import com.blm.hightide.model.Security;
 
 import org.greenrobot.eventbus.Subscribe;

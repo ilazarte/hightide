@@ -66,7 +66,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             throw new RuntimeException(e);
         }
 
-        this.createInitialWatchlist("Big Names", BIGNAMES_WATCHLIST);
+        /*this.createInitialWatchlist("Big Names", BIGNAMES_WATCHLIST);*/
         this.createInitialWatchlist("Main", MAIN_WATCHLIST);
         this.createInitialWatchlist("Index", INDEX_WATCHLIST);
     }

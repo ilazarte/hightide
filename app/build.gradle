@@ -62,4 +62,5 @@ dependencies {
     compile 'com.manolovn:colorbrewer:1.0.1'
     compile 'com.github.ganfra:material-spinner:1.1.1'
     compile 'com.bignerdranch.android:simple-item-decoration:1.0.0'
+    compile 'jp.wasabeef:recyclerview-animators:2.2.3'
 }

@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.blm.hightide.R;
 import com.blm.hightide.events.FileDataAvailable;
+import com.blm.hightide.fragments.internal.BaseFragment;
 import com.blm.hightide.model.FileData;
 import com.blm.hightide.model.FileLine;
 
