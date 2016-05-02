@@ -32,6 +32,7 @@ import com.blm.hightide.events.WatchlistFilesRequestComplete;
 import com.blm.hightide.events.WatchlistFilesRequestStart;
 import com.blm.hightide.fragments.internal.BaseFragment;
 import com.blm.hightide.model.Security;
+import com.blm.hightide.model.StudyParams;
 import com.blm.hightide.model.Watchlist;
 import com.blm.hightide.util.StandardPriceData;
 import com.dgreenhalgh.android.simpleitemdecoration.linear.DividerItemDecoration;
@@ -180,6 +181,8 @@ public class WatchlistFragment extends BaseFragment {
     @Bind(R.id.recyclerview_security)
     RecyclerView recyclerView;
 
+    private StudyParams params;
+
     @OnItemSelected(R.id.spinner_watchlist)
     @SuppressWarnings("unused")
     void selectWatchlist(int position) {
@@ -189,7 +192,7 @@ public class WatchlistFragment extends BaseFragment {
         }
         Watchlist watchlist = watchlists.get(position);
         this.selectedWatchlist = watchlist;
-        EventBus.getDefault().post(new WatchlistFilesRequestStart(watchlist.getId(), true));
+        EventBus.getDefault().post(new WatchlistFilesRequestStart(watchlist.getId(), this.params, true));
     }
 
     @Nullable
@@ -220,6 +223,7 @@ public class WatchlistFragment extends BaseFragment {
         List<Watchlist> watchlists = event.getWatchlists();
         List<Security> securities = watchlist.getSecurities();
 
+        this.params = event.getParams();
         this.selectedWatchlist = watchlist;
         this.watchlists = watchlists;
 
@@ -267,7 +271,7 @@ public class WatchlistFragment extends BaseFragment {
                 startActivity(intent);
                 break;
             case R.id.action_refresh:
-                EventBus.getDefault().post(new WatchlistFilesRequestStart(this.selectedWatchlist.getId(), false));
+                EventBus.getDefault().post(new WatchlistFilesRequestStart(this.selectedWatchlist.getId(), this.params, false));
                 break;
             case R.id.action_settings:
                 Log.i(TAG, "onOptionsItemSelected: settings");

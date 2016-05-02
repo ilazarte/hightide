@@ -1,18 +1,18 @@
 package com.blm.hightide.events;
 
-import com.blm.hightide.model.MovingAvgParams;
+import com.blm.hightide.model.StudyParams;
 
 public class SecurityLoadStart {
 
     private String symbol;
 
-    private MovingAvgParams params;
+    private StudyParams params;
 
     public SecurityLoadStart(String symbol) {
         this.symbol = symbol;
     }
 
-    public SecurityLoadStart(String symbol, MovingAvgParams params) {
+    public SecurityLoadStart(String symbol, StudyParams params) {
         this.symbol = symbol;
         this.params = params;
     }
@@ -25,11 +25,11 @@ public class SecurityLoadStart {
         this.symbol = symbol;
     }
 
-    public MovingAvgParams getParams() {
+    public StudyParams getParams() {
         return params;
     }
 
-    public void setParams(MovingAvgParams params) {
+    public void setParams(StudyParams params) {
         this.params = params;
     }
 }

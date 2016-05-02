@@ -1,17 +1,25 @@
 package com.blm.hightide.model;
 
-public class MovingAvgParams {
+public class StudyParams {
 
     private int length = 40;
 
     private int avgLength = 20;
 
-    public MovingAvgParams(int length, int avgLength) {
+    private TickType tickType = TickType.DAILY;
+
+    public StudyParams(int length, int avgLength) {
         this.length = length;
         this.avgLength = avgLength;
     }
 
-    public MovingAvgParams() {
+    public StudyParams(int length, int avgLength, TickType tickType) {
+        this.length = length;
+        this.avgLength = avgLength;
+        this.tickType = tickType;
+    }
+
+    public StudyParams() {
     }
 
     public int getLength() {
@@ -30,11 +38,20 @@ public class MovingAvgParams {
         this.avgLength = avgLength;
     }
 
+    public TickType getTickType() {
+        return tickType;
+    }
+
+    public void setTickType(TickType tickType) {
+        this.tickType = tickType;
+    }
+
     @Override
     public String toString() {
-        return "MovingAvgParams{" +
+        return "StudyParams{" +
                 "length=" + length +
                 ", avgLength=" + avgLength +
+                ", tickType=" + tickType +
                 '}';
     }
 }

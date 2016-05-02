@@ -11,6 +11,7 @@ import com.blm.hightide.events.GlobalLayout;
 import com.blm.hightide.events.SecurityLoadComplete;
 import com.blm.hightide.events.SecurityLoadStart;
 import com.blm.hightide.fragments.TableFragment;
+import com.blm.hightide.model.StudyParams;
 import com.blm.hightide.service.StockService;
 
 import org.greenrobot.eventbus.EventBus;
@@ -38,7 +39,7 @@ public class TableActivity extends AbstractBaseActivity {
     @Subscribe(threadMode = ThreadMode.ASYNC)
     public void onGlobalLayout(GlobalLayout event) {
         String symbol = this.getIntent().getExtras().getString(SECURITY_SYMBOL);
-        onSecurityLoadStart(new SecurityLoadStart(symbol));
+        onSecurityLoadStart(new SecurityLoadStart(symbol, new StudyParams()));
     }
 
     @Subscribe(threadMode = ThreadMode.ASYNC)
@@ -50,8 +51,10 @@ public class TableActivity extends AbstractBaseActivity {
 
         StockService service = this.getStockService();
         String symbol = event.getSymbol();
+        StudyParams params = event.getParams();
+
         service.findSecurity(symbol)
-                .flatMap(security -> service.setStandardPriceData(security, true))
+                .flatMap(security -> service.setStandardPriceData(security, params, true))
                 .subscribe(security -> {
                     EventBus.getDefault().post(new SecurityLoadComplete(security));
                 });

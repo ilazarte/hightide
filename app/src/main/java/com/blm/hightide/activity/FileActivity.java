@@ -11,6 +11,7 @@ import com.blm.hightide.events.FileLoadStart;
 import com.blm.hightide.events.GlobalLayout;
 import com.blm.hightide.fragments.FileFragment;
 import com.blm.hightide.model.FileData;
+import com.blm.hightide.model.StudyParams;
 import com.blm.hightide.service.StockService;
 
 import org.greenrobot.eventbus.EventBus;
@@ -40,7 +41,7 @@ public class FileActivity extends AbstractBaseActivity {
     @Subscribe(threadMode = ThreadMode.ASYNC)
     public void onGlobalLayout(GlobalLayout event) {
         String symbol = this.getIntent().getExtras().getString(SECURITY_SYMBOL);
-        onFileLoadStart(new FileLoadStart(symbol));
+        onFileLoadStart(new FileLoadStart(symbol, new StudyParams()));
     }
 
     /**
@@ -54,10 +55,12 @@ public class FileActivity extends AbstractBaseActivity {
 
         StockService service = this.getStockService();
         String symbol = event.getSymbol();
+        StudyParams params = event.getParams();
+
         service.findSecurity(symbol)
-                .flatMap(security -> service.setStandardPriceData(security, true))
+                .flatMap(security -> service.setStandardPriceData(security, params, true))
                 .subscribe(security -> {
-                    FileData fileData = service.getFileData(security);
+                    FileData fileData = service.getFileData(security, params.getTickType());
                     FileDataAvailable available = new FileDataAvailable(symbol, fileData);
                     EventBus.getDefault().post(available);
                 });

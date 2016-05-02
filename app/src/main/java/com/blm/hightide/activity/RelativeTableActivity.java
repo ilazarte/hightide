@@ -11,7 +11,7 @@ import com.blm.hightide.events.GlobalLayout;
 import com.blm.hightide.events.RelativeTableLoadComplete;
 import com.blm.hightide.events.RelativeTableLoadStart;
 import com.blm.hightide.fragments.RelativeTableFragment;
-import com.blm.hightide.model.MovingAvgGridParams;
+import com.blm.hightide.model.StudyGridParams;
 import com.blm.hightide.service.StockService;
 
 import org.greenrobot.eventbus.EventBus;
@@ -42,7 +42,7 @@ public class RelativeTableActivity extends AbstractBaseActivity {
     @SuppressWarnings("unused")
     public void onGlobalLayout(GlobalLayout event) {
         int watchlistId = this.getIntent().getExtras().getInt(WATCHLIST_ID);
-        onRelativeTableLoadStart(new RelativeTableLoadStart(watchlistId, new MovingAvgGridParams(), true));
+        onRelativeTableLoadStart(new RelativeTableLoadStart(watchlistId, new StudyGridParams(), true));
     }
 
     @Subscribe(threadMode = ThreadMode.ASYNC)
@@ -53,10 +53,11 @@ public class RelativeTableActivity extends AbstractBaseActivity {
 
         StockService service = this.getStockService();
         int watchlistId = event.getWatchlistId();
+        StudyGridParams params = event.getParams();
+
         service.findWatchlist(watchlistId)
-                .flatMap(wl -> service.setWatchlistPriceData(wl, true))
+                .flatMap(wl -> service.setWatchlistPriceData(wl, params, true))
                 .subscribe(wl -> {
-                    MovingAvgGridParams params = event.getParams();
                     List<Object> gridList = service.getRelativeTableForAverage(wl, params);
                     EventBus.getDefault().post(new RelativeTableLoadComplete(wl, gridList, params));
                 }, error -> {

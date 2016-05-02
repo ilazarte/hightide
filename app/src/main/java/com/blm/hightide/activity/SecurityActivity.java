@@ -10,7 +10,7 @@ import com.blm.hightide.events.GlobalLayout;
 import com.blm.hightide.events.LineDataAvailable;
 import com.blm.hightide.events.SecurityLoadStart;
 import com.blm.hightide.fragments.SecurityFragment;
-import com.blm.hightide.model.MovingAvgParams;
+import com.blm.hightide.model.StudyParams;
 import com.blm.hightide.service.StockService;
 import com.github.mikephil.charting.data.LineData;
 
@@ -40,7 +40,7 @@ public class SecurityActivity extends AbstractBaseActivity {
     @SuppressWarnings("unused")
     public void onGlobalLayout(GlobalLayout event) {
         String symbol = this.getIntent().getExtras().getString(SECURITY_SYMBOL);
-        onSecurityLoadStart(new SecurityLoadStart(symbol, new MovingAvgParams()));
+        onSecurityLoadStart(new SecurityLoadStart(symbol, new StudyParams()));
     }
 
     @Subscribe(threadMode = ThreadMode.ASYNC)
@@ -51,13 +51,12 @@ public class SecurityActivity extends AbstractBaseActivity {
 
         StockService service = this.getStockService();
         String symbol = event.getSymbol();
+        StudyParams params = event.getParams();
+
         service.findSecurity(symbol)
-                .flatMap(security -> service.setStandardPriceData(security, true))
+                .flatMap(security -> service.setStandardPriceData(security, params, true))
                 .subscribe(security -> {
-
-                    MovingAvgParams params = event.getParams();
                     LineData data = service.getPriceAndAverage(security, params);
-
                     EventBus.getDefault().post(new LineDataAvailable(security, data, params));
                 });
     }

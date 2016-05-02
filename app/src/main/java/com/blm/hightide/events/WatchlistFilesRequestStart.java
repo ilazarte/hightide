@@ -1,13 +1,18 @@
 package com.blm.hightide.events;
 
+import com.blm.hightide.model.StudyParams;
+
 public class WatchlistFilesRequestStart {
 
     private int watchlistId;
 
+    private StudyParams params;
+
     private boolean readRequest;
 
-    public WatchlistFilesRequestStart(int watchlistId, boolean readRequest) {
+    public WatchlistFilesRequestStart(int watchlistId, StudyParams params, boolean readRequest) {
         this.watchlistId = watchlistId;
+        this.params = params;
         this.readRequest = readRequest;
     }
 
@@ -17,6 +22,14 @@ public class WatchlistFilesRequestStart {
 
     public void setWatchlistId(int watchlistId) {
         this.watchlistId = watchlistId;
+    }
+
+    public StudyParams getParams() {
+        return params;
+    }
+
+    public void setParams(StudyParams params) {
+        this.params = params;
     }
 
     public boolean isReadRequest() {

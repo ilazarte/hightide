@@ -1,5 +1,6 @@
 package com.blm.hightide.events;
 
+import com.blm.hightide.model.StudyParams;
 import com.blm.hightide.model.Watchlist;
 
 import java.util.List;
@@ -10,9 +11,12 @@ public class WatchlistFilesRequestComplete {
 
     private Watchlist watchlist;
 
-    public WatchlistFilesRequestComplete(List<Watchlist> watchlists, Watchlist watchlist) {
+    private final StudyParams params;
+
+    public WatchlistFilesRequestComplete(List<Watchlist> watchlists, Watchlist watchlist, StudyParams params) {
         this.watchlists = watchlists;
         this.watchlist = watchlist;
+        this.params = params;
     }
 
     public List<Watchlist> getWatchlists() {
@@ -29,5 +33,9 @@ public class WatchlistFilesRequestComplete {
 
     public void setWatchlist(Watchlist watchlist) {
         this.watchlist = watchlist;
+    }
+
+    public StudyParams getParams() {
+        return params;
     }
 }

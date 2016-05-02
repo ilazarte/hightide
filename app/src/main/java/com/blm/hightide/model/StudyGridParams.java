@@ -1,18 +1,18 @@
 package com.blm.hightide.model;
 
-public class MovingAvgGridParams extends MovingAvgParams {
+public class StudyGridParams extends StudyParams {
 
     private int topLength = 6;
 
-    public MovingAvgGridParams(int length, int avgLength, int topLength) {
+    public StudyGridParams(int length, int avgLength, int topLength) {
         super(length, avgLength);
         this.topLength = topLength;
     }
 
-    public MovingAvgGridParams() {
+    public StudyGridParams() {
     }
 
-    public MovingAvgGridParams(int topLength) {
+    public StudyGridParams(int topLength) {
         this.topLength = topLength;
     }
 
@@ -26,7 +26,7 @@ public class MovingAvgGridParams extends MovingAvgParams {
 
     @Override
     public String toString() {
-        return "MovingAvgGridParams{" +
+        return "StudyGridParams{" +
                 "topLength=" + topLength +
                 "} " + super.toString();
     }

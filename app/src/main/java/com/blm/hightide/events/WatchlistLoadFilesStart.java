@@ -1,14 +1,14 @@
 package com.blm.hightide.events;
 
-import com.blm.hightide.model.MovingAvgParams;
+import com.blm.hightide.model.StudyParams;
 
 public class WatchlistLoadFilesStart {
 
     private int watchlistId;
 
-    private MovingAvgParams params;
+    private StudyParams params;
 
-    public WatchlistLoadFilesStart(int watchlistId, MovingAvgParams params) {
+    public WatchlistLoadFilesStart(int watchlistId, StudyParams params) {
         this.watchlistId = watchlistId;
         this.params = params;
     }
@@ -21,11 +21,11 @@ public class WatchlistLoadFilesStart {
         this.watchlistId = watchlistId;
     }
 
-    public MovingAvgParams getParams() {
+    public StudyParams getParams() {
         return params;
     }
 
-    public void setParams(MovingAvgParams params) {
+    public void setParams(StudyParams params) {
         this.params = params;
     }
 }

@@ -7,6 +7,7 @@ import com.blm.corals.PriceData;
 import com.blm.corals.provider.YahooPriceURL;
 import com.blm.corals.provider.YahooTickReader;
 import com.blm.hightide.model.Security;
+import com.blm.hightide.model.TickType;
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Files;
@@ -53,10 +54,6 @@ public class YahooPriceHelper {
         return download(url);
     }
 
-    public PriceData readIntraday(List<String> lines) {
-        return this.reader.intraday(lines);
-    }
-
     public void write(List<String> lines, String filename) {
         File file = toFile(filename);
         try {
@@ -69,13 +66,28 @@ public class YahooPriceHelper {
     /**
      * Download and cache the ticks in a file
      * @param security The security containing a symbol
+     * @param tickType The type of file to parse
      * @return list of tick data
      */
-    public StandardPriceData downloadAndCacheDailyPriceData(Security security) {
-        List<String> lines = daily(security.getSymbol());
+    public StandardPriceData downloadAndCachePriceData(Security security, TickType tickType) {
+
+        boolean daily = TickType.DAILY.equals(tickType);
+        String filename = daily ?
+                security.getDailyFilename() :
+                security.getIntradayFilename();
+
+        String symbol = security.getSymbol();
+
+        List<String> lines = daily ?
+                daily(symbol) :
+                intraday(symbol);
+
         Date date = new Date();
-        write(lines, security.getDailyFilename());
-        PriceData priceData = reader.daily(lines);
+        write(lines, filename);
+        PriceData priceData = daily ?
+                reader.daily(lines) :
+                reader.intraday(lines);
+
         return new StandardPriceData(priceData, date);
     }
 
@@ -83,13 +95,21 @@ public class YahooPriceHelper {
      * Read the daily tick file cache.
      * Test for existence of file prior to reading.
      * @param security The security containing a symbol
+     * @param tickType The type of file to parse.
      * @return parseresult
      */
-    public StandardPriceData readPriceData(Security security) {
-        File file = this.toFile(security.getDailyFilename());
+    public StandardPriceData readCachePriceData(Security security, TickType tickType) {
+
+        boolean daily = TickType.DAILY.equals(tickType);
+        String filename = daily ?
+                security.getDailyFilename() :
+                security.getIntradayFilename();
+
+        File file = this.toFile(filename);
         Date date = new Date(file.lastModified());
-        List<String> lines = this.read(security.getDailyFilename());
-        PriceData priceData = reader.daily(lines);
+        List<String> lines = this.read(filename);
+
+        PriceData priceData = daily ? reader.daily(lines) : reader.intraday(lines);
         return new StandardPriceData(priceData, date);
     }
 

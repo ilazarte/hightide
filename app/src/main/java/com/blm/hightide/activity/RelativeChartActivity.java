@@ -11,7 +11,7 @@ import com.blm.hightide.events.GlobalLayout;
 import com.blm.hightide.events.LineDataAvailable;
 import com.blm.hightide.events.WatchlistLoadFilesStart;
 import com.blm.hightide.fragments.RelativeChartFragment;
-import com.blm.hightide.model.MovingAvgParams;
+import com.blm.hightide.model.StudyParams;
 import com.blm.hightide.service.StockService;
 import com.github.mikephil.charting.data.LineData;
 
@@ -41,7 +41,7 @@ public class RelativeChartActivity extends AbstractBaseActivity {
     @SuppressWarnings("unused")
     public void onGlobalLayout(GlobalLayout event) {
         int watchlistId = this.getIntent().getExtras().getInt(WATCHLIST_ID);
-        onWatchlistLoadFilesStart(new WatchlistLoadFilesStart(watchlistId, new MovingAvgParams()));
+        onWatchlistLoadFilesStart(new WatchlistLoadFilesStart(watchlistId, new StudyParams()));
     }
 
     /**
@@ -55,11 +55,12 @@ public class RelativeChartActivity extends AbstractBaseActivity {
 
         StockService service = this.getStockService();
         int watchlistId = event.getWatchlistId();
+        StudyParams params = event.getParams();
+
         service.findWatchlist(watchlistId)
-                .flatMap(wl -> service.setWatchlistPriceData(wl, true))
+                .flatMap(wl -> service.setWatchlistPriceData(wl, params, true))
                 .subscribe(wl -> {
-                    MovingAvgParams params = event.getParams();
-                    LineData data = service.getRelativeForAverage(wl, params.getLength(), params.getAvgLength());
+                    LineData data = service.getRelativeForAverage(wl, params);
                     EventBus.getDefault().post(new LineDataAvailable(wl, data, params));
                 }, error -> {
                     Log.e(TAG, "onWatchlistLoadFilesStart: ", error);

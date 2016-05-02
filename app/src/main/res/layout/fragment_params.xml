@@ -24,7 +24,7 @@
 
         <Spinner
             android:id="@+id/spinner_number"
-            android:layout_width="64dp"
+            android:layout_width="56dp"
             android:layout_height="wrap_content" />
 
         <TextView
@@ -37,7 +37,12 @@
 
         <Spinner
             android:id="@+id/spinner_average_length"
-            android:layout_width="64dp"
+            android:layout_width="56dp"
+            android:layout_height="wrap_content" />
+
+        <Spinner
+            android:id="@+id/spinner_tick_type"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
     </android.support.v7.widget.Toolbar>

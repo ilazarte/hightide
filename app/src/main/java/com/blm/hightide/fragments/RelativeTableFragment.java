@@ -16,7 +16,7 @@ import com.blm.hightide.R;
 import com.blm.hightide.events.RelativeTableLoadComplete;
 import com.blm.hightide.events.RelativeTableLoadStart;
 import com.blm.hightide.fragments.internal.AbstractToolbarParamsFragment;
-import com.blm.hightide.model.MovingAvgGridParams;
+import com.blm.hightide.model.StudyGridParams;
 import com.blm.hightide.model.RelativeTick;
 import com.blm.hightide.model.Watchlist;
 
@@ -177,7 +177,7 @@ public class RelativeTableFragment extends AbstractToolbarParamsFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_execute:
-                RelativeTableLoadStart event = new RelativeTableLoadStart(watchlist.getId(), (MovingAvgGridParams) this.getParams(), true);
+                RelativeTableLoadStart event = new RelativeTableLoadStart(watchlist.getId(), (StudyGridParams) this.getParams(), true);
                 EventBus.getDefault().post(event);
                 break;
             default:

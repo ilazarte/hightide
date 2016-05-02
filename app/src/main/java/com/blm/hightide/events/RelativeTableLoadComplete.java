@@ -1,6 +1,6 @@
 package com.blm.hightide.events;
 
-import com.blm.hightide.model.MovingAvgGridParams;
+import com.blm.hightide.model.StudyGridParams;
 import com.blm.hightide.model.Watchlist;
 
 import java.util.List;
@@ -11,9 +11,9 @@ public class RelativeTableLoadComplete {
 
     private List<Object> gridList;
 
-    private MovingAvgGridParams params;
+    private StudyGridParams params;
 
-    public RelativeTableLoadComplete(Watchlist watchlist, List<Object> relativeTicks, MovingAvgGridParams params) {
+    public RelativeTableLoadComplete(Watchlist watchlist, List<Object> relativeTicks, StudyGridParams params) {
         this.watchlist = watchlist;
         this.gridList = relativeTicks;
         this.params = params;
@@ -35,11 +35,11 @@ public class RelativeTableLoadComplete {
         this.gridList = gridList;
     }
 
-    public MovingAvgGridParams getParams() {
+    public StudyGridParams getParams() {
         return params;
     }
 
-    public void setParams(MovingAvgGridParams params) {
+    public void setParams(StudyGridParams params) {
         this.params = params;
     }
 }

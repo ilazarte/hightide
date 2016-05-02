@@ -12,9 +12,11 @@ import android.view.ViewGroup;
 import android.widget.Spinner;
 
 import com.blm.hightide.R;
-import com.blm.hightide.model.MovingAvgParams;
+import com.blm.hightide.model.StudyParams;
+import com.blm.hightide.model.TickType;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import butterknife.Bind;
@@ -37,15 +39,20 @@ public abstract class AbstractToolbarParamsFragment extends BaseFragment {
     @Bind(R.id.spinner_average_length)
     Spinner spinnerAverageLength;
 
+    @Bind(R.id.spinner_tick_type)
+    Spinner spinnerTickType;
+
     ViewStubCompat stub;
 
     private List<Integer> numbers = new ArrayList<>();
 
-    private MovingAvgParams params;
+    private StudyParams params;
 
     private boolean avgLengthReset = true;
 
     private boolean numberReset = true;
+
+    private boolean tickTypeReset = true;
 
     @OnItemSelected(R.id.spinner_number)
     @SuppressWarnings("unused")
@@ -67,17 +74,32 @@ public abstract class AbstractToolbarParamsFragment extends BaseFragment {
         params.setAvgLength(numbers.get(position));
     }
 
-    public void updateParams(MovingAvgParams params) {
+    @OnItemSelected(R.id.spinner_tick_type)
+    @SuppressWarnings("unused")
+    void selectTickType(int position) {
+        if (tickTypeReset) {
+            tickTypeReset = false;
+            return;
+        }
+        params.setTickType(TickType.values()[position]);
+    }
+
+    public void updateParams(StudyParams params) {
 
         this.params = params;
         int lengthValue = numbers.indexOf(params.getLength());
         int avgLengthValue = numbers.indexOf(params.getAvgLength());
 
+        List<TickType> tickTypes = Arrays.asList(TickType.values());
+        TickType tickType = params.getTickType();
+        int tickTypeValue = tickTypes.indexOf(tickType);
+
         spinnerNumber.setSelection(lengthValue);
         spinnerAverageLength.setSelection(avgLengthValue);
+        spinnerTickType.setSelection(tickTypeValue);
     }
 
-    public MovingAvgParams getParams() {
+    public StudyParams getParams() {
         return params;
     }
 
@@ -94,7 +116,7 @@ public abstract class AbstractToolbarParamsFragment extends BaseFragment {
 
         supportActionBar = this.getSupportActionBar(toolbar);
 
-        for (int i = 10; i < 101; i += 10) {
+        for (int i = 10; i < 121; i += 10) {
             numbers.add(i);
         }
 
@@ -102,6 +124,7 @@ public abstract class AbstractToolbarParamsFragment extends BaseFragment {
 
         spinnerNumber.setAdapter(this.getSimpleArrayAdapter(themedContext, numbers));
         spinnerAverageLength.setAdapter(this.getSimpleArrayAdapter(themedContext, numbers));
+        spinnerTickType.setAdapter(this.getSimpleArrayAdapter(themedContext, Arrays.asList(TickType.values())));
 
         return view;
     }

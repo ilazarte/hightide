@@ -8,13 +8,13 @@ import com.blm.corals.Tick;
 import com.blm.corals.study.Operators;
 import com.blm.corals.study.window.Average;
 import com.blm.hightide.db.DatabaseHelper;
-import com.blm.hightide.events.WatchlistLoadFilesStart;
 import com.blm.hightide.model.FileData;
 import com.blm.hightide.model.FileLine;
-import com.blm.hightide.model.MovingAvgGridParams;
-import com.blm.hightide.model.MovingAvgParams;
+import com.blm.hightide.model.StudyGridParams;
+import com.blm.hightide.model.StudyParams;
 import com.blm.hightide.model.RelativeTick;
 import com.blm.hightide.model.Security;
+import com.blm.hightide.model.TickType;
 import com.blm.hightide.model.Watchlist;
 import com.blm.hightide.util.StandardPriceData;
 import com.blm.hightide.util.YahooPriceHelper;
@@ -80,14 +80,15 @@ public class StockService {
      * This method sorts the watchlist securities by name.
      *
      * @param watchlist A watchlist containing securities without tick data.
+     * @param params The configuration to use for accessing data.
      * @param readRequest A boolean to request a read only operation if possible.
      * @return a security with ticks populated observer
      */
-    public Observable<Watchlist> setWatchlistPriceData(Watchlist watchlist, boolean readRequest) {
+    public Observable<Watchlist> setWatchlistPriceData(Watchlist watchlist, StudyParams params, boolean readRequest) {
 
         Observable<List<Security>> listObservable = Observable.from(watchlist.getSecurities())
                 .filter(Security::isEnabled)
-                .flatMap(security -> this.setStandardPriceData(security, readRequest)
+                .flatMap(security -> this.setStandardPriceData(security, params, readRequest)
                         .subscribeOn(Schedulers.io()))
                 .toSortedList((s1, s2) -> s1.getSymbol().compareTo(s2.getSymbol()));
 
@@ -175,25 +176,43 @@ public class StockService {
     /**
      * Set the price data for one security.
      * @param security A security containing symbol.
+     * @param params The configuration object
      * @param readRequest A boolean to request a read only operation if possible.
      * @return observable security
      */
-    public Observable<Security> setStandardPriceData(Security security, boolean readRequest) {
+    public Observable<Security> setStandardPriceData(Security security, StudyParams params, boolean readRequest) {
 
         return Observable.just(security)
                 .map(sec -> {
 
-                    File file = yahooPriceHelper.toFile(sec.getDailyFilename());
-                    int hourmillis = 60 * 60 * 1000;
-                    int fourhours = 4 * hourmillis;
-                    boolean recent = (System.currentTimeMillis() - file.lastModified()) < fourhours;
-                    boolean read = readRequest && file.exists() && recent;
-
                     StandardPriceData priceData = null;
+                    File file = null;
+                    boolean notexpired = false;
+                    boolean read = false;
+
+                    switch (params.getTickType()) {
+                        case INTRADAY:
+                            file = yahooPriceHelper.toFile(sec.getIntradayFilename());
+                            int minutemillis = 60 * 1000;
+                            int fiveminutes = 5 * minutemillis;
+                            notexpired = (System.currentTimeMillis() - file.lastModified()) < fiveminutes;
+                            read = readRequest && file.exists() && notexpired;
+
+                            break;
+                        case DAILY:
+                            file = yahooPriceHelper.toFile(sec.getDailyFilename());
+                            int hourmillis = 60 * 60 * 1000;
+                            int fourhours = 4 * hourmillis;
+                            notexpired = (System.currentTimeMillis() - file.lastModified()) < fourhours;
+                            read = readRequest && file.exists() && notexpired;
+
+                            break;
+                    }
+
                     if (read) {
-                        priceData = yahooPriceHelper.readPriceData(sec);
+                        priceData = yahooPriceHelper.readCachePriceData(sec, params.getTickType());
                     } else {
-                        priceData = yahooPriceHelper.downloadAndCacheDailyPriceData(sec);
+                        priceData = yahooPriceHelper.downloadAndCachePriceData(sec, params.getTickType());
                     }
 
                     sec.setStandardPriceData(priceData);
@@ -203,13 +222,20 @@ public class StockService {
 
     /**
      * @param security Using a populated instance, retrieve file data.
+     * @param tickType the type of tick file to load
      * @return Loaded file data
      */
-    public FileData getFileData(Security security) {
+    public FileData getFileData(Security security, TickType tickType) {
+
+
+        boolean daily = TickType.DAILY.equals(tickType);
+        String filename = daily ?
+                security.getDailyFilename() :
+                security.getIntradayFilename();
 
         List<FileLine> fileLines = new ArrayList<>();
-        PriceData priceData = yahooPriceHelper.readPriceData(security);
-        List<String> lines = yahooPriceHelper.read(security.getDailyFilename());
+        PriceData priceData = yahooPriceHelper.readCachePriceData(security, tickType);
+        List<String> lines = yahooPriceHelper.read(filename);
 
         List<ReadError> errors = priceData.getErrors();
         int lineNum = 1;
@@ -244,11 +270,10 @@ public class StockService {
      * Given a valid watchlist with ticks for every security,
      * return a line of datasets.
      * @param watchlist Input watchlist containing securities and ticks.
-     * @param lastN Last n values from the ticks.
-     * @param avgLen Length of the average
+     * @param params The configuration of this study.
      * @return A relatively raw dataset list.
      */
-    public LineData getRelativeForAverage(Watchlist watchlist, int lastN, int avgLen) {
+    public LineData getRelativeForAverage(Watchlist watchlist, StudyParams params) {
         List<Security> securities = watchlist.getSecurities();
         List<ILineDataSet> dataSets = new ArrayList<>();
 
@@ -274,7 +299,7 @@ public class StockService {
                 availableTicks = ticks;
             }
 
-            List<Double> study = getCloseByAverage(ticks, lastN, avgLen);
+            List<Double> study = getCloseByAverage(ticks, params);
             LineDataSet dataset = toLineDataSet(security.getSymbol(), study);
             dataset.setColor(colorPalette[i++]);
             dataset.setDrawCircles(false);
@@ -282,8 +307,8 @@ public class StockService {
             dataSets.add(dataset);
         }
 
-        int lastNTicks = lastN - avgLen;
-        List<String> xvals = this.toXAxis(availableTicks, lastNTicks);
+        int lastNTicks = params.getLength() - params.getAvgLength();
+        List<String> xvals = this.toXAxis(availableTicks, lastNTicks, params.getTickType());
 
         return new LineData(xvals, dataSets);
     }
@@ -297,7 +322,7 @@ public class StockService {
      *   Each rowcount of items will represent a single tick.  Each row still start with 1 date instance.
      *   So if rowCount is 6, it will be 7 items per row.
      */
-    public List<Object> getRelativeTableForAverage(Watchlist watchlist, MovingAvgGridParams params) {
+    public List<Object> getRelativeTableForAverage(Watchlist watchlist, StudyGridParams params) {
 
         int lastN = params.getLength();
         int avgLen = params.getAvgLength();
@@ -331,7 +356,7 @@ public class StockService {
                 availableTicks = op.last(ticks, lastN - avgLen);
             }
 
-            List<Double> study = getCloseByAverage(ticks, lastN, avgLen);
+            List<Double> study = getCloseByAverage(ticks, params);
 
             colorMap.put(security.getSymbol(), colorPalette[colorIncr++]);
             valueMap.put(security.getSymbol(), study);
@@ -368,8 +393,10 @@ public class StockService {
      * @param params The params to apply to this price and average.
      * @return the list of line data
      */
-    public LineData getPriceAndAverage(Security security, MovingAvgParams params) {
+    public LineData getPriceAndAverage(Security security, StudyParams params) {
 
+        boolean daily = TickType.DAILY.equals(params.getTickType());
+        String column = daily ? "adjclose" : "close";
         int lastN = params.getLength();
         int avgLen = params.getAvgLength();
 
@@ -378,7 +405,7 @@ public class StockService {
         int[] colorPalette = ColorBrewer.Accent.getColorPalette(2);
         List<Tick> ticks = security.getStandardPriceData().getTicks();
 
-        List<Double> fullval = op.get(ticks, "adjclose");
+        List<Double> fullval = op.get(ticks, column);
         List<Double> val = op.last(fullval, lastN);
         List<Double> allavg = op.window(val, avgLen, new Average());
 
@@ -400,7 +427,7 @@ public class StockService {
         dataSets.add(study);
 
         int lastNTicks = lastN - avgLen;
-        List<String> xvals = this.toXAxis(security.getStandardPriceData().getTicks(), lastNTicks);
+        List<String> xvals = this.toXAxis(security.getStandardPriceData().getTicks(), lastNTicks, params.getTickType());
 
         return new LineData(xvals, dataSets);
     }
@@ -409,18 +436,21 @@ public class StockService {
      * Perform a moving average calc over them.
      *
      * @param ticks Input
-     * @param lastN Last n values from the ticks.
-     * @param avgLen Length of the average
+     * @param params The study params.
      * @return The study
      */
-    public List<Double> getCloseByAverage(List<Tick> ticks, int lastN, int avgLen) {
-        List<Double> fullval = op.get(ticks, "adjclose");
+    public List<Double> getCloseByAverage(List<Tick> ticks, StudyParams params) {
 
-        List<Double> val = op.last(fullval, lastN);
-        List<Double> avgs = op.window(val, avgLen, new Average());
+        boolean daily = TickType.DAILY.equals(params.getTickType());
+        String data = daily ? "adjclose" : "close";
+
+        List<Double> fullval = op.get(ticks, data);
+
+        List<Double> val = op.last(fullval, params.getLength());
+        List<Double> avgs = op.window(val, params.getAvgLength(), new Average());
         List<Double> div = op.divide(val, avgs);
 
-        return op.range(div, avgLen);
+        return op.range(div, params.getAvgLength());
     }
 
     public LineDataSet toLineDataSet(String symbol, List<Double> values) {
@@ -440,10 +470,17 @@ public class StockService {
      * Return a list of values for an x column
      * @param ticks A sample containing the timestamp.
      * @param lastN the number of values to get.
+     * @param tickType used for changing format strings
      * @return list of values for an x column.
      */
-    public List<String> toXAxis(List<Tick> ticks, int lastN) {
-        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy", Locale.US);
+    public List<String> toXAxis(List<Tick> ticks, int lastN, TickType tickType) {
+
+        boolean daily = TickType.DAILY.equals(tickType);
+        final String format = daily ?
+                "MM-dd-yyyy" :
+                "MM-dd HH:mm";
+
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.US);
         List<String> axis = new ArrayList<>();
         for (int i = ticks.size() - lastN; i < ticks.size(); i++) {
             Tick tick = ticks.get(i);

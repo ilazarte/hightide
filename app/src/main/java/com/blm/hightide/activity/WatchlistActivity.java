@@ -9,6 +9,7 @@ import com.blm.hightide.events.GlobalLayout;
 import com.blm.hightide.events.WatchlistFilesRequestComplete;
 import com.blm.hightide.events.WatchlistFilesRequestStart;
 import com.blm.hightide.fragments.WatchlistFragment;
+import com.blm.hightide.model.StudyParams;
 import com.blm.hightide.service.StockService;
 
 import org.greenrobot.eventbus.EventBus;
@@ -27,7 +28,7 @@ public class WatchlistActivity extends AbstractBaseActivity {
     @Subscribe(threadMode = ThreadMode.ASYNC)
     @SuppressWarnings("unused")
     public void onGlobalLayout(GlobalLayout event) {
-        onWatchlistFilesRequestStart(new WatchlistFilesRequestStart(-1, true));
+        onWatchlistFilesRequestStart(new WatchlistFilesRequestStart(-1, new StudyParams(), true));
     }
     
     @Subscribe(threadMode = ThreadMode.ASYNC)
@@ -39,11 +40,14 @@ public class WatchlistActivity extends AbstractBaseActivity {
 
         int watchlistId = event.getWatchlistId();
         boolean readRequest = event.isReadRequest();
+        StudyParams params = event.getParams();
+
+
         service.findWatchlists()
                 .concatMap(wls ->
                         service.findWatchlist(watchlistId, wls, true)
-                                .concatMap(wl -> service.setWatchlistPriceData(wl, readRequest))
-                                .map(wl -> new WatchlistFilesRequestComplete(wls, wl)))
+                                .concatMap(wl -> service.setWatchlistPriceData(wl, params, readRequest))
+                                .map(wl -> new WatchlistFilesRequestComplete(wls, wl, params)))
                 .subscribe(complete -> {
                     EventBus.getDefault().post(complete);
                 }, error -> {

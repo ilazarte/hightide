@@ -1,16 +1,16 @@
 package com.blm.hightide.events;
 
-import com.blm.hightide.model.MovingAvgGridParams;
+import com.blm.hightide.model.StudyGridParams;
 
 public class RelativeTableLoadStart {
 
     private int watchlistId;
 
-    private MovingAvgGridParams params;
+    private StudyGridParams params;
 
     private boolean readRequest;
 
-    public RelativeTableLoadStart(int watchlistId, MovingAvgGridParams params, boolean readRequest) {
+    public RelativeTableLoadStart(int watchlistId, StudyGridParams params, boolean readRequest) {
         this.watchlistId = watchlistId;
         this.params = params;
         this.readRequest = readRequest;
@@ -24,11 +24,11 @@ public class RelativeTableLoadStart {
         this.watchlistId = watchlistId;
     }
 
-    public MovingAvgGridParams getParams() {
+    public StudyGridParams getParams() {
         return params;
     }
 
-    public void setParams(MovingAvgGridParams params) {
+    public void setParams(StudyGridParams params) {
         this.params = params;
     }
 

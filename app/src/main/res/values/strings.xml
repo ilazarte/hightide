@@ -18,6 +18,6 @@
     <string name="volume_label">VOLUME</string>
     <string name="adjclose_label">ADJCLOSE</string>
 
-    <string name="number_label">Last N</string>
-    <string name="average_length_label">Avg. Len</string>
+    <string name="number_label">Len</string>
+    <string name="average_length_label">Avg</string>
 </resources>

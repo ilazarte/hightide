@@ -1,6 +1,6 @@
 package com.blm.hightide.events;
 
-import com.blm.hightide.model.MovingAvgParams;
+import com.blm.hightide.model.StudyParams;
 import com.blm.hightide.model.Security;
 import com.blm.hightide.model.Watchlist;
 import com.github.mikephil.charting.data.LineData;
@@ -13,20 +13,20 @@ public class LineDataAvailable {
 
     private LineData lineData;
 
-    private MovingAvgParams params;
+    private StudyParams params;
 
     public LineDataAvailable(Security security, LineData lineData) {
         this.security = security;
         this.lineData = lineData;
     }
 
-    public LineDataAvailable(Watchlist watchlist, LineData lineData, MovingAvgParams params) {
+    public LineDataAvailable(Watchlist watchlist, LineData lineData, StudyParams params) {
         this.watchlist = watchlist;
         this.lineData = lineData;
         this.params = params;
     }
 
-    public LineDataAvailable(Security security, LineData data, MovingAvgParams params) {
+    public LineDataAvailable(Security security, LineData data, StudyParams params) {
         this.security = security;
         this.lineData = data;
         this.params = params;
@@ -56,11 +56,11 @@ public class LineDataAvailable {
         this.lineData = lineData;
     }
 
-    public MovingAvgParams getParams() {
+    public StudyParams getParams() {
         return params;
     }
 
-    public void setParams(MovingAvgParams params) {
+    public void setParams(StudyParams params) {
         this.params = params;
     }
 }
