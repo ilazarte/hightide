@@ -25,6 +25,9 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
+/**
+ * * TODO select daily or intraday
+ */
 public class FileFragment extends BaseFragment {
 
     @SuppressWarnings("unused")

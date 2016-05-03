@@ -3,7 +3,6 @@ package com.blm.hightide.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 
 import com.blm.hightide.R;
 import com.blm.hightide.activity.internal.AbstractBaseActivity;
@@ -37,6 +36,7 @@ public class TableActivity extends AbstractBaseActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.ASYNC)
+    @SuppressWarnings("unused")
     public void onGlobalLayout(GlobalLayout event) {
         String symbol = this.getIntent().getExtras().getString(SECURITY_SYMBOL);
         onSecurityLoadStart(new SecurityLoadStart(symbol, new StudyParams()));
@@ -46,7 +46,6 @@ public class TableActivity extends AbstractBaseActivity {
     @SuppressWarnings("unused")
     public void onSecurityLoadStart(SecurityLoadStart event) {
 
-        Log.i(TAG, "onSecurityLoadStart: loading security?");
         toast(R.string.read_file);
 
         StockService service = this.getStockService();

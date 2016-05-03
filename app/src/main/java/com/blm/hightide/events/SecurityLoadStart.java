@@ -8,10 +8,6 @@ public class SecurityLoadStart {
 
     private StudyParams params;
 
-    public SecurityLoadStart(String symbol) {
-        this.symbol = symbol;
-    }
-
     public SecurityLoadStart(String symbol, StudyParams params) {
         this.symbol = symbol;
         this.params = params;

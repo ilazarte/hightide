@@ -29,7 +29,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 
 /**
- * TODO convert this to include a dropdown to be able to select any stock
+ * TODO add ability to select any stock intraday or daily
  */
 public class TableFragment extends BaseFragment {
 

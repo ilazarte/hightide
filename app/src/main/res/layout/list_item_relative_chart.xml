@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:clipChildren="true"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/list_item_timestamp"
+        android:textSize="12sp"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        tools:text="04-19-1975"/>
+
+    <TextView
+        android:id="@+id/list_item_1"
+        android:textSize="12sp"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        tools:text="184.21"/>
+
+    <TextView
+        android:id="@+id/list_item_2"
+        android:textSize="12sp"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        tools:text="284.21"/>
+
+    <TextView
+        android:id="@+id/list_item_3"
+        android:textSize="12sp"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        tools:text="384.21"/>
+
+    <TextView
+        android:id="@+id/list_item_4"
+        android:textSize="12sp"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        tools:text="484.21"/>
+
+    <TextView
+        android:id="@+id/list_item_5"
+        android:textSize="12sp"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        tools:text="382.21"/>
+
+    <TextView
+        android:id="@+id/list_item_6"
+        android:textSize="12sp"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        tools:text="532.21"/>
+
+</LinearLayout>

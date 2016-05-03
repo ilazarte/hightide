@@ -2,7 +2,7 @@ package com.blm.hightide.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -16,9 +16,12 @@ import com.blm.hightide.R;
 import com.blm.hightide.events.RelativeTableLoadComplete;
 import com.blm.hightide.events.RelativeTableLoadStart;
 import com.blm.hightide.fragments.internal.AbstractToolbarParamsFragment;
-import com.blm.hightide.model.StudyGridParams;
+import com.blm.hightide.model.RelativeGridRow;
 import com.blm.hightide.model.RelativeTick;
+import com.blm.hightide.model.StudyGridParams;
 import com.blm.hightide.model.Watchlist;
+import com.blm.hightide.views.AdapterFactory;
+import com.blm.hightide.views.Binder;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -29,94 +32,61 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
-import butterknife.ButterKnife;
 
 public class RelativeTableFragment extends AbstractToolbarParamsFragment {
 
     @SuppressWarnings("unused")
     private static final String TAG = RelativeTableFragment.class.getSimpleName();
 
-    abstract class BaseHolder<T> extends RecyclerView.ViewHolder {
-        public BaseHolder(View itemView) {
-            super(itemView);
-        }
-
-        public abstract void bind(T o);
-    }
-
-    class RelativeTickHolder extends BaseHolder<RelativeTick> {
+    class RowBinder implements Binder<RelativeGridRow> {
 
         private final DecimalFormat df = new DecimalFormat("#.00");
 
-        @Bind(R.id.grid_item_textview)
-        TextView value;
+        @Bind(R.id.list_item_timestamp)
+        TextView timestamp;
 
-        public RelativeTickHolder(View view) {
-            super(view);
-            ButterKnife.bind(this, view);
+        @Bind(R.id.list_item_1)
+        TextView rank1;
+
+        @Bind(R.id.list_item_2)
+        TextView rank2;
+
+        @Bind(R.id.list_item_3)
+        TextView rank3;
+
+        @Bind(R.id.list_item_4)
+        TextView rank4;
+
+        @Bind(R.id.list_item_5)
+        TextView rank5;
+
+        @Bind(R.id.list_item_6)
+        TextView rank6;
+
+        @Override
+        public Binder<RelativeGridRow> create() {
+            return new RowBinder();
         }
 
-        public void bind(RelativeTick tick) {
+        @Override
+        public void bind(RelativeGridRow row, int position) {
+            timestamp.setText(row.getTimestamp());
+            bind(rank1, row.getTicks().get(0));
+            bind(rank2, row.getTicks().get(1));
+            bind(rank3, row.getTicks().get(2));
+            bind(rank4, row.getTicks().get(3));
+            bind(rank5, row.getTicks().get(4));
+            bind(rank6, row.getTicks().get(5));
+        }
+
+        private void bind(TextView view, RelativeTick tick) {
             String text = tick.getSymbol() + "\n" + df.format(tick.getValue());
-            value.setBackgroundColor(tick.getColor());
-            value.setText(text);
+            view.setText(text);
+            view.setBackgroundColor(tick.getColor());
         }
     }
 
-    class StringHolder extends BaseHolder<String> {
-
-        @Bind(R.id.grid_item_textview)
-        TextView dateview;
-
-        public StringHolder(View view) {
-            super(view);
-            ButterKnife.bind(this, view);
-        }
-
-        public void bind(String str) {
-            dateview.setText(str);
-        }
-    }
-
-    class GridAdapter extends RecyclerView.Adapter<BaseHolder> {
-
-        private List<Object> items;
-
-        private int totalRowCount;
-
-        public GridAdapter(List<Object> items, int rowCount) {
-            this.items = items;
-            this.totalRowCount = rowCount + 1;
-        }
-
-        @Override
-        public int getItemViewType(int position) {
-            return position % totalRowCount == 0 ? 0 : 1;
-        }
-
-        @Override
-        public BaseHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
-            LayoutInflater inflator = LayoutInflater.from(getActivity());
-            View view = inflator.inflate(R.layout.grid_item_textview, parent, false);
-            if (viewType == 0) {
-                return new StringHolder(view);
-            } else {
-                return new RelativeTickHolder(view);
-            }
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public void onBindViewHolder(BaseHolder holder, int position) {
-            holder.bind(items.get(position));
-        }
-
-        @Override
-        public int getItemCount() {
-            return items.size();
-        }
-    }
+    private AdapterFactory<RelativeGridRow> factory;
 
     @Bind(R.id.textview_watchlist_name)
     TextView textView;
@@ -143,12 +113,12 @@ public class RelativeTableFragment extends AbstractToolbarParamsFragment {
     @SuppressWarnings("unused")
     public void onRelativeTableLoadComplete(RelativeTableLoadComplete event) {
 
-        List<Object> gridList = event.getGridList();
+        List<RelativeGridRow> gridList = event.getGridList();
         watchlist = event.getWatchlist();
 
         updateParams(event.getParams());
         textView.setText(watchlist.getName());
-        table.setAdapter(this.getAnimationAdapter(new GridAdapter(gridList, event.getParams().getTopLength())));
+        table.setAdapter(this.getAnimationAdapter(factory.adapter(gridList)));
     }
 
     @Nullable
@@ -158,11 +128,13 @@ public class RelativeTableFragment extends AbstractToolbarParamsFragment {
         setHasOptionsMenu(true);
         View view = super.onCreateView(inflater, container, savedInstanceState);
 
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this.getActivity(), 7);
-        gridLayoutManager.setAutoMeasureEnabled(true);
+        factory = new AdapterFactory<>(this.getAppCompatActivity(), new RowBinder(), R.layout.list_item_relative_chart);
 
-        table.setLayoutManager(gridLayoutManager);
-        table.setAdapter(new GridAdapter(new ArrayList<>(), 0));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this.getAppCompatActivity());
+        linearLayoutManager.setAutoMeasureEnabled(true);
+
+        table.setLayoutManager(linearLayoutManager);
+        table.setAdapter(factory.adapter(new ArrayList<>()));
 
         return view;
     }

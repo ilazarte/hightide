@@ -11,16 +11,17 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.blm.hightide.R;
-import com.blm.hightide.events.LineDataAvailable;
+import com.blm.hightide.events.SecurityChartDataAvailable;
 import com.blm.hightide.events.SecurityLoadStart;
 import com.blm.hightide.fragments.internal.AbstractToolbarParamsFragment;
 import com.blm.hightide.model.Security;
-import com.github.mikephil.charting.charts.LineChart;
+import com.blm.hightide.util.FrequencyFormatter;
+import com.github.mikephil.charting.charts.CombinedChart;
 import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.CandleData;
 import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.highlight.Highlight;
-import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.interfaces.datasets.ICandleDataSet;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 
 import org.greenrobot.eventbus.EventBus;
@@ -41,7 +42,7 @@ public class SecurityFragment extends AbstractToolbarParamsFragment {
     TextView datapoint;
 
     @Bind(R.id.chart)
-    LineChart chart;
+    CombinedChart chart;
 
     private Security security;
 
@@ -54,13 +55,13 @@ public class SecurityFragment extends AbstractToolbarParamsFragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     @SuppressWarnings("unused")
-    public void onLineDataAvailable(LineDataAvailable event) {
+    public void onLineDataAvailable(SecurityChartDataAvailable event) {
 
         security = event.getSecurity();
         this.updateParams(event.getParams());
 
         title.setText(security.getSymbol());
-        chart.setData(event.getLineData());
+        chart.setData(event.getCombinedData());
         chart.invalidate();
     }
 
@@ -81,10 +82,10 @@ public class SecurityFragment extends AbstractToolbarParamsFragment {
         chart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
             @Override
             public void onValueSelected(Entry entry, int dataSetIndex, Highlight h) {
-                LineData lineData = chart.getLineData();
+                CandleData data = chart.getCandleData();
                 XAxis xAxis = chart.getXAxis();
 
-                ILineDataSet dataset = lineData.getDataSetByIndex(dataSetIndex);
+                ICandleDataSet dataset = data.getDataSetByIndex(dataSetIndex);
                 String date = xAxis.getValues().get(h.getXIndex());
                 String val = Float.valueOf(entry.getVal()).toString();
                 String msg = date + " " + dataset.getLabel() + " " + val;
@@ -96,6 +97,9 @@ public class SecurityFragment extends AbstractToolbarParamsFragment {
             public void onNothingSelected() {
             }
         });
+
+        XAxis xAxis = chart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTH_SIDED);
 
         return view;
     }

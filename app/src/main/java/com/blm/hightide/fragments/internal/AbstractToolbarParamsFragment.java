@@ -46,7 +46,7 @@ public abstract class AbstractToolbarParamsFragment extends BaseFragment {
 
     private List<Integer> numbers = new ArrayList<>();
 
-    private StudyParams params;
+    private StudyParams params = new StudyParams();
 
     private boolean avgLengthReset = true;
 
@@ -81,7 +81,11 @@ public abstract class AbstractToolbarParamsFragment extends BaseFragment {
             tickTypeReset = false;
             return;
         }
-        params.setTickType(TickType.values()[position]);
+        TickType tickType = TickType.values()[position];
+        params.setTickType(tickType);
+
+        params.setLength(TickType.DAILY.equals(tickType) ? 60 : 100);
+        updateParams(params);
     }
 
     public void updateParams(StudyParams params) {

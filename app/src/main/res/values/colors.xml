@@ -7,6 +7,9 @@
     <color name="strong">#47a6ea</color>
     <color name="strong_fade">#abc9e1</color>
     <color name="weak">#ea9b9b</color>
-    <color name="weak_fade">#e4b9b9</color>
+    <color name="salmon">#e7bf85</color>
+    <color name="salmon_bluegray">#a4877f</color>
+    <color name="bluegrey">#7a7b7d</color>
     <color name="light_grey">#c6c6c6</color>
+    <color name="dark_accent">#b71c1c</color>
 </resources>

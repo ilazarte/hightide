@@ -7,17 +7,20 @@ import android.support.v4.app.Fragment;
 import com.blm.hightide.R;
 import com.blm.hightide.activity.internal.AbstractBaseActivity;
 import com.blm.hightide.events.GlobalLayout;
-import com.blm.hightide.events.LineDataAvailable;
+import com.blm.hightide.events.SecurityChartDataAvailable;
 import com.blm.hightide.events.SecurityLoadStart;
 import com.blm.hightide.fragments.SecurityFragment;
 import com.blm.hightide.model.StudyParams;
 import com.blm.hightide.service.StockService;
-import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.CombinedData;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+/**
+ * TODO, security item loads but renders different length than shown
+ */
 public class SecurityActivity extends AbstractBaseActivity {
 
     @SuppressWarnings("unused")
@@ -56,8 +59,8 @@ public class SecurityActivity extends AbstractBaseActivity {
         service.findSecurity(symbol)
                 .flatMap(security -> service.setStandardPriceData(security, params, true))
                 .subscribe(security -> {
-                    LineData data = service.getPriceAndAverage(security, params);
-                    EventBus.getDefault().post(new LineDataAvailable(security, data, params));
+                    CombinedData data = service.getPriceAndAverage(security, params);
+                    EventBus.getDefault().post(new SecurityChartDataAvailable(security, data, params));
                 });
     }
 }

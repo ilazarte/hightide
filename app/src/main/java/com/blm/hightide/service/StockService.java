@@ -1,6 +1,8 @@
 package com.blm.hightide.service;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Paint;
 
 import com.blm.corals.PriceData;
 import com.blm.corals.ReadError;
@@ -10,14 +12,21 @@ import com.blm.corals.study.window.Average;
 import com.blm.hightide.db.DatabaseHelper;
 import com.blm.hightide.model.FileData;
 import com.blm.hightide.model.FileLine;
-import com.blm.hightide.model.StudyGridParams;
-import com.blm.hightide.model.StudyParams;
+import com.blm.hightide.model.RelativeGridRow;
 import com.blm.hightide.model.RelativeTick;
 import com.blm.hightide.model.Security;
+import com.blm.hightide.model.StudyGridParams;
+import com.blm.hightide.model.StudyParams;
 import com.blm.hightide.model.TickType;
 import com.blm.hightide.model.Watchlist;
+import com.blm.hightide.util.FrequencyFormatter;
 import com.blm.hightide.util.StandardPriceData;
 import com.blm.hightide.util.YahooPriceHelper;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.CandleData;
+import com.github.mikephil.charting.data.CandleDataSet;
+import com.github.mikephil.charting.data.CandleEntry;
+import com.github.mikephil.charting.data.CombinedData;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -322,13 +331,16 @@ public class StockService {
      *   Each rowcount of items will represent a single tick.  Each row still start with 1 date instance.
      *   So if rowCount is 6, it will be 7 items per row.
      */
-    public List<Object> getRelativeTableForAverage(Watchlist watchlist, StudyGridParams params) {
+    public List<RelativeGridRow> getRelativeTableForAverage(Watchlist watchlist, StudyGridParams params) {
 
         int lastN = params.getLength();
         int avgLen = params.getAvgLength();
         int rowCount = params.getTopLength();
 
-        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd\nyyyy", Locale.US);
+        boolean daily = TickType.DAILY.equals(params.getTickType());
+        String format = daily ? "MM-dd\nyyyy" : "MM-dd\nHH:mm";
+
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.US);
         List<Security> securities = watchlist.getSecurities();
 
         int num = 0;
@@ -363,11 +375,12 @@ public class StockService {
         }
 
         List<String> symbols = new ArrayList<>(valueMap.keySet());
-        List<Object> gridList = new ArrayList<>();
+        List<RelativeGridRow> gridList = new ArrayList<>();
         List<RelativeTick> sampleTicks = new ArrayList<>();
 
         for (int i = 0; i < availableTicks.size(); i++) {
             sampleTicks.clear();
+
             for (String symbol : symbols) {
                 List<Double> values = valueMap.get(symbol);
                 Double value = values.get(i);
@@ -377,12 +390,17 @@ public class StockService {
             Collections.sort(sampleTicks, RelativeTick.COMPARATOR);
 
             Date date = availableTicks.get(i).getTimestamp();
-            gridList.add(sdf.format(date));
 
+            List<RelativeTick> rowList = new ArrayList<>();
             for (int j = sampleTicks.size() - 1, min = j - rowCount; j > min; j--) {
-                gridList.add(sampleTicks.get(j));
+                rowList.add(sampleTicks.get(j));
             }
+
+            RelativeGridRow row = new RelativeGridRow(sdf.format(date), rowList);
+            gridList.add(row);
         }
+
+        Collections.reverse(gridList);
 
         return gridList;
     }
@@ -393,14 +411,15 @@ public class StockService {
      * @param params The params to apply to this price and average.
      * @return the list of line data
      */
-    public LineData getPriceAndAverage(Security security, StudyParams params) {
+    public CombinedData getPriceAndAverage(Security security, StudyParams params) {
+
+
+        FrequencyFormatter formatter = new FrequencyFormatter();
 
         boolean daily = TickType.DAILY.equals(params.getTickType());
         String column = daily ? "adjclose" : "close";
         int lastN = params.getLength();
         int avgLen = params.getAvgLength();
-
-        List<ILineDataSet> dataSets = new ArrayList<>();
 
         int[] colorPalette = ColorBrewer.Accent.getColorPalette(2);
         List<Tick> ticks = security.getStandardPriceData().getTicks();
@@ -409,27 +428,42 @@ public class StockService {
         List<Double> val = op.last(fullval, lastN);
         List<Double> allavg = op.window(val, avgLen, new Average());
 
-        List<Double> close = op.range(val, avgLen);
         List<Double> avg = op.range(allavg, avgLen);
 
-        LineDataSet dataset = toLineDataSet(security.getSymbol(), close);
-        dataset.setColor(colorPalette[0]);
-        dataset.setDrawCircles(false);
-        dataset.setLineWidth(2f);
+        CandleDataSet ohlc = toCandleDataSet(security.getSymbol(), op.range(op.last(ticks, lastN), avgLen));
+        ohlc.setShadowWidth(2f);
+        ohlc.setHighlightLineWidth(2f);
+        ohlc.setShadowColor(Color.DKGRAY);
+        ohlc.setShadowWidth(0.7f);
+        ohlc.setDecreasingColor(Color.rgb(183, 28, 28));
+        ohlc.setDecreasingPaintStyle(Paint.Style.FILL);
+        ohlc.setIncreasingColor(Color.rgb(27, 94, 32));
+        ohlc.setIncreasingPaintStyle(Paint.Style.STROKE);
+        ohlc.setNeutralColor(Color.DKGRAY);
+        ohlc.setAxisDependency(YAxis.AxisDependency.LEFT);
+        ohlc.setValueFormatter(formatter);
 
-        dataSets.add(dataset);
+        CandleData candleData = new CandleData();
+        candleData.addDataSet(ohlc);
 
         LineDataSet study = toLineDataSet("Average(" + avgLen + ")", avg);
         study.setColor(colorPalette[1]);
         study.setDrawCircles(false);
         study.setLineWidth(2f);
+        study.setAxisDependency(YAxis.AxisDependency.LEFT);
+        study.setValueFormatter(formatter);
 
-        dataSets.add(study);
+        LineData lineData = new LineData();
+        lineData.addDataSet(study);
 
         int lastNTicks = lastN - avgLen;
         List<String> xvals = this.toXAxis(security.getStandardPriceData().getTicks(), lastNTicks, params.getTickType());
 
-        return new LineData(xvals, dataSets);
+        CombinedData data = new CombinedData(xvals);
+        data.setData(lineData);
+        data.setData(candleData);
+
+        return data;
     }
 
     /**
@@ -464,6 +498,23 @@ public class StockService {
         }
 
         return new LineDataSet(entries, symbol);
+    }
+
+    public CandleDataSet toCandleDataSet(String symbol, List<Tick> values) {
+
+        List<CandleEntry> entries = new ArrayList<>();
+
+        for (int i = 0, len = values.size(); i < len; i++) {
+            Tick tick = values.get(i);
+            float h = (float) tick.get("high").doubleValue();
+            float l = (float) tick.get("low").doubleValue();
+            float o = (float) tick.get("open").doubleValue();
+            float c = (float) tick.get("close").doubleValue();
+            CandleEntry entry = new CandleEntry(i, h, l, o, c);
+            entries.add(entry);
+        }
+
+        return new CandleDataSet(entries, symbol);
     }
 
     /**

@@ -11,6 +11,7 @@ import com.blm.hightide.events.GlobalLayout;
 import com.blm.hightide.events.RelativeTableLoadComplete;
 import com.blm.hightide.events.RelativeTableLoadStart;
 import com.blm.hightide.fragments.RelativeTableFragment;
+import com.blm.hightide.model.RelativeGridRow;
 import com.blm.hightide.model.StudyGridParams;
 import com.blm.hightide.service.StockService;
 
@@ -58,8 +59,8 @@ public class RelativeTableActivity extends AbstractBaseActivity {
         service.findWatchlist(watchlistId)
                 .flatMap(wl -> service.setWatchlistPriceData(wl, params, true))
                 .subscribe(wl -> {
-                    List<Object> gridList = service.getRelativeTableForAverage(wl, params);
-                    EventBus.getDefault().post(new RelativeTableLoadComplete(wl, gridList, params));
+                    List<RelativeGridRow> rows = service.getRelativeTableForAverage(wl, params);
+                    EventBus.getDefault().post(new RelativeTableLoadComplete(wl, rows, params));
                 }, error -> {
                     Log.e(TAG, "onRelativeTableLoadStart: ", error);
                 });

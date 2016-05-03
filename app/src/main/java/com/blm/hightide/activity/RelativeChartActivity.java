@@ -8,7 +8,8 @@ import android.util.Log;
 import com.blm.hightide.R;
 import com.blm.hightide.activity.internal.AbstractBaseActivity;
 import com.blm.hightide.events.GlobalLayout;
-import com.blm.hightide.events.LineDataAvailable;
+import com.blm.hightide.events.RelativeChartDataAvailable;
+import com.blm.hightide.events.SecurityChartDataAvailable;
 import com.blm.hightide.events.WatchlistLoadFilesStart;
 import com.blm.hightide.fragments.RelativeChartFragment;
 import com.blm.hightide.model.StudyParams;
@@ -61,7 +62,7 @@ public class RelativeChartActivity extends AbstractBaseActivity {
                 .flatMap(wl -> service.setWatchlistPriceData(wl, params, true))
                 .subscribe(wl -> {
                     LineData data = service.getRelativeForAverage(wl, params);
-                    EventBus.getDefault().post(new LineDataAvailable(wl, data, params));
+                    EventBus.getDefault().post(new RelativeChartDataAvailable(wl, data, params));
                 }, error -> {
                     Log.e(TAG, "onWatchlistLoadFilesStart: ", error);
                 });

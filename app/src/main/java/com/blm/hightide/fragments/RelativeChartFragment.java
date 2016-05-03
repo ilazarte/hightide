@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.blm.hightide.R;
-import com.blm.hightide.events.LineDataAvailable;
+import com.blm.hightide.events.RelativeChartDataAvailable;
 import com.blm.hightide.events.WatchlistLoadFilesStart;
 import com.blm.hightide.fragments.internal.AbstractToolbarParamsFragment;
 import com.blm.hightide.model.Watchlist;
@@ -62,7 +62,7 @@ public class RelativeChartFragment extends AbstractToolbarParamsFragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     @SuppressWarnings("unused")
-    public void onLineDataAvailable(LineDataAvailable event) {
+    public void onLineDataAvailable(RelativeChartDataAvailable event) {
         watchlist = event.getWatchlist();
 
         updateParams(event.getParams());

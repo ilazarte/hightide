@@ -51,6 +51,10 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnItemSelected;
 
+/**
+ * TODO select daily or intraday
+ */
+
 public class WatchlistFragment extends BaseFragment {
 
     private static final String TAG = WatchlistFragment.class.getSimpleName();

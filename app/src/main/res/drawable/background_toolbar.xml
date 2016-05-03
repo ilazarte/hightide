@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--<item>
+        <shape android:src="@drawable/gradient_bar" />
+    </item>
+    <item>
+        <shape android:src="@drawable/gradient_angle" />
+    </item>-->
+    <item>
+        <shape>
+            <gradient
+                android:startColor="#e7bf85"
+                android:centerColor="#a4877f"
+                android:endColor="#7a7b7d"
+                android:angle="270"/>
+        </shape>
+    </item>
+    <item>
+        <shape>
+            <gradient
+                android:startColor="#45ff0000"
+                android:endColor="#7c5b7c"
+                android:angle="45"/>
+        </shape>
+    </item>
+</layer-list>
