@@ -15,7 +15,6 @@ import com.blm.hightide.events.SecurityChartDataAvailable;
 import com.blm.hightide.events.SecurityLoadStart;
 import com.blm.hightide.fragments.internal.AbstractToolbarParamsFragment;
 import com.blm.hightide.model.Security;
-import com.blm.hightide.util.FrequencyFormatter;
 import com.github.mikephil.charting.charts.CombinedChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.CandleData;
@@ -67,7 +66,7 @@ public class SecurityFragment extends AbstractToolbarParamsFragment {
 
     @Override
     public int stubLayout() {
-        return R.layout.fragment_security;
+        return R.layout.stub_security;
     }
 
     @Nullable

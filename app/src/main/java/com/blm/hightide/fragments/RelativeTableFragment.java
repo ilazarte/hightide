@@ -106,7 +106,7 @@ public class RelativeTableFragment extends AbstractToolbarParamsFragment {
 
     @Override
     public int stubLayout() {
-        return R.layout.fragment_relative_table;
+        return R.layout.stub_relative_table;
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

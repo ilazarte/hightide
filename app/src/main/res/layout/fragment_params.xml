@@ -31,7 +31,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="0dp"
-            android:layout_marginLeft="16dp"
             style="?android:attr/spinnerItemStyle"
             android:text="@string/average_length_label" />
 

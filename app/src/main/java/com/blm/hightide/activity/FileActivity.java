@@ -33,7 +33,6 @@ public class FileActivity extends AbstractBaseActivity {
 
     @Override
     public Fragment createFragment() {
-        String symbol = this.getIntent().getExtras().getString(SECURITY_SYMBOL);
         return FileFragment.newInstance();
     }
 

@@ -437,7 +437,7 @@ public class StockService {
         ohlc.setShadowWidth(0.7f);
         ohlc.setDecreasingColor(Color.rgb(183, 28, 28));
         ohlc.setDecreasingPaintStyle(Paint.Style.FILL);
-        ohlc.setIncreasingColor(Color.rgb(27, 94, 32));
+        ohlc.setIncreasingColor(Color.BLACK);
         ohlc.setIncreasingPaintStyle(Paint.Style.STROKE);
         ohlc.setNeutralColor(Color.DKGRAY);
         ohlc.setAxisDependency(YAxis.AxisDependency.LEFT);

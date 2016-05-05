@@ -57,7 +57,7 @@ public class RelativeChartFragment extends AbstractToolbarParamsFragment {
 
     @Override
     public int stubLayout() {
-        return R.layout.fragment_relative_chart;
+        return R.layout.stub_relative_chart;
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
