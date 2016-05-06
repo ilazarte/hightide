@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class DemoAdapters {
     public static void main(String[] args) {
 
-        AdapterFactory<Tick> factory = new AdapterFactory<>(null, new TickBinder(), R.layout.list_item_daily_tick);
+        AdapterFactory<Tick> factory = new AdapterFactory<>(null, new TickBinder(), R.layout.list_item_table);
         AdapterFactory<Tick>.Adapter adapter = factory.adapter(new ArrayList<>());
     }
 }

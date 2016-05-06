@@ -57,7 +57,7 @@ public class RelativeTableActivity extends AbstractBaseActivity {
         StudyGridParams params = event.getParams();
 
         service.findWatchlist(watchlistId)
-                .flatMap(wl -> service.setWatchlistPriceData(wl, params, true))
+                .flatMap(wl -> service.setWatchlistPriceData(wl, params.getTickType(), true))
                 .subscribe(wl -> {
                     List<RelativeGridRow> rows = service.getRelativeTableForAverage(wl, params);
                     EventBus.getDefault().post(new RelativeTableLoadComplete(wl, rows, params));

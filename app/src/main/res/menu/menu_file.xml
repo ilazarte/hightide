@@ -1,0 +1,12 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".activity.FileActivity">
+
+    <item
+        android:id="@+id/action_execute"
+        android:icon="@drawable/ic_launch_black_24dp"
+        android:title="@string/action_execute"
+        app:showAsAction="always"/>
+
+</menu>

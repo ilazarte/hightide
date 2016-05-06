@@ -9,7 +9,6 @@ import com.blm.hightide.R;
 import com.blm.hightide.activity.internal.AbstractBaseActivity;
 import com.blm.hightide.events.GlobalLayout;
 import com.blm.hightide.events.RelativeChartDataAvailable;
-import com.blm.hightide.events.SecurityChartDataAvailable;
 import com.blm.hightide.events.WatchlistLoadFilesStart;
 import com.blm.hightide.fragments.RelativeChartFragment;
 import com.blm.hightide.model.StudyParams;
@@ -59,7 +58,7 @@ public class RelativeChartActivity extends AbstractBaseActivity {
         StudyParams params = event.getParams();
 
         service.findWatchlist(watchlistId)
-                .flatMap(wl -> service.setWatchlistPriceData(wl, params, true))
+                .flatMap(wl -> service.setWatchlistPriceData(wl, params.getTickType(), true))
                 .subscribe(wl -> {
                     LineData data = service.getRelativeForAverage(wl, params);
                     EventBus.getDefault().post(new RelativeChartDataAvailable(wl, data, params));

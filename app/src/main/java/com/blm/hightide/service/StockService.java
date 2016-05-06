@@ -89,15 +89,15 @@ public class StockService {
      * This method sorts the watchlist securities by name.
      *
      * @param watchlist A watchlist containing securities without tick data.
-     * @param params The configuration to use for accessing data.
+     * @param tickType The tick configuration to use for accessing data.
      * @param readRequest A boolean to request a read only operation if possible.
      * @return a security with ticks populated observer
      */
-    public Observable<Watchlist> setWatchlistPriceData(Watchlist watchlist, StudyParams params, boolean readRequest) {
+    public Observable<Watchlist> setWatchlistPriceData(Watchlist watchlist, TickType tickType, boolean readRequest) {
 
         Observable<List<Security>> listObservable = Observable.from(watchlist.getSecurities())
                 .filter(Security::isEnabled)
-                .flatMap(security -> this.setStandardPriceData(security, params, readRequest)
+                .flatMap(security -> this.setStandardPriceData(security, tickType, readRequest)
                         .subscribeOn(Schedulers.io()))
                 .toSortedList((s1, s2) -> s1.getSymbol().compareTo(s2.getSymbol()));
 
@@ -185,11 +185,11 @@ public class StockService {
     /**
      * Set the price data for one security.
      * @param security A security containing symbol.
-     * @param params The configuration object
+     * @param tickType The time option to load
      * @param readRequest A boolean to request a read only operation if possible.
      * @return observable security
      */
-    public Observable<Security> setStandardPriceData(Security security, StudyParams params, boolean readRequest) {
+    public Observable<Security> setStandardPriceData(Security security, TickType tickType, boolean readRequest) {
 
         return Observable.just(security)
                 .map(sec -> {
@@ -199,7 +199,7 @@ public class StockService {
                     boolean notexpired = false;
                     boolean read = false;
 
-                    switch (params.getTickType()) {
+                    switch (tickType) {
                         case INTRADAY:
                             file = yahooPriceHelper.toFile(sec.getIntradayFilename());
                             int minutemillis = 60 * 1000;
@@ -219,9 +219,9 @@ public class StockService {
                     }
 
                     if (read) {
-                        priceData = yahooPriceHelper.readCachePriceData(sec, params.getTickType());
+                        priceData = yahooPriceHelper.readCachePriceData(sec, tickType);
                     } else {
-                        priceData = yahooPriceHelper.downloadAndCachePriceData(sec, params.getTickType());
+                        priceData = yahooPriceHelper.downloadAndCachePriceData(sec, tickType);
                     }
 
                     sec.setStandardPriceData(priceData);

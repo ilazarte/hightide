@@ -5,25 +5,22 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@drawable/background_toolbar"
-        android:theme="@style/Dark.Overlay"
+        android:layout_height="32dp"
+        android:background="@color/light_grey"
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/textview_filename"
+            android:id="@+id/textview_title"
+            android:layout_marginLeft="16dp"
             android:layout_width="wrap_content"
-            android:layout_height="?attr/actionBarSize"
-            android:paddingStart="16dp"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            style="?android:attr/spinnerItemStyle"
-            android:gravity="center_vertical"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:textSize="14sp"
             tools:text="Title"/>
 
-    </LinearLayout>
+    </RelativeLayout>
 
     <HorizontalScrollView
         android:id="@+id/scrollview_file"

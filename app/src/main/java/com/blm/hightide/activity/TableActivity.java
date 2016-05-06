@@ -8,9 +8,11 @@ import com.blm.hightide.R;
 import com.blm.hightide.activity.internal.AbstractBaseActivity;
 import com.blm.hightide.events.GlobalLayout;
 import com.blm.hightide.events.SecurityLoadComplete;
-import com.blm.hightide.events.SecurityLoadStart;
+import com.blm.hightide.events.TableLoadComplete;
+import com.blm.hightide.events.TableLoadStart;
 import com.blm.hightide.fragments.TableFragment;
 import com.blm.hightide.model.StudyParams;
+import com.blm.hightide.model.TickType;
 import com.blm.hightide.service.StockService;
 
 import org.greenrobot.eventbus.EventBus;
@@ -39,23 +41,23 @@ public class TableActivity extends AbstractBaseActivity {
     @SuppressWarnings("unused")
     public void onGlobalLayout(GlobalLayout event) {
         String symbol = this.getIntent().getExtras().getString(SECURITY_SYMBOL);
-        onSecurityLoadStart(new SecurityLoadStart(symbol, new StudyParams()));
+        onTableLoadStart(new TableLoadStart(symbol, TickType.DAILY));
     }
 
     @Subscribe(threadMode = ThreadMode.ASYNC)
     @SuppressWarnings("unused")
-    public void onSecurityLoadStart(SecurityLoadStart event) {
+    public void onTableLoadStart(TableLoadStart event) {
 
         toast(R.string.read_file);
 
         StockService service = this.getStockService();
         String symbol = event.getSymbol();
-        StudyParams params = event.getParams();
+        TickType tickType = event.getTickType();
 
         service.findSecurity(symbol)
-                .flatMap(security -> service.setStandardPriceData(security, params, true))
+                .flatMap(security -> service.setStandardPriceData(security, tickType, true))
                 .subscribe(security -> {
-                    EventBus.getDefault().post(new SecurityLoadComplete(security));
+                    EventBus.getDefault().post(new TableLoadComplete(security, tickType));
                 });
     }
 }

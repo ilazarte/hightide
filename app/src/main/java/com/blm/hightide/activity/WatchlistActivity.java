@@ -42,11 +42,10 @@ public class WatchlistActivity extends AbstractBaseActivity {
         boolean readRequest = event.isReadRequest();
         StudyParams params = event.getParams();
 
-
         service.findWatchlists()
                 .concatMap(wls ->
                         service.findWatchlist(watchlistId, wls, true)
-                                .concatMap(wl -> service.setWatchlistPriceData(wl, params, readRequest))
+                                .concatMap(wl -> service.setWatchlistPriceData(wl, params.getTickType(), readRequest))
                                 .map(wl -> new WatchlistFilesRequestComplete(wls, wl, params)))
                 .subscribe(complete -> {
                     EventBus.getDefault().post(complete);
