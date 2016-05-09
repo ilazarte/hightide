@@ -1,16 +1,16 @@
 package com.blm.hightide.events;
 
-import com.blm.hightide.model.TickType;
+import com.blm.hightide.model.AggType;
 
 public class FileLoadStart {
 
     private String symbol;
 
-    private TickType tickType;
+    private AggType aggType;
 
-    public FileLoadStart(String symbol, TickType tickType) {
+    public FileLoadStart(String symbol, AggType aggType) {
         this.symbol = symbol;
-        this.tickType = tickType;
+        this.aggType = aggType;
     }
 
     public String getSymbol() {
@@ -21,11 +21,11 @@ public class FileLoadStart {
         this.symbol = symbol;
     }
 
-    public TickType getTickType() {
-        return tickType;
+    public AggType getAggType() {
+        return aggType;
     }
 
-    public void setTickType(TickType tickType) {
-        this.tickType = tickType;
+    public void setAggType(AggType aggType) {
+        this.aggType = aggType;
     }
 }

@@ -1,18 +1,16 @@
 package com.blm.hightide.events;
 
-import com.blm.corals.Tick;
-import com.blm.hightide.model.StudyParams;
-import com.blm.hightide.model.TickType;
+import com.blm.hightide.model.AggType;
 
 public class TableLoadStart {
 
     private String symbol;
 
-    private TickType tickType;
+    private AggType aggType;
 
-    public TableLoadStart(String symbol, TickType tickType) {
+    public TableLoadStart(String symbol, AggType aggType) {
         this.symbol = symbol;
-        this.tickType = tickType;
+        this.aggType = aggType;
     }
 
     public String getSymbol() {
@@ -23,11 +21,11 @@ public class TableLoadStart {
         this.symbol = symbol;
     }
 
-    public TickType getTickType() {
-        return tickType;
+    public AggType getAggType() {
+        return aggType;
     }
 
-    public void setTickType(TickType tickType) {
-        this.tickType = tickType;
+    public void setAggType(AggType aggType) {
+        this.aggType = aggType;
     }
 }

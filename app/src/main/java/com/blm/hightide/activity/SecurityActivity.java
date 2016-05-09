@@ -57,7 +57,7 @@ public class SecurityActivity extends AbstractBaseActivity {
         StudyParams params = event.getParams();
 
         service.findSecurity(symbol)
-                .flatMap(security -> service.setStandardPriceData(security, params.getTickType(), true))
+                .flatMap(security -> service.setStandardPriceData(security, params.getAggType(), true))
                 .subscribe(security -> {
                     CombinedData data = service.getPriceAndAverage(security, params);
                     EventBus.getDefault().post(new SecurityChartDataAvailable(security, data, params));

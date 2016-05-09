@@ -16,7 +16,7 @@ import android.widget.TextView;
 import com.blm.hightide.R;
 import com.blm.hightide.events.FileDataAvailable;
 import com.blm.hightide.events.FileLoadStart;
-import com.blm.hightide.fragments.internal.AbstractTickTypeFragment;
+import com.blm.hightide.fragments.internal.AbstractAggTypeFragment;
 import com.blm.hightide.model.FileData;
 import com.blm.hightide.model.FileLine;
 
@@ -30,7 +30,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class FileFragment extends AbstractTickTypeFragment {
+public class FileFragment extends AbstractAggTypeFragment {
 
     @SuppressWarnings("unused")
     private static final String TAG = FileFragment.class.getSimpleName();
@@ -128,7 +128,7 @@ public class FileFragment extends AbstractTickTypeFragment {
         FileData fileData = event.getFileData();
         this.symbol = event.getSymbol();
 
-        updateTickType(event.getTickType());
+        updateAggType(event.getAggType());
         textView.setText(symbol);
         List<FileLine> lines = fileData.getLines();
         recyclerView.setAdapter(this.getAnimationAdapter(new Adapter(lines)));
@@ -144,7 +144,7 @@ public class FileFragment extends AbstractTickTypeFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_execute:
-                FileLoadStart event = new FileLoadStart(symbol, this.getTickType());
+                FileLoadStart event = new FileLoadStart(symbol, this.getAggType());
                 EventBus.getDefault().post(event);
                 break;
             default:

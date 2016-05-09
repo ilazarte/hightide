@@ -16,7 +16,7 @@ import com.blm.corals.Tick;
 import com.blm.hightide.R;
 import com.blm.hightide.events.TableLoadComplete;
 import com.blm.hightide.events.TableLoadStart;
-import com.blm.hightide.fragments.internal.AbstractTickTypeFragment;
+import com.blm.hightide.fragments.internal.AbstractAggTypeFragment;
 import com.blm.hightide.model.Security;
 import com.blm.hightide.model.TickType;
 
@@ -34,7 +34,7 @@ import java.util.Locale;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class TableFragment extends AbstractTickTypeFragment {
+public class TableFragment extends AbstractAggTypeFragment {
 
     @SuppressWarnings("unused")
     private static final String TAG = TableFragment.class.getSimpleName();
@@ -175,9 +175,9 @@ public class TableFragment extends AbstractTickTypeFragment {
         List<Tick> ticks = security.getStandardPriceData().getTicks();
         Collections.reverse(ticks);
 
-        this.updateTickType(event.getTickType());
+        this.updateAggType(event.getAggType());
         textView.setText(security.getSymbol());
-        table.setAdapter(this.getAnimationAdapter(new TickAdapter(ticks, this.getTickType())));
+        table.setAdapter(this.getAnimationAdapter(new TickAdapter(ticks, this.getAggType().getTickType())));
     }
 
     @Override
@@ -190,7 +190,7 @@ public class TableFragment extends AbstractTickTypeFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_execute:
-                EventBus.getDefault().post(new TableLoadStart(security.getSymbol(), this.getTickType()));
+                EventBus.getDefault().post(new TableLoadStart(security.getSymbol(), this.getAggType()));
                 break;
             default:
                 break;

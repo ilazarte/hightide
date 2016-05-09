@@ -10,8 +10,8 @@ import com.blm.hightide.events.FileDataAvailable;
 import com.blm.hightide.events.FileLoadStart;
 import com.blm.hightide.events.GlobalLayout;
 import com.blm.hightide.fragments.FileFragment;
+import com.blm.hightide.model.AggType;
 import com.blm.hightide.model.FileData;
-import com.blm.hightide.model.TickType;
 import com.blm.hightide.service.StockService;
 
 import org.greenrobot.eventbus.EventBus;
@@ -41,7 +41,7 @@ public class FileActivity extends AbstractBaseActivity {
     @SuppressWarnings("unused")
     public void onGlobalLayout(GlobalLayout event) {
         String symbol = this.getIntent().getExtras().getString(SECURITY_SYMBOL);
-        onFileLoadStart(new FileLoadStart(symbol, TickType.DAILY));
+        onFileLoadStart(new FileLoadStart(symbol, AggType.DAY));
     }
 
     /**
@@ -55,13 +55,13 @@ public class FileActivity extends AbstractBaseActivity {
 
         StockService service = this.getStockService();
         String symbol = event.getSymbol();
-        TickType tickType = event.getTickType();
+        AggType aggType = event.getAggType();
 
         service.findSecurity(symbol)
-                .flatMap(security -> service.setStandardPriceData(security, tickType, true))
+                .flatMap(security -> service.setStandardPriceData(security, aggType, true))
                 .subscribe(security -> {
-                    FileData fileData = service.getFileData(security, tickType);
-                    FileDataAvailable available = new FileDataAvailable(symbol, fileData, tickType);
+                    FileData fileData = service.getFileData(security, aggType);
+                    FileDataAvailable available = new FileDataAvailable(symbol, fileData, aggType);
                     EventBus.getDefault().post(available);
                 });
     }

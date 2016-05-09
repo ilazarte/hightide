@@ -58,7 +58,7 @@ public class RelativeChartActivity extends AbstractBaseActivity {
         StudyParams params = event.getParams();
 
         service.findWatchlist(watchlistId)
-                .flatMap(wl -> service.setWatchlistPriceData(wl, params.getTickType(), true))
+                .flatMap(wl -> service.setWatchlistPriceData(wl, params.getAggType(), true))
                 .subscribe(wl -> {
                     LineData data = service.getRelativeForAverage(wl, params);
                     EventBus.getDefault().post(new RelativeChartDataAvailable(wl, data, params));

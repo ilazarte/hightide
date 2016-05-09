@@ -12,8 +12,8 @@ import android.view.ViewGroup;
 import android.widget.Spinner;
 
 import com.blm.hightide.R;
+import com.blm.hightide.model.AggType;
 import com.blm.hightide.model.StudyParams;
-import com.blm.hightide.model.TickType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,8 +39,8 @@ public abstract class AbstractToolbarParamsFragment extends BaseFragment {
     @Bind(R.id.spinner_average_length)
     Spinner spinnerAverageLength;
 
-    @Bind(R.id.spinner_tick_type)
-    Spinner spinnerTickType;
+    @Bind(R.id.spinner_agg_type)
+    Spinner spinnerAggType;
 
     ViewStubCompat stub;
 
@@ -52,7 +52,7 @@ public abstract class AbstractToolbarParamsFragment extends BaseFragment {
 
     private boolean numberReset = true;
 
-    private boolean tickTypeReset = true;
+    private boolean aggTypeReset = true;
 
     @OnItemSelected(R.id.spinner_number)
     @SuppressWarnings("unused")
@@ -77,15 +77,12 @@ public abstract class AbstractToolbarParamsFragment extends BaseFragment {
     @OnItemSelected(R.id.spinner_tick_type)
     @SuppressWarnings("unused")
     void selectTickType(int position) {
-        if (tickTypeReset) {
-            tickTypeReset = false;
+        if (aggTypeReset) {
+            aggTypeReset = false;
             return;
         }
-        TickType tickType = TickType.values()[position];
-        params.setTickType(tickType);
-
-        params.setLength(TickType.DAILY.equals(tickType) ? 60 : 100);
-        updateParams(params);
+        AggType aggType = AggType.values()[position];
+        params.setAggType(aggType);
     }
 
     public void updateParams(StudyParams params) {
@@ -94,13 +91,9 @@ public abstract class AbstractToolbarParamsFragment extends BaseFragment {
         int lengthValue = numbers.indexOf(params.getLength());
         int avgLengthValue = numbers.indexOf(params.getAvgLength());
 
-        List<TickType> tickTypes = Arrays.asList(TickType.values());
-        TickType tickType = params.getTickType();
-        int tickTypeValue = tickTypes.indexOf(tickType);
-
         spinnerNumber.setSelection(lengthValue);
         spinnerAverageLength.setSelection(avgLengthValue);
-        spinnerTickType.setSelection(tickTypeValue);
+        spinnerAggType.setSelection(AggType.indexOf(params.getAggType()));
     }
 
     public StudyParams getParams() {
@@ -120,7 +113,7 @@ public abstract class AbstractToolbarParamsFragment extends BaseFragment {
 
         supportActionBar = this.getSupportActionBar(toolbar);
 
-        for (int i = 10; i < 121; i += 10) {
+        for (int i = 20; i < 121; i += 20) {
             numbers.add(i);
         }
 
@@ -128,7 +121,7 @@ public abstract class AbstractToolbarParamsFragment extends BaseFragment {
 
         spinnerNumber.setAdapter(this.getSimpleArrayAdapter(themedContext, numbers));
         spinnerAverageLength.setAdapter(this.getSimpleArrayAdapter(themedContext, numbers));
-        spinnerTickType.setAdapter(this.getSimpleArrayAdapter(themedContext, Arrays.asList(TickType.values())));
+        spinnerAggType.setAdapter(this.getSimpleArrayAdapter(themedContext, AggType.labels()));
 
         return view;
     }

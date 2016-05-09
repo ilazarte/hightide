@@ -1,17 +1,17 @@
 package com.blm.hightide.events;
 
+import com.blm.hightide.model.AggType;
 import com.blm.hightide.model.Security;
-import com.blm.hightide.model.TickType;
 
 public class TableLoadComplete {
 
     private Security security;
 
-    private TickType tickType;
+    private AggType aggType;
 
-    public TableLoadComplete(Security security, TickType tickType) {
+    public TableLoadComplete(Security security, AggType aggType) {
         this.security = security;
-        this.tickType = tickType;
+        this.aggType = aggType;
     }
 
     public Security getSecurity() {
@@ -22,11 +22,11 @@ public class TableLoadComplete {
         this.security = security;
     }
 
-    public TickType getTickType() {
-        return tickType;
+    public AggType getAggType() {
+        return aggType;
     }
 
-    public void setTickType(TickType tickType) {
-        this.tickType = tickType;
+    public void setAggType(AggType aggType) {
+        this.aggType = aggType;
     }
 }

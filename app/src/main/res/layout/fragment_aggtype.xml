@@ -15,14 +15,14 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
         
         <Spinner
-            android:id="@+id/spinner_tick_type"
+            android:id="@+id/spinner_agg_type"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
     </android.support.v7.widget.Toolbar>
 
     <android.support.v7.widget.ViewStubCompat
-        android:id="@+id/stub_ticktype"
+        android:id="@+id/stub_agg_type"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 

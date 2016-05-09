@@ -10,6 +10,7 @@ import com.blm.corals.Tick;
 import com.blm.corals.study.Operators;
 import com.blm.corals.study.window.Average;
 import com.blm.hightide.db.DatabaseHelper;
+import com.blm.hightide.model.AggType;
 import com.blm.hightide.model.FileData;
 import com.blm.hightide.model.FileLine;
 import com.blm.hightide.model.RelativeGridRow;
@@ -89,15 +90,15 @@ public class StockService {
      * This method sorts the watchlist securities by name.
      *
      * @param watchlist A watchlist containing securities without tick data.
-     * @param tickType The tick configuration to use for accessing data.
+     * @param aggType The tick configuration to use for accessing data.
      * @param readRequest A boolean to request a read only operation if possible.
      * @return a security with ticks populated observer
      */
-    public Observable<Watchlist> setWatchlistPriceData(Watchlist watchlist, TickType tickType, boolean readRequest) {
+    public Observable<Watchlist> setWatchlistPriceData(Watchlist watchlist, AggType aggType, boolean readRequest) {
 
         Observable<List<Security>> listObservable = Observable.from(watchlist.getSecurities())
                 .filter(Security::isEnabled)
-                .flatMap(security -> this.setStandardPriceData(security, tickType, readRequest)
+                .flatMap(security -> this.setStandardPriceData(security, aggType, readRequest)
                         .subscribeOn(Schedulers.io()))
                 .toSortedList((s1, s2) -> s1.getSymbol().compareTo(s2.getSymbol()));
 
@@ -185,17 +186,18 @@ public class StockService {
     /**
      * Set the price data for one security.
      * @param security A security containing symbol.
-     * @param tickType The time option to load
+     * @param aggType The time option to load
      * @param readRequest A boolean to request a read only operation if possible.
      * @return observable security
      */
-    public Observable<Security> setStandardPriceData(Security security, TickType tickType, boolean readRequest) {
+    public Observable<Security> setStandardPriceData(Security security, AggType aggType, boolean readRequest) {
 
         return Observable.just(security)
                 .map(sec -> {
 
                     StandardPriceData priceData = null;
                     File file = null;
+                    TickType tickType = aggType.getTickType();
                     boolean notexpired = false;
                     boolean read = false;
 
@@ -219,9 +221,9 @@ public class StockService {
                     }
 
                     if (read) {
-                        priceData = yahooPriceHelper.readCachePriceData(sec, tickType);
+                        priceData = yahooPriceHelper.readCachePriceData(sec, aggType);
                     } else {
-                        priceData = yahooPriceHelper.downloadAndCachePriceData(sec, tickType);
+                        priceData = yahooPriceHelper.downloadAndCachePriceData(sec, aggType);
                     }
 
                     sec.setStandardPriceData(priceData);
@@ -231,19 +233,15 @@ public class StockService {
 
     /**
      * @param security Using a populated instance, retrieve file data.
-     * @param tickType the type of tick file to load
+     * @param aggType the type of tick file to load
      * @return Loaded file data
      */
-    public FileData getFileData(Security security, TickType tickType) {
+    public FileData getFileData(Security security, AggType aggType) {
 
-
-        boolean daily = TickType.DAILY.equals(tickType);
-        String filename = daily ?
-                security.getDailyFilename() :
-                security.getIntradayFilename();
+        String filename = yahooPriceHelper.getAggFilename(security, aggType);
 
         List<FileLine> fileLines = new ArrayList<>();
-        PriceData priceData = yahooPriceHelper.readCachePriceData(security, tickType);
+        PriceData priceData = yahooPriceHelper.readCachePriceData(security, aggType);
         List<String> lines = yahooPriceHelper.read(filename);
 
         List<ReadError> errors = priceData.getErrors();
@@ -317,7 +315,7 @@ public class StockService {
         }
 
         int lastNTicks = params.getLength() - params.getAvgLength();
-        List<String> xvals = this.toXAxis(availableTicks, lastNTicks, params.getTickType());
+        List<String> xvals = this.toXAxis(availableTicks, lastNTicks, params.getAggType().getTickType());
 
         return new LineData(xvals, dataSets);
     }
@@ -337,7 +335,7 @@ public class StockService {
         int avgLen = params.getAvgLength();
         int rowCount = params.getTopLength();
 
-        boolean daily = TickType.DAILY.equals(params.getTickType());
+        boolean daily = TickType.DAILY.equals(params.getAggType().getTickType());
         String format = daily ? "MM-dd\nyyyy" : "MM-dd\nHH:mm";
 
         SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.US);
@@ -416,7 +414,7 @@ public class StockService {
 
         FrequencyFormatter formatter = new FrequencyFormatter();
 
-        boolean daily = TickType.DAILY.equals(params.getTickType());
+        boolean daily = TickType.DAILY.equals(params.getAggType().getTickType());
         String column = daily ? "adjclose" : "close";
         int lastN = params.getLength();
         int avgLen = params.getAvgLength();
@@ -457,7 +455,7 @@ public class StockService {
         lineData.addDataSet(study);
 
         int lastNTicks = lastN - avgLen;
-        List<String> xvals = this.toXAxis(security.getStandardPriceData().getTicks(), lastNTicks, params.getTickType());
+        List<String> xvals = this.toXAxis(security.getStandardPriceData().getTicks(), lastNTicks, params.getAggType().getTickType());
 
         CombinedData data = new CombinedData(xvals);
         data.setData(lineData);
@@ -475,7 +473,7 @@ public class StockService {
      */
     public List<Double> getCloseByAverage(List<Tick> ticks, StudyParams params) {
 
-        boolean daily = TickType.DAILY.equals(params.getTickType());
+        boolean daily = TickType.DAILY.equals(params.getAggType().getTickType());
         String data = daily ? "adjclose" : "close";
 
         List<Double> fullval = op.get(ticks, data);

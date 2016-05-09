@@ -6,17 +6,17 @@ public class StudyParams {
 
     private int avgLength = 20;
 
-    private TickType tickType = TickType.DAILY;
+    private AggType aggType = AggType.DAY;
 
     public StudyParams(int length, int avgLength) {
         this.length = length;
         this.avgLength = avgLength;
     }
 
-    public StudyParams(int length, int avgLength, TickType tickType) {
+    public StudyParams(int length, int avgLength, AggType aggType) {
         this.length = length;
         this.avgLength = avgLength;
-        this.tickType = tickType;
+        this.aggType = aggType;
     }
 
     public StudyParams() {
@@ -38,12 +38,12 @@ public class StudyParams {
         this.avgLength = avgLength;
     }
 
-    public TickType getTickType() {
-        return tickType;
+    public AggType getAggType() {
+        return aggType;
     }
 
-    public void setTickType(TickType tickType) {
-        this.tickType = tickType;
+    public void setAggType(AggType aggType) {
+        this.aggType = aggType;
     }
 
     @Override
@@ -51,7 +51,7 @@ public class StudyParams {
         return "StudyParams{" +
                 "length=" + length +
                 ", avgLength=" + avgLength +
-                ", tickType=" + tickType +
+                ", aggType=" + aggType +
                 '}';
     }
 }

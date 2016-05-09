@@ -1,8 +1,7 @@
 package com.blm.hightide.events;
 
+import com.blm.hightide.model.AggType;
 import com.blm.hightide.model.FileData;
-import com.blm.hightide.model.StudyParams;
-import com.blm.hightide.model.TickType;
 
 public class FileDataAvailable {
 
@@ -10,11 +9,11 @@ public class FileDataAvailable {
 
     private FileData fileData;
 
-    private TickType tickType;
+    private AggType aggType;
 
-    public FileDataAvailable(String symbol, FileData fileData, TickType tickType) {
+    public FileDataAvailable(String symbol, FileData fileData, AggType tickType) {
         this.symbol = symbol;
-        this.tickType = tickType;
+        this.aggType = tickType;
         this.fileData = fileData;
     }
 
@@ -34,11 +33,11 @@ public class FileDataAvailable {
         this.fileData = fileData;
     }
 
-    public TickType getTickType() {
-        return tickType;
+    public AggType getAggType() {
+        return aggType;
     }
 
-    public void setTickType(TickType tickType) {
-        this.tickType = tickType;
+    public void setAggType(AggType aggType) {
+        this.aggType = aggType;
     }
 }
