@@ -28,4 +28,12 @@ public class WatchlistLoadFilesStart {
     public void setParams(StudyParams params) {
         this.params = params;
     }
+
+    @Override
+    public String toString() {
+        return "WatchlistLoadFilesStart{" +
+                "watchlistId=" + watchlistId +
+                ", params=" + params +
+                '}';
+    }
 }

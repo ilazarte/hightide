@@ -31,6 +31,9 @@
         <activity android:name=".activity.FileActivity"/>
 
         <activity android:name=".activity.TableActivity"/>
+
+        <service android:name=".service.TickService"/>
+
     </application>
 
 </manifest>

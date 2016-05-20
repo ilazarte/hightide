@@ -5,12 +5,12 @@ import java.util.List;
 
 public enum AggType {
 
-    MONTH("Month", TickType.DAILY),
-    WEEK("Week", TickType.DAILY),
-    DAY("Day", TickType.DAILY),
-    MIN30("30 Min", TickType.INTRADAY),
-    MIN15("15 Min", TickType.INTRADAY),
-    MIN5("5 Min", TickType.INTRADAY);
+    MONTH("Month", TickType.DAILY, 1000 * 60 * 60 * 8),  // 8 hours
+    WEEK("Week", TickType.DAILY, 1000 * 60 * 60 * 4), // 4 hours
+    DAY("Day", TickType.DAILY, 1000 * 60 * 60), // 1 hour
+    MIN30("30 Min", TickType.INTRADAY, 1000 * 60 * 30), // 30 minutes
+    MIN15("15 Min", TickType.INTRADAY, 1000 * 60 * 15), // 15 minutes
+    MIN5("5 Min", TickType.INTRADAY, 1000 * 60 * 5); // 5 minutes
 
     /**
      * Label to use for ui
@@ -22,10 +22,16 @@ public enum AggType {
      */
     private TickType tickType;
 
+    /**
+     * TTL suggestion for a cache file based on this file data.
+     * May be ignored in the case of intraday
+     */
+    private long ttl;
 
-    AggType(String label, TickType tickType) {
+    AggType(String label, TickType tickType, long ttl) {
         this.label = label;
         this.tickType = tickType;
+        this.ttl = ttl;
     }
 
     /**
@@ -62,4 +68,9 @@ public enum AggType {
     public TickType getTickType() {
         return tickType;
     }
+
+    public long getTtl() {
+        return ttl;
+    }
+
 }

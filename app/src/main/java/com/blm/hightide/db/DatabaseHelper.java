@@ -116,6 +116,9 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         }
     }
 
+    /**
+     * @return a list of all watchlists in the system
+     */
     public List<Watchlist> findAllWatchlists() {
         RuntimeExceptionDao<Watchlist, Integer> watchlistDao = getDaoByKey(Watchlist.class, Integer.class);
         return watchlistDao.queryForAll();
@@ -124,6 +127,14 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     public Watchlist findWatchlist(int id) {
         RuntimeExceptionDao<Watchlist, Integer> watchlistDao = getDaoByKey(Watchlist.class, Integer.class);
         return watchlistDao.queryForId(id);
+    }
+
+    /**
+     * @return a list of all securities in the system
+     */
+    public List<Security> findAllSecurities() {
+        RuntimeExceptionDao<Security, String> securityDao = getDaoByKey(Security.class, String.class);
+        return securityDao.queryForAll();
     }
 
     /**

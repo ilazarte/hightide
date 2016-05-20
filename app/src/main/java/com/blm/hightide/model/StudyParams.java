@@ -2,7 +2,7 @@ package com.blm.hightide.model;
 
 public class StudyParams {
 
-    private int length = 60;
+    private int length = 80;
 
     private int avgLength = 20;
 

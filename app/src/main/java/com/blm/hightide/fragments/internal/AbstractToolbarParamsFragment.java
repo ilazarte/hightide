@@ -16,7 +16,6 @@ import com.blm.hightide.model.AggType;
 import com.blm.hightide.model.StudyParams;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import butterknife.Bind;
@@ -74,7 +73,7 @@ public abstract class AbstractToolbarParamsFragment extends BaseFragment {
         params.setAvgLength(numbers.get(position));
     }
 
-    @OnItemSelected(R.id.spinner_tick_type)
+    @OnItemSelected(R.id.spinner_agg_type)
     @SuppressWarnings("unused")
     void selectTickType(int position) {
         if (aggTypeReset) {
@@ -113,7 +112,7 @@ public abstract class AbstractToolbarParamsFragment extends BaseFragment {
 
         supportActionBar = this.getSupportActionBar(toolbar);
 
-        for (int i = 20; i < 121; i += 20) {
+        for (int i = 10; i < 121; i += 10) {
             numbers.add(i);
         }
 

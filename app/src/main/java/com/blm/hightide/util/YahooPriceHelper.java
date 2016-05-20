@@ -13,14 +13,15 @@ import com.blm.corals.provider.YahooTickReader;
 import com.blm.hightide.model.AggType;
 import com.blm.hightide.model.Security;
 import com.blm.hightide.model.TickType;
-import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
-import com.google.common.io.Files;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -41,19 +42,12 @@ public class YahooPriceHelper {
 
     private OkHttpClient client = new OkHttpClient();
 
-    private Charset utf8 = Charsets.UTF_8;
-
     private Context context;
     private YahooPriceURL urls = new YahooPriceURL();
     private YahooTickReader reader = new YahooTickReader();
 
     public YahooPriceHelper(Context context) {
         this.context = context;
-    }
-
-    public List<String> daily(String symbol) {
-        String url = urls.daily(symbol);
-        return download(url);
     }
 
     /**
@@ -79,11 +73,26 @@ public class YahooPriceHelper {
 
     public void write(List<String> lines, String filename) {
         File file = toFile(filename);
+        BufferedWriter bw = null;
         try {
-              Files.asCharSink(file, utf8).writeLines(lines, "\n");
+            bw = new BufferedWriter(new FileWriter(file));
+            for (String line : lines) {
+                bw.write(line);
+                bw.newLine();
+            }
+
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            if (bw != null) {
+                try {
+                    bw.close();
+                } catch (IOException e) {
+                    Log.e(TAG, "write: ", e);
+                }
+            }
         }
+
     }
 
     /**
@@ -143,10 +152,16 @@ public class YahooPriceHelper {
 
         File file = this.toFile(filename);
         Date date = new Date(file.lastModified());
+        Log.i(TAG, "readCachePriceData: event reading " + security.getSymbol());
+        long ts = System.currentTimeMillis();
         List<String> lines = this.read(filename);
-
+        Log.i(TAG, "readCachePriceData: event read.filename " + security.getSymbol() + ": " + (System.currentTimeMillis() - ts) + " millis of lines " + lines.size());
+        ts = System.currentTimeMillis();
         PriceData priceData = daily ? reader.daily(lines) : reader.intraday(lines);
+        Log.i(TAG, "readCachePriceData: event reader.daily/intraday " + security.getSymbol() + ": " + (System.currentTimeMillis() - ts) + " millis");
+        ts = System.currentTimeMillis();
         priceData = aggregate(priceData, aggType);
+        Log.i(TAG, "readCachePriceData: event aggregate " + security.getSymbol()  + ": " + (System.currentTimeMillis() - ts) + " millis");
 
         return new StandardPriceData(priceData, date);
     }
@@ -186,6 +201,8 @@ public class YahooPriceHelper {
             default:
                 throw new IllegalArgumentException("No aggregation for aggtype: " + aggType);
         }
+
+        /*System.out.println("new agg ticks: " + aggTicks);*/
 
         return new PriceData(aggTicks, priceData.getErrors());
     }
@@ -228,7 +245,9 @@ public class YahooPriceHelper {
                 timeval = cal.get(timeinterval);
             }
 
-            if (i != 0 && (i % interval == 0 || prevtimeval != timeval)) {
+            boolean newperiod = timeinterval != -1 ? prevtimeval != timeval : i % interval == 0;
+
+            if (i != 0 && newperiod) {
                 aggTick.setTimestamp(curr.getTimestamp());
                 aggTick.set("close", curr.get("close"));
                 aggTick.set("adjclose", curr.get("adjclose"));
@@ -275,12 +294,25 @@ public class YahooPriceHelper {
      * @return A list of strings of each line in the file
      */
     public List<String> read(String filename) {
+        BufferedReader bw = null;
         File file = toFile(filename);
-        List<String> lines;
+        List<String> lines = new ArrayList<>();
         try {
-            lines = Files.asCharSource(file, utf8).readLines();
+            bw = new BufferedReader(new FileReader(file));
+            String line;
+            while ((line = bw.readLine()) != null) {
+                lines.add(line);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            if (bw != null) {
+                try {
+                    bw.close();
+                } catch (IOException e) {
+                    Log.e(TAG, "read: ", e);
+                }
+            }
         }
         return lines;
     }
@@ -317,6 +349,6 @@ public class YahooPriceHelper {
     }
 
     public String getAggFilename(Security security, AggType aggType) {
-        return security.getSymbol() + "-" + aggType.name();
+        return security.getSymbol() + "-" + aggType.name() + ".csv";
     }
 }

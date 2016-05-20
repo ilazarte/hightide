@@ -56,7 +56,7 @@ public class StockService {
 
     private Operators<Double> op = Operators.doubles();
 
-    private DatabaseHelper helper;
+    private DatabaseHelper databaseHelper;
 
     private YahooPriceHelper yahooPriceHelper;
 
@@ -69,8 +69,8 @@ public class StockService {
      */
     public synchronized void resume(Context context) {
         this.yahooPriceHelper = new YahooPriceHelper(context);
-        if (helper == null) {
-            helper = OpenHelperManager.getHelper(context, DatabaseHelper.class);
+        if (databaseHelper == null) {
+            databaseHelper = OpenHelperManager.getHelper(context, DatabaseHelper.class);
         }
     }
 
@@ -79,7 +79,7 @@ public class StockService {
      * Essentially assumes application is being exited?
      */
     public void destroy() {
-        if (helper != null) {
+        if (databaseHelper != null) {
             OpenHelperManager.releaseHelper();
         }
     }
@@ -96,6 +96,8 @@ public class StockService {
      */
     public Observable<Watchlist> setWatchlistPriceData(Watchlist watchlist, AggType aggType, boolean readRequest) {
 
+        /*Log.i(TAG, "setWatchlistPriceData: event STARTING");*/
+
         Observable<List<Security>> listObservable = Observable.from(watchlist.getSecurities())
                 .filter(Security::isEnabled)
                 .flatMap(security -> this.setStandardPriceData(security, aggType, readRequest)
@@ -103,6 +105,8 @@ public class StockService {
                 .toSortedList((s1, s2) -> s1.getSymbol().compareTo(s2.getSymbol()));
 
         Observable<Watchlist> wlo = Observable.just(watchlist);
+
+        /*Log.i(TAG, "setWatchlistPriceData: event FINISHING");*/
 
         return Observable.zip(wlo, listObservable,
                 (wl, securities) -> {
@@ -120,7 +124,7 @@ public class StockService {
      */
     public Observable<List<Watchlist>> findWatchlists() {
         return Observable.defer(() -> {
-            List<Watchlist> allWatchlists = helper.findAllWatchlists();
+            List<Watchlist> allWatchlists = databaseHelper.findAllWatchlists();
             Collections.sort(allWatchlists, (wl1, wl2) -> wl1.getName().compareTo(wl2.getName()));
             return Observable.just(allWatchlists);
         });
@@ -161,14 +165,14 @@ public class StockService {
                     }
 
                 } else {
-                    wl = helper.findWatchlist(id);
+                    wl = databaseHelper.findWatchlist(id);
                 }
 
                 if (wl == null) {
                     return Observable.error(new IllegalStateException("No watchlist found with id " + id));
                 }
 
-                List<Security> securities = helper.findSecuritiesByWatchlist(wl);
+                List<Security> securities = databaseHelper.findSecuritiesByWatchlist(wl);
                 wl.setSecurities(securities);
                 return Observable.just(wl);
             });
@@ -180,7 +184,18 @@ public class StockService {
      * @return A light instance of a security.
      */
     public Observable<Security> findSecurity(String symbol) {
-        return Observable.defer(() -> Observable.just(helper.findSecurity(symbol)));
+        return Observable.defer(() -> Observable.just(databaseHelper.findSecurity(symbol)));
+    }
+
+    /**
+     * @return A sorted observable of all securities.
+     */
+    public Observable<List<Security>> findSecurities() {
+        return Observable.defer(() -> {
+            List<Security> securities = databaseHelper.findAllSecurities();
+            Collections.sort(securities, (s1, s2) -> s1.getSymbol().compareTo(s2.getSymbol()));
+            return Observable.just(securities);
+        });
     }
 
     /**
@@ -201,9 +216,10 @@ public class StockService {
                     boolean notexpired = false;
                     boolean read = false;
 
+                    file = yahooPriceHelper.toFile(yahooPriceHelper.getAggFilename(sec, aggType));
+
                     switch (tickType) {
                         case INTRADAY:
-                            file = yahooPriceHelper.toFile(sec.getIntradayFilename());
                             int minutemillis = 60 * 1000;
                             int fiveminutes = 5 * minutemillis;
                             notexpired = (System.currentTimeMillis() - file.lastModified()) < fiveminutes;
@@ -211,7 +227,6 @@ public class StockService {
 
                             break;
                         case DAILY:
-                            file = yahooPriceHelper.toFile(sec.getDailyFilename());
                             int hourmillis = 60 * 60 * 1000;
                             int fourhours = 4 * hourmillis;
                             notexpired = (System.currentTimeMillis() - file.lastModified()) < fourhours;
@@ -229,6 +244,45 @@ public class StockService {
                     sec.setStandardPriceData(priceData);
                     return sec;
                 });
+    }
+
+    /**
+     * Download entire database of items as per refresh schedule configured in AggType.
+     * @return true indicating success.
+     */
+    public boolean cacheTickSources() {
+
+        findSecurities()
+                .flatMapIterable(securities -> securities)
+                .flatMap(security -> Observable.zip(
+                        Observable.just(security),
+                        Observable.from(AggType.values()),
+                        (sec, aggType) -> downloadAndCachePriceData(sec, aggType)))
+                .subscribeOn(Schedulers.io())
+                .toList()
+                .toBlocking()
+                .subscribe(list -> {
+                    System.out.println("Price data has been refreshed: " + list.size());
+                });
+
+        return true;
+    }
+
+    public StandardPriceData downloadAndCachePriceData(Security sec, AggType aggType) {
+
+        StandardPriceData priceData;
+
+        File file = yahooPriceHelper.toFile(yahooPriceHelper.getAggFilename(sec, aggType));
+        boolean notexpired = (System.currentTimeMillis() - file.lastModified()) < aggType.getTtl();
+        boolean read = file.exists() && notexpired;
+
+        if (read) {
+            priceData = yahooPriceHelper.readCachePriceData(sec, aggType);
+        } else {
+            priceData = yahooPriceHelper.downloadAndCachePriceData(sec, aggType);
+        }
+
+        return priceData;
     }
 
     /**
@@ -421,6 +475,7 @@ public class StockService {
 
         int[] colorPalette = ColorBrewer.Accent.getColorPalette(2);
         List<Tick> ticks = security.getStandardPriceData().getTicks();
+        System.out.println(ticks);
 
         List<Double> fullval = op.get(ticks, column);
         List<Double> val = op.last(fullval, lastN);
@@ -455,7 +510,8 @@ public class StockService {
         lineData.addDataSet(study);
 
         int lastNTicks = lastN - avgLen;
-        List<String> xvals = this.toXAxis(security.getStandardPriceData().getTicks(), lastNTicks, params.getAggType().getTickType());
+        List<Tick> xAxisTicks = security.getStandardPriceData().getTicks();
+        List<String> xvals = this.toXAxis(xAxisTicks, lastNTicks, params.getAggType().getTickType());
 
         CombinedData data = new CombinedData(xvals);
         data.setData(lineData);
