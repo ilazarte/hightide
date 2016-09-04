@@ -152,16 +152,19 @@ public class YahooPriceHelper {
 
         File file = this.toFile(filename);
         Date date = new Date(file.lastModified());
-        Log.i(TAG, "readCachePriceData: event reading " + security.getSymbol());
+        /*Log.i(TAG, "readCachePriceData: event reading " + security.getSymbol());*/
+
         long ts = System.currentTimeMillis();
         List<String> lines = this.read(filename);
-        Log.i(TAG, "readCachePriceData: event read.filename " + security.getSymbol() + ": " + (System.currentTimeMillis() - ts) + " millis of lines " + lines.size());
+        /*Log.i(TAG, "readCachePriceData: event read.filename " + security.getSymbol() + ": " + (System.currentTimeMillis() - ts) + " millis of lines " + lines.size());*/
+
         ts = System.currentTimeMillis();
         PriceData priceData = daily ? reader.daily(lines) : reader.intraday(lines);
-        Log.i(TAG, "readCachePriceData: event reader.daily/intraday " + security.getSymbol() + ": " + (System.currentTimeMillis() - ts) + " millis");
+        /*Log.i(TAG, "readCachePriceData: event reader.daily/intraday " + security.getSymbol() + ": " + (System.currentTimeMillis() - ts) + " millis");*/
+
         ts = System.currentTimeMillis();
         priceData = aggregate(priceData, aggType);
-        Log.i(TAG, "readCachePriceData: event aggregate " + security.getSymbol()  + ": " + (System.currentTimeMillis() - ts) + " millis");
+        /*Log.i(TAG, "readCachePriceData: event aggregate " + security.getSymbol()  + ": " + (System.currentTimeMillis() - ts) + " millis");*/
 
         return new StandardPriceData(priceData, date);
     }
